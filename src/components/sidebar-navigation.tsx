@@ -2,20 +2,82 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/utils/supabase/client";
+import { AppRole, getProfileRole } from "@/utils/supabase/auth";
 
-const navigationItems = [
-  { label: "Dashboard", href: "/" },
-  { label: "Kelola Stok", href: "/inventory" },
-  { label: "Penjualan Online", href: "/penjualan-online" },
-  { label: "Portal Mitra", href: "/portal-mitra" },
-];
+type NavigationItem = { label: string; href: string };
 
 export default function SidebarNavigation() {
   const pathname = usePathname();
   const router = useRouter();
+  const [role, setRole] = useState<AppRole | null>(null);
+  const [navigationItems, setNavigationItems] = useState<NavigationItem[]>([]);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  useEffect(() => {
+    if (
+      pathname === "/login" ||
+      pathname === "/partner" || pathname.startsWith("/partner/") ||
+      pathname === "/dashboard" || pathname.startsWith("/dashboard/") ||
+      pathname === "/store" || pathname.startsWith("/store/")
+    ) return;
+    let isActive = true;
+
+    async function loadNavigation() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          router.replace("/login");
+          return;
+        }
+
+        const userRole = await getProfileRole(supabase, user.id);
+        if (!userRole) {
+          router.replace("/login?error=profile");
+          return;
+        }
+
+        if (!isActive) return;
+        setRole(userRole);
+
+        if (userRole === "mitra") {
+          const { data: stores } = await supabase
+            .from("partner_stores")
+            .select("id, name")
+            .eq("owner_id", user.id)
+            .order("name", { ascending: true });
+          if (!isActive) return;
+
+          const storeItems = (stores ?? []).map((store) => ({
+            label: (stores ?? []).length === 1 ? "Laporan Penjualan Toko Saya" : `Laporan ${store.name}`,
+            href: `/store/${store.id}`,
+          }));
+          setNavigationItems([
+            { label: "Dashboard Mitra", href: "/dashboard" },
+            ...storeItems,
+          ]);
+          return;
+        }
+
+        setNavigationItems([
+          { label: "Dashboard Utama", href: "/" },
+          { label: "Kelola Stok Keseluruhan", href: "/inventory" },
+          { label: "Alokasi Stok", href: "/alokasi" },
+          { label: "Manajemen Mitra", href: "/mitra" },
+          { label: "Laporan Penjualan", href: "/penjualan" },
+        ]);
+      } catch {
+        if (isActive) router.replace("/login?error=profile");
+      }
+    }
+
+    void loadNavigation();
+    return () => {
+      isActive = false;
+    };
+  }, [pathname, router]);
 
   async function handleLogout() {
     setIsLoggingOut(true);
@@ -29,7 +91,12 @@ export default function SidebarNavigation() {
     router.refresh();
   }
 
-  if (pathname === "/login") return null;
+  if (
+    pathname === "/login" ||
+    pathname === "/partner" || pathname.startsWith("/partner/") ||
+    pathname === "/dashboard" || pathname.startsWith("/dashboard/") ||
+    pathname === "/store" || pathname.startsWith("/store/")
+  ) return null;
 
   return (
     <aside className="flex w-full flex-col bg-[#173b32] text-white lg:min-h-screen lg:w-64 lg:shrink-0">
@@ -45,7 +112,7 @@ export default function SidebarNavigation() {
 
       <nav aria-label="Navigasi utama" className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:px-4">
         {navigationItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`));
 
           return (
             <Link
@@ -63,6 +130,9 @@ export default function SidebarNavigation() {
             </Link>
           );
         })}
+        {role === "mitra" && navigationItems.length === 1 && (
+          <p className="px-3 py-2 text-xs text-white/55">Belum ada toko yang ditugaskan.</p>
+        )}
       </nav>
 
       <div className="mt-auto border-t border-white/10 px-4 py-4 lg:px-6 lg:py-5">

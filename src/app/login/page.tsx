@@ -1,13 +1,20 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/utils/supabase/client";
+import { getProfileRole, getRoleHomePath } from "@/utils/supabase/auth";
 
 export default function LoginPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("error") === "profile") {
+      setErrorMessage("Role akun belum terdaftar. Hubungi administrator.");
+    }
+  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -20,13 +27,34 @@ export default function LoginPage() {
     const supabase = createSupabaseBrowserClient();
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
+      const role = await getProfileRole(supabase, data.user.id);
+      if (!role) {
+        await supabase.auth.signOut();
+        throw new Error("Role akun belum terdaftar. Hubungi administrator.");
+      }
+
       const nextPath = new URLSearchParams(window.location.search).get("next");
-      const redirectPath = nextPath?.startsWith("/") && !nextPath.startsWith("//")
-        ? nextPath
-        : "/";
+      const safeNextPath = nextPath?.startsWith("/") && !nextPath.startsWith("//") ? nextPath : null;
+      const nextIsAdmin =
+        safeNextPath === "/" ||
+        safeNextPath?.startsWith("/inventory") ||
+        safeNextPath?.startsWith("/mitra") ||
+        safeNextPath?.startsWith("/penjualan") ||
+        safeNextPath?.startsWith("/admin/") ||
+        safeNextPath?.startsWith("/api/products");
+      const nextIsPartner =
+        safeNextPath === "/partner" ||
+        safeNextPath?.startsWith("/partner/") ||
+        safeNextPath?.startsWith("/dashboard") ||
+        safeNextPath?.startsWith("/store/") ||
+        safeNextPath?.startsWith("/api/partner/");
+      const nextMatchesRole = role === "mitra" ? nextIsPartner : nextIsAdmin;
+      const redirectPath = safeNextPath && nextMatchesRole
+        ? safeNextPath
+        : getRoleHomePath(role);
       router.replace(redirectPath);
       router.refresh();
     } catch (error) {
