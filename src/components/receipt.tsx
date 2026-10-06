@@ -1,6 +1,7 @@
 "use client";
 
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 export type ReceiptData = {
   storeName: string;
@@ -27,13 +28,19 @@ const currencyFormatter = new Intl.NumberFormat("id-ID", {
 });
 
 const ThermalReceipt = forwardRef<HTMLDivElement, ReceiptProps>(({ data }, ref) => {
-  if (!data) return null;
+  const [mounted, setMounted] = useState(false);
 
-  return (
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!data || !mounted) return null;
+
+  const content = (
     <div
       ref={ref}
-      // This div will only be visible when printed, and hidden on the screen
-      className="hidden print:block print:w-[58mm] print:text-black print:text-[12px] print:leading-[1.2] print:font-mono print:bg-white print:m-0 print:p-2"
+      id="printable-receipt"
+      className="hidden print:block"
     >
       <div className="text-center mb-3">
         <h1 className="font-bold text-lg mb-1">{data.storeName}</h1>
@@ -87,6 +94,8 @@ const ThermalReceipt = forwardRef<HTMLDivElement, ReceiptProps>(({ data }, ref) 
       <div className="break-after-page"></div>
     </div>
   );
+
+  return createPortal(content, document.body);
 });
 
 ThermalReceipt.displayName = "ThermalReceipt";

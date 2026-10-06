@@ -17,3 +17,26 @@ body {
     text-wrap: balance;
   }
 }
+
+@media print {
+  /* Hilangkan margin bawaan browser */
+  @page {
+    margin: 0;
+  }
+
+  /* Sembunyikan SEMUA elemen secara mutlak */
+  body > * {
+    display: none !important;
+  }
+
+  /* Munculkan HANYA kotak struk */
+  #printable-receipt {
+    display: block !important;
+    width: 58mm; /* Lebar standar kasir */
+    margin: 0;
+    padding: 5mm;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    color: black;
+  }
+}
