@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/utils/supabase/database.types";
 import { getProfileRole, type AppRole } from "@/utils/supabase/auth";
@@ -9,9 +9,27 @@ const adminRoutePrefixes = [
   "/penjualan",
   "/mitra",
   "/inventory",
+  "/produk",
   "/api/products",
   "/api/admin",
 ];
+
+/**
+ * Hilangkan maxAge dan expires dari opsi cookie agar cookie menjadi
+ * session cookie murni — terhapus otomatis saat browser ditutup.
+ * Penting: panggil ini pada SETIAP cookie yang di-set oleh middleware
+ * agar proses token-refresh tidak "mengembalikan" persistensi.
+ */
+function asSessionCookie(options: CookieOptions): CookieOptions {
+  const { maxAge: _maxAge, expires: _expires, ...rest } = options;
+  return {
+    ...rest,
+    sameSite: rest.sameSite ?? "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: rest.path ?? "/",
+    // maxAge & expires sengaja tidak di-set → menjadi session cookie
+  };
+}
 
 function copyCookies(source: NextResponse, destination: NextResponse) {
   source.cookies.getAll().forEach((cookie) => destination.cookies.set(cookie));
@@ -39,9 +57,13 @@ export async function middleware(request: NextRequest) {
         return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
+        // Strip maxAge/expires agar refresh token tidak membuat cookie
+        // kembali persisten setelah proses rotasi token oleh middleware.
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+        cookiesToSet.forEach(({ name, value, options }) =>
+          response.cookies.set(name, value, asSessionCookie(options)),
+        );
       },
     },
   });

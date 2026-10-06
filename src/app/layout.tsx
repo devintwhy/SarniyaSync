@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import SidebarNavigation from "@/components/sidebar-navigation";
+import SessionWatchdog from "@/components/session-watchdog";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -32,6 +33,7 @@ export default function RootLayout({
         <div className="flex min-h-screen flex-col lg:flex-row">
           <SidebarNavigation />
           <main className="min-w-0 flex-1">{children}</main>
+          <SessionWatchdog idleMinutes={30} warningSeconds={60} />
         </div>
       </body>
     </html>

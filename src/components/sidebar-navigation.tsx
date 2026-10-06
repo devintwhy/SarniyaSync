@@ -63,6 +63,7 @@ export default function SidebarNavigation() {
 
         setNavigationItems([
           { label: "Dashboard Utama", href: "/" },
+          { label: "Katalog Produk", href: "/produk" },
           { label: "Kelola Stok Keseluruhan", href: "/inventory" },
           { label: "Alokasi Stok", href: "/alokasi" },
           { label: "Manajemen Mitra", href: "/mitra" },

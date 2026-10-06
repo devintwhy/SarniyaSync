@@ -94,10 +94,21 @@ export default async function AdminSalesPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-      <header className="mb-8">
-        <p className="mb-2 text-sm font-medium text-[#557b64]">Area Pemilik/Admin</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-[#173b32]">Laporan Penjualan</h1>
-        <p className="mt-2 text-sm text-[#68756e]">Ringkasan transaksi dari seluruh toko mitra.</p>
+      <header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+          <p className="mb-2 text-sm font-medium text-[#557b64]">Area Pemilik/Admin</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#173b32]">Laporan Penjualan</h1>
+          <p className="mt-2 text-sm text-[#68756e]">Ringkasan transaksi dari seluruh toko mitra.</p>
+        </div>
+        <a
+          href="/api/export-sales"
+          className="inline-flex min-h-10 items-center justify-center self-start rounded-xl bg-[#285b46] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#1f4938] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6e9a75] sm:self-auto"
+        >
+          <svg className="mr-2" width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Download Laporan (CSV)
+        </a>
       </header>
 
       <section aria-label="Ringkasan omset" className="mb-6 grid gap-4 sm:grid-cols-2">
