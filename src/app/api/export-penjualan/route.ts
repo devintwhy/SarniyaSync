@@ -40,7 +40,7 @@ export async function GET() {
     for (const tx of transactions ?? []) {
       const storeName = Array.isArray(tx.partner_stores)
         ? tx.partner_stores[0]?.name
-        : tx.partner_stores?.name || "Unknown Store";
+        : tx.partner_stores?.name || "Unknown Store";==
 
       const txDate = new Date(tx.sold_at).toLocaleString("id-ID");
       
