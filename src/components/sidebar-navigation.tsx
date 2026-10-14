@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/utils/supabase/client";
@@ -17,9 +18,9 @@ export default function SidebarNavigation() {
 
   useEffect(() => {
     if (
-      pathname === "/login" ||
+      pathname === "/login" || pathname === "/register" ||
       pathname === "/partner" || pathname.startsWith("/partner/") ||
-      pathname === "/dashboard" || pathname.startsWith("/dashboard/") ||
+      pathname === "/dashboard-mitra" || pathname.startsWith("/dashboard-mitra/") ||
       pathname === "/store" || pathname.startsWith("/store/")
     ) return;
     let isActive = true;
@@ -55,19 +56,23 @@ export default function SidebarNavigation() {
             href: `/store/${store.id}`,
           }));
           setNavigationItems([
-            { label: "Dashboard Mitra", href: "/dashboard" },
+            { label: "Dashboard Mitra", href: "/dashboard-mitra" },
+            { label: "Kasir", href: "/partner/kasir" },
+            { label: "Riwayat Transaksi", href: "/partner/transaksi" },
             ...storeItems,
+            { label: "Pengaturan Akun", href: "/partner/profil" },
           ]);
           return;
         }
 
         setNavigationItems([
-          { label: "Dashboard Utama", href: "/" },
+          { label: "Dashboard Utama", href: "/dashboard" },
           { label: "Katalog Produk", href: "/produk" },
           { label: "Kelola Stok Keseluruhan", href: "/inventory" },
           { label: "Alokasi Stok", href: "/alokasi" },
           { label: "Manajemen Mitra", href: "/mitra" },
           { label: "Laporan Penjualan", href: "/penjualan" },
+          { label: "Pengaturan Akun", href: "/profil" },
         ]);
       } catch {
         if (isActive) router.replace("/login?error=profile");
@@ -93,17 +98,24 @@ export default function SidebarNavigation() {
   }
 
   if (
-    pathname === "/login" ||
+    pathname === "/login" || pathname === "/register" ||
     pathname === "/partner" || pathname.startsWith("/partner/") ||
-    pathname === "/dashboard" || pathname.startsWith("/dashboard/") ||
+    pathname === "/dashboard-mitra" || pathname.startsWith("/dashboard-mitra/") ||
     pathname === "/store" || pathname.startsWith("/store/")
   ) return null;
 
   return (
-    <aside className="flex w-full flex-col bg-[#173b32] text-white lg:min-h-screen lg:w-64 lg:shrink-0">
+    <aside className="flex w-full flex-col bg-[#1e242d] text-white lg:min-h-screen lg:w-64 lg:shrink-0">
       <div className="flex items-center gap-3 px-6 py-5 lg:py-8">
-        <div className="flex size-10 items-center justify-center rounded-lg bg-[#d9f27e] text-lg font-bold text-[#173b32]">
-          S
+        <div className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/10 p-1 shadow-sm">
+          <Image
+            src="/logo-sarniya.png"
+            alt="Logo SarniyaSync"
+            width={40}
+            height={40}
+            className="h-full w-full object-contain"
+            priority
+          />
         </div>
         <div>
           <p className="text-lg font-semibold tracking-tight">SarniyaSync</p>
@@ -126,7 +138,7 @@ export default function SidebarNavigation() {
                   : "text-white/65 hover:bg-white/8 hover:text-white"
               }`}
             >
-              <span className="size-1.5 rounded-full bg-[#d9f27e]" aria-hidden="true" />
+              <span className="size-1.5 rounded-full bg-[#cc8c7d]" aria-hidden="true" />
               {item.label}
             </Link>
           );

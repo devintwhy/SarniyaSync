@@ -1,20 +1,25 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/utils/supabase/client";
 
 const partnerRoutes = {
-  dashboard: "/partner",
+  dashboard: "/dashboard-mitra",
+  kasir: "/partner/kasir",
   stock: "/partner/stok",
   transactions: "/partner/transaksi",
+  profile: "/partner/profil",
 } as const;
 
 const navigationItems = [
   { label: "Dashboard", href: partnerRoutes.dashboard },
+  { label: "Kasir", href: partnerRoutes.kasir },
   { label: "Stok Toko", href: partnerRoutes.stock },
   { label: "Riwayat Transaksi", href: partnerRoutes.transactions },
+  { label: "Pengaturan Akun", href: partnerRoutes.profile },
 ];
 
 export default function PartnerNavigation() {
@@ -40,9 +45,18 @@ export default function PartnerNavigation() {
   }
 
   return (
-    <aside className="flex w-full flex-col bg-[#173b32] text-white lg:min-h-screen lg:w-64 lg:shrink-0">
+    <aside className="flex w-full flex-col bg-[#1e242d] text-white lg:min-h-screen lg:w-64 lg:shrink-0">
       <div className="flex items-center gap-3 px-6 py-5 lg:py-8">
-        <div className="flex size-10 items-center justify-center rounded-lg bg-[#d9f27e] text-lg font-bold text-[#173b32]">S</div>
+        <div className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/10 p-1 shadow-sm">
+          <Image
+            src="/logo-sarniya.png"
+            alt="Logo SarniyaSync"
+            width={40}
+            height={40}
+            className="h-full w-full object-contain"
+            priority
+          />
+        </div>
         <div>
           <p className="text-lg font-semibold">SarniyaSync</p>
           <p className="text-xs text-white/60">Portal Mitra</p>
@@ -51,7 +65,10 @@ export default function PartnerNavigation() {
 
       <nav aria-label="Navigasi Mitra" className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:px-4">
         {navigationItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isActive =
+            pathname === item.href ||
+            pathname.startsWith(`${item.href}/`) ||
+            (item.href === "/dashboard-mitra" && pathname === "/partner");
           return (
             <Link
               key={item.href}
@@ -59,7 +76,7 @@ export default function PartnerNavigation() {
               aria-current={isActive ? "page" : undefined}
               className={`flex shrink-0 items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors lg:w-full ${isActive ? "bg-white/12 font-medium text-white" : "text-white/65 hover:bg-white/8 hover:text-white"}`}
             >
-              <span className="size-1.5 rounded-full bg-[#d9f27e]" aria-hidden="true" />
+              <span className="size-1.5 rounded-full bg-[#cc8c7d]" aria-hidden="true" />
               {item.label}
             </Link>
           );

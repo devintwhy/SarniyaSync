@@ -1,6 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import AddProductModal from "./add-product-modal";
+import ProductTableClient from "./product-table-client";
 
 export const metadata = {
   title: "Katalog Produk | SarniyaSync",
@@ -78,11 +79,13 @@ export default async function ProdukPage() {
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-1.5 text-sm font-medium text-[#557b64]">Area Owner</p>
-          <h1 className="text-3xl font-semibold tracking-tight text-[#173b32]">
+          <span className="inline-block rounded-full bg-[#f7e4d4] px-3.5 py-1 text-xs font-bold text-[#9d5c4c]">
+            Area Pemilik / Administrator
+          </span>
+          <h1 className="mt-2 text-3xl sm:text-4xl font-black tracking-tight text-[#2d3440]">
             Katalog Produk
           </h1>
-          <p className="mt-2 text-sm text-[#68756e]">
+          <p className="mt-1 text-sm sm:text-base text-[#6d7687]">
             Kelola seluruh produk — harga modal, harga jual, dan stok pusat.
           </p>
         </div>
@@ -94,11 +97,11 @@ export default async function ProdukPage() {
       {/* ── Tabel Produk ───────────────────────────────────────────────────── */}
       <section
         aria-label="Daftar produk"
-        className="overflow-hidden rounded-xl border border-[#e1e7e0] bg-white shadow-sm shadow-[#173b32]/5"
+        className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm"
       >
-        <div className="flex items-center justify-between border-b border-[#edf0ec] px-5 py-4">
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
           <div>
-            <h2 className="font-semibold text-[#173b32]">Semua Produk</h2>
+            <h2 className="text-lg font-bold text-[#2d3440]">Semua Produk</h2>
             <p className="mt-0.5 text-sm text-[#7b877f]">
               {products ? `${products.length} produk terdaftar` : "Memuat data..."}
             </p>
@@ -113,112 +116,7 @@ export default async function ProdukPage() {
           )}
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px] text-left text-sm">
-            <thead className="bg-[#f7f9f6] text-xs uppercase tracking-wide text-[#68756e]">
-              <tr>
-                <th scope="col" className="px-5 py-3.5 font-medium">
-                  Nama Produk / SKU
-                </th>
-                <th scope="col" className="px-5 py-3.5 font-medium">
-                  Kategori
-                </th>
-                <th scope="col" className="px-5 py-3.5 text-right font-medium">
-                  Harga Modal
-                </th>
-                <th scope="col" className="px-5 py-3.5 text-right font-medium">
-                  Harga Jual
-                </th>
-                <th scope="col" className="px-5 py-3.5 text-right font-medium">
-                  Stok Pusat
-                </th>
-                <th scope="col" className="px-5 py-3.5 font-medium">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#edf0ec]">
-              {!products || products.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-5 py-12 text-center text-sm text-[#7b877f]"
-                  >
-                    {error
-                      ? "Terjadi kesalahan saat memuat produk."
-                      : "Belum ada produk. Klik \u00abTambah Produk\u00bb untuk memulai."}
-                  </td>
-                </tr>
-              ) : (
-                products.map((product) => {
-                  const isLowStock = product.stock_quantity <= 5;
-                  return (
-                    <tr
-                      key={product.id}
-                      className="transition-colors hover:bg-[#fafbf9]"
-                    >
-                      {/* Nama / SKU */}
-                      <td className="px-5 py-4">
-                        <p className="font-medium text-[#293a32]">{product.name}</p>
-                        <p className="mt-0.5 text-xs text-[#7b877f]">{product.sku}</p>
-                      </td>
-
-                      {/* Kategori */}
-                      <td className="whitespace-nowrap px-5 py-4">
-                        <span className="inline-flex items-center rounded-full bg-[#edf5e8] px-2.5 py-0.5 text-xs font-medium text-[#315d3e]">
-                          {product.category}
-                        </span>
-                      </td>
-
-                      {/* Harga Modal */}
-                      <td className="whitespace-nowrap px-5 py-4 text-right tabular-nums text-[#52645a]">
-                        {formatRupiah(product.cost_price)}
-                      </td>
-
-                      {/* Harga Jual */}
-                      <td className="whitespace-nowrap px-5 py-4 text-right tabular-nums font-medium text-[#293a32]">
-                        {formatRupiah(product.selling_price)}
-                      </td>
-
-                      {/* Stok */}
-                      <td className="whitespace-nowrap px-5 py-4 text-right">
-                        <span
-                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums ${
-                            isLowStock
-                              ? "bg-[#fff5f1] text-[#9b4936]"
-                              : "bg-[#edf5e8] text-[#315d3e]"
-                          }`}
-                        >
-                          {isLowStock && (
-                            <span aria-hidden="true" className="size-1.5 rounded-full bg-[#9b4936]" />
-                          )}
-                          {product.stock_quantity} pcs
-                        </span>
-                      </td>
-
-                      {/* Status */}
-                      <td className="whitespace-nowrap px-5 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 text-xs font-medium ${
-                            product.is_active ? "text-[#315d3e]" : "text-[#7b877f]"
-                          }`}
-                        >
-                          <span
-                            aria-hidden="true"
-                            className={`size-2 rounded-full ${
-                              product.is_active ? "bg-[#4caf50]" : "bg-[#b0bab6]"
-                            }`}
-                          />
-                          {product.is_active ? "Aktif" : "Nonaktif"}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+        <ProductTableClient products={(products ?? []) as any} errorMessage={error?.message} />
       </section>
     </div>
   );

@@ -137,9 +137,9 @@ export default function SessionWatchdog({
       aria-modal="true"
       aria-labelledby="idle-warning-title"
       aria-describedby="idle-warning-desc"
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#173b32]/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#9d5c4c]/60 backdrop-blur-sm"
     >
-      <div className="mx-4 w-full max-w-sm rounded-2xl border border-[#e1e7e0] bg-white p-6 shadow-2xl shadow-[#173b32]/30">
+      <div className="mx-4 w-full max-w-sm rounded-2xl border border-[#e1e7e0] bg-white p-6 shadow-2xl shadow-[#9d5c4c]/30">
         {/* Ikon peringatan */}
         <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-[#fff9ef]">
           <svg
@@ -161,7 +161,7 @@ export default function SessionWatchdog({
 
         <h2
           id="idle-warning-title"
-          className="text-lg font-semibold text-[#173b32]"
+          className="text-lg font-semibold text-[#9d5c4c]"
         >
           Sesi akan berakhir
         </h2>
@@ -173,7 +173,7 @@ export default function SessionWatchdog({
         <p
           aria-live="assertive"
           aria-atomic="true"
-          className="my-5 text-center text-5xl font-bold tabular-nums text-[#173b32]"
+          className="my-5 text-center text-5xl font-bold tabular-nums text-[#9d5c4c]"
         >
           {countdown}
           <span className="ml-1 text-xl font-normal text-[#68756e]">dtk</span>
@@ -184,14 +184,14 @@ export default function SessionWatchdog({
           <button
             type="button"
             onClick={resetTimer}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#285b46] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#1f4938] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6e9a75]"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-sm font-semibold text-white transition-colors hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cc9787]"
           >
             Saya masih aktif — Lanjutkan
           </button>
           <button
             type="button"
             onClick={() => void doLogout()}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#d9e1d9] px-4 text-sm font-medium text-[#52645a] transition-colors hover:bg-[#f7f9f6]"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-medium text-[#576071] transition-colors hover:bg-slate-50"
           >
             Keluar sekarang
           </button>

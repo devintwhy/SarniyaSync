@@ -40,7 +40,11 @@ export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const isApiRoute = pathname.startsWith("/api/");
 
-  if (pathname.startsWith("/login")) return NextResponse.next();
+// Izinkan halaman login dan registrasi publik
+  if (pathname.startsWith("/login") || pathname.startsWith("/register")) {
+    return NextResponse.next();
+  }
+
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -75,7 +79,9 @@ export async function middleware(request: NextRequest) {
     }
 
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("next", `${pathname}${search}`);
+    if (pathname !== "/") {
+      loginUrl.searchParams.set("next", `${pathname}${search}`);
+    }
     return copyCookies(response, NextResponse.redirect(loginUrl));
   }
 
@@ -95,14 +101,26 @@ export async function middleware(request: NextRequest) {
       : new NextResponse("Role pengguna belum terdaftar di tabel profiles.", { status: 403 });
   }
 
-  const isPartnerRoute = pathname.startsWith("/partner");
+  const isPartnerRoute =
+    pathname.startsWith("/partner") ||
+    pathname === "/dashboard-mitra" ||
+    pathname.startsWith("/dashboard-mitra/") ||
+    pathname === "/beranda" ||
+    pathname.startsWith("/beranda/");
   const isLegacyPartnerRoute = pathname.startsWith("/store") || pathname.startsWith("/api/partner");
-  const isAdminRoute = pathname === "/" || adminRoutePrefixes.some((prefix) => pathname.startsWith(prefix));
+  const isAdminRoute = pathname === "/" || pathname.startsWith("/profil") || adminRoutePrefixes.some((prefix) => pathname.startsWith(prefix));
 
   if (role === "mitra") {
     if (isPartnerRoute) return response;
-    if (pathname.startsWith("/dashboard")) {
-      return copyCookies(response, NextResponse.redirect(new URL("/partner", request.url)));
+    if (pathname === "/kasir" || pathname.startsWith("/kasir/")) {
+      return copyCookies(response, NextResponse.redirect(new URL("/partner/kasir", request.url)));
+    }
+    if (pathname === "/transaksi" || pathname.startsWith("/transaksi/")) {
+      return copyCookies(response, NextResponse.redirect(new URL("/partner/transaksi", request.url)));
+    }
+    if (pathname.startsWith("/profil")) return response; // profil diakses semua role
+    if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
+      return copyCookies(response, NextResponse.redirect(new URL("/dashboard-mitra", request.url)));
     }
     if (isLegacyPartnerRoute) return response;
     if (isApiRoute) {
@@ -118,8 +136,8 @@ export async function middleware(request: NextRequest) {
     return copyCookies(response, NextResponse.redirect(new URL("/dashboard", request.url)));
   }
 
-  if (pathname.startsWith("/dashboard")) {
-    return copyCookies(response, NextResponse.rewrite(new URL("/", request.url)));
+  if (pathname === "/") {
+    return copyCookies(response, NextResponse.redirect(new URL("/dashboard", request.url)));
   }
 
   if (isAdminRoute) return response;

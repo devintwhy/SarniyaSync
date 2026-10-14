@@ -139,9 +139,11 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
     <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
       <header className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-2 text-sm font-medium text-[#557b64]">Area Owner</p>
-          <h1 className="text-3xl font-semibold tracking-tight text-[#173b32]">Kelola Stok</h1>
-          <p className="mt-2 text-sm text-[#68756e]">Daftar produk dan ketersediaan stok.</p>
+          <span className="inline-block rounded-full bg-[#f7e4d4] px-3.5 py-1 text-xs font-bold text-[#9d5c4c]">
+            Area Pemilik / Administrator
+          </span>
+          <h1 className="mt-2 text-3xl sm:text-4xl font-black tracking-tight text-[#2d3440]">Kelola Stok</h1>
+          <p className="mt-1 text-sm sm:text-base text-[#6d7687]">Daftar produk dan ketersediaan stok pusat.</p>
         </div>
         <div className="flex items-center justify-between gap-4 sm:justify-end">
           <p className="text-sm text-[#68756e]" aria-live="polite">
@@ -149,7 +151,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
           </p>
           <Link
             href="/inventory/tambah"
-            className="inline-flex min-h-10 items-center justify-center rounded-md bg-[#285b46] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1f4938] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6e9a75] focus-visible:ring-offset-2"
+            className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-5 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:brightness-105 active:scale-[0.99]"
           >
             Tambah Produk
           </Link>
@@ -165,7 +167,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
           <button
             type="button"
             onClick={() => setSuccessMessage("")}
-            className="font-medium underline underline-offset-2 hover:text-[#173b32]"
+            className="font-medium underline underline-offset-2 hover:text-[#9d5c4c]"
           >
             Tutup
           </button>
@@ -183,7 +185,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
         className="mb-5 flex flex-col gap-3 rounded-md border border-[#e1e7e0] bg-white p-4 sm:flex-row sm:items-end"
       >
         <div className="min-w-0 flex-1">
-          <label htmlFor="inventory-search" className="mb-1.5 block text-xs font-medium text-[#52645a]">
+          <label htmlFor="inventory-search" className="mb-1.5 block text-xs font-medium text-[#576071]">
             Cari nama produk atau SKU
           </label>
           <input
@@ -192,18 +194,18 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
             type="search"
             defaultValue={search}
             placeholder="Contoh: Pashmina atau HJ-001"
-            className="min-h-10 w-full rounded-md border border-[#d9e1d9] px-3 text-sm text-[#293a32] outline-none focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+            className="min-h-10 w-full rounded-md border border-slate-200 px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
           />
         </div>
         <div className="sm:w-52">
-          <label htmlFor="inventory-category" className="mb-1.5 block text-xs font-medium text-[#52645a]">
+          <label htmlFor="inventory-category" className="mb-1.5 block text-xs font-medium text-[#576071]">
             Kategori
           </label>
           <select
             id="inventory-category"
             name="category"
             defaultValue={category || "all"}
-            className="min-h-10 w-full rounded-md border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+            className="min-h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
           >
             <option value="all">Semua kategori</option>
             <option value="Pashmina">Pashmina</option>
@@ -213,15 +215,15 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
         </div>
         <button
           type="submit"
-          className="inline-flex min-h-10 items-center justify-center rounded-md bg-[#285b46] px-4 text-sm font-medium text-white transition-colors hover:bg-[#1f4938] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6e9a75] focus-visible:ring-offset-2"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-5 text-sm font-bold text-white shadow-sm transition-all hover:brightness-105"
         >
           Cari
         </button>
       </form>
 
-      <section aria-label="Daftar produk" className="overflow-hidden rounded-md border border-[#e1e7e0] bg-white shadow-sm shadow-[#173b32]/5">
-        <div className="border-b border-[#edf0ec] px-5 py-4">
-          <h2 className="font-semibold text-[#173b32]">Inventaris produk</h2>
+      <section aria-label="Daftar produk" className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
+        <div className="border-b border-slate-100 px-6 py-5">
+          <h2 className="text-lg font-bold text-[#2d3440]">Inventaris produk</h2>
           <p className="mt-1 text-sm text-[#7b877f]">Data diperbarui dari katalog SarniyaSync.</p>
         </div>
 
@@ -267,7 +269,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                       <td className="whitespace-nowrap px-5 py-4 text-xs text-[#7b877f]">
                         {getText(product, ["sku", "code", "kode_produk", "id"])}
                       </td>
-                      <th scope="row" className="whitespace-nowrap px-5 py-4 font-medium text-[#293a32]">
+                      <th scope="row" className="whitespace-nowrap px-5 py-4 font-medium text-[#2d3440]">
                         <div className="flex items-center gap-3">
                           {imageUrl ? (
                             <Image
@@ -292,10 +294,10 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                       <td className="whitespace-nowrap px-5 py-4 text-[#68756e]">
                         {getText(product, ["category", "kategori", "jenis"], "Hijab")}
                       </td>
-                      <td className="whitespace-nowrap px-5 py-4 text-right font-medium text-[#293a32]">
+                      <td className="whitespace-nowrap px-5 py-4 text-right font-medium text-[#2d3440]">
                         {stock ?? "-"} <span className="font-normal text-[#7b877f]">{getText(product, ["unit", "satuan"], "pcs")}</span>
                       </td>
-                      <td className="whitespace-nowrap px-5 py-4 text-right text-[#293a32]">
+                      <td className="whitespace-nowrap px-5 py-4 text-right text-[#2d3440]">
                         {getText(product, ["selling_price", "price", "harga_jual"], "-")}
                       </td>
                       <td className="whitespace-nowrap px-5 py-4">
@@ -303,7 +305,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                           <Link
                             href={`/inventory/edit/${encodeURIComponent(getText(product, ["id"], ""))}`}
                             aria-label={`Edit ${productName}`}
-                            className="rounded border border-[#d9e1d9] px-2.5 py-1.5 text-xs font-medium text-[#52645a] transition-colors hover:bg-[#f7f9f6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6e9a75]"
+                            className="rounded border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-[#576071] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cc9787]"
                           >
                             Edit
                           </Link>

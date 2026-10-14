@@ -62,21 +62,25 @@ export default function AddProductPage() {
       <header className="mb-8">
         <Link
           href="/inventory"
-          className="mb-5 inline-flex text-sm font-medium text-[#557b64] hover:text-[#285b46]"
+          className="mb-4 inline-flex text-sm font-semibold text-[#9d5c4c] hover:underline"
         >
           &larr; Kembali ke inventaris
         </Link>
-        <p className="mb-2 text-sm font-medium text-[#557b64]">Area Owner</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-[#173b32]">Tambah Produk</h1>
-        <p className="mt-2 text-sm text-[#68756e]">Masukkan detail produk baru ke katalog.</p>
+        <div>
+          <span className="inline-block rounded-full bg-[#f7e4d4] px-3 py-1 text-xs font-bold text-[#9d5c4c]">
+            Area Owner
+          </span>
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-[#2d3440]">Tambah Produk</h1>
+          <p className="mt-2 text-sm text-[#6d7687]">Masukkan detail produk baru ke katalog.</p>
+        </div>
       </header>
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-6 rounded-md border border-[#e1e7e0] bg-white p-5 shadow-sm shadow-[#173b32]/5 sm:p-7"
+        className="space-y-6 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-[#2d3440]/5 sm:p-8"
       >
         <div>
-          <label htmlFor="sku" className="mb-2 block text-sm font-medium text-[#293a32]">
+          <label htmlFor="sku" className="mb-2 block text-sm font-medium text-[#2d3440]">
             SKU <span className="font-normal text-[#7b877f]">(opsional)</span>
           </label>
           <input
@@ -85,13 +89,13 @@ export default function AddProductPage() {
             type="text"
             maxLength={80}
             placeholder="Kosongkan untuk dibuat otomatis"
-            className="min-h-11 w-full rounded-md border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+            className="min-h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
           />
           <p className="mt-1.5 text-xs text-[#7b877f]">Anda juga dapat mengisi SKU sendiri.</p>
         </div>
 
         <div>
-          <label htmlFor="name" className="mb-2 block text-sm font-medium text-[#293a32]">
+          <label htmlFor="name" className="mb-2 block text-sm font-medium text-[#2d3440]">
             Nama Produk
           </label>
           <input
@@ -101,13 +105,13 @@ export default function AddProductPage() {
             required
             maxLength={160}
             autoComplete="off"
-            className="min-h-11 w-full rounded-md border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+            className="min-h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
           />
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
-            <label htmlFor="category" className="mb-2 block text-sm font-medium text-[#293a32]">
+            <label htmlFor="category" className="mb-2 block text-sm font-medium text-[#2d3440]">
               Kategori
             </label>
             <select
@@ -115,7 +119,7 @@ export default function AddProductPage() {
               name="category"
               required
               defaultValue=""
-              className="min-h-11 w-full rounded-md border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+              className="min-h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
             >
               <option value="" disabled>Pilih kategori</option>
               <option value="Pashmina">Pashmina</option>
@@ -125,7 +129,7 @@ export default function AddProductPage() {
           </div>
 
           <div>
-            <label htmlFor="stock_quantity" className="mb-2 block text-sm font-medium text-[#293a32]">
+            <label htmlFor="stock_quantity" className="mb-2 block text-sm font-medium text-[#2d3440]">
               Stok
             </label>
             <input
@@ -136,14 +140,14 @@ export default function AddProductPage() {
               min="0"
               step="1"
               inputMode="numeric"
-              className="min-h-11 w-full rounded-md border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+              className="min-h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
             />
           </div>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
-            <label htmlFor="cost_price" className="mb-2 block text-sm font-medium text-[#293a32]">
+            <label htmlFor="cost_price" className="mb-2 block text-sm font-medium text-[#2d3440]">
               Harga Modal (Rp)
             </label>
             <input
@@ -154,11 +158,11 @@ export default function AddProductPage() {
               min="0"
               step="1"
               inputMode="numeric"
-              className="min-h-11 w-full rounded-md border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+              className="min-h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
             />
           </div>
           <div>
-            <label htmlFor="selling_price" className="mb-2 block text-sm font-medium text-[#293a32]">
+            <label htmlFor="selling_price" className="mb-2 block text-sm font-medium text-[#2d3440]">
               Harga Jual (Rp)
             </label>
             <input
@@ -169,13 +173,13 @@ export default function AddProductPage() {
               min="0"
               step="1"
               inputMode="numeric"
-              className="min-h-11 w-full rounded-md border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+              className="min-h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
             />
           </div>
         </div>
 
         <div>
-          <label htmlFor="image" className="mb-2 block text-sm font-medium text-[#293a32]">
+          <label htmlFor="image" className="mb-2 block text-sm font-medium text-[#2d3440]">
             Foto Produk <span className="font-normal text-[#7b877f]">(opsional, maks. 5 MB)</span>
           </label>
           <input
@@ -184,7 +188,7 @@ export default function AddProductPage() {
             type="file"
             accept="image/jpeg,image/png,image/webp"
             onChange={(event) => setSelectedImageName(event.target.files?.[0]?.name ?? "")}
-            className="block min-h-11 w-full rounded-md border border-[#d9e1d9] bg-white text-sm text-[#52645a] file:mr-4 file:min-h-10 file:border-0 file:border-r file:border-[#d9e1d9] file:bg-[#f7f9f6] file:px-3 file:text-sm file:font-medium file:text-[#315d3e]"
+            className="block min-h-11 w-full rounded-md border border-slate-200 bg-white text-sm text-[#576071] file:mr-4 file:min-h-10 file:border-0 file:border-r file:border-slate-200 file:bg-[#f7f9f6] file:px-3 file:text-sm file:font-medium file:text-[#315d3e]"
           />
           {selectedImageName && <p className="mt-1.5 text-xs text-[#68756e]">{selectedImageName}</p>}
         </div>
@@ -198,17 +202,17 @@ export default function AddProductPage() {
           <p role="status" className="text-sm text-[#557b64]">Mengunggah foto produk ke Storage...</p>
         )}
 
-        <div className="flex flex-col-reverse gap-3 border-t border-[#edf0ec] pt-5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
           <Link
             href="/inventory"
-            className="inline-flex min-h-11 items-center justify-center rounded-md border border-[#d9e1d9] px-4 text-sm font-medium text-[#52645a] transition-colors hover:bg-[#f7f9f6]"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-[#576071] transition-all hover:bg-slate-50"
           >
             Batal
           </Link>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex min-h-11 items-center justify-center rounded-md bg-[#285b46] px-5 text-sm font-medium text-white transition-colors hover:bg-[#1f4938] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-6 text-sm font-bold text-white shadow-md shadow-[#9d5c4c]/20 transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isUploading ? "Mengunggah foto..." : isSubmitting ? "Menyimpan..." : "Simpan Produk"}
           </button>

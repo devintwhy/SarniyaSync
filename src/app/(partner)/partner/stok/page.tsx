@@ -91,46 +91,52 @@ export default async function PartnerStockPage() {
   return (
     <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
       <header className="mb-8">
-        <p className="mb-2 text-sm font-medium text-[#557b64]">Portal Mitra</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-[#173b32]">Stok Toko</h1>
-        <p className="mt-2 text-sm text-[#68756e]">Produk yang telah dialokasikan ke toko Anda.</p>
+        <span className="inline-block rounded-full bg-[#f7e4d4] px-3 py-1 text-xs font-bold text-[#9d5c4c]">
+          Portal Mitra
+        </span>
+        <h1 className="mt-2 text-3xl font-black tracking-tight text-[#2d3440]">Stok Toko</h1>
+        <p className="mt-2 text-sm text-[#6d7687]">Produk yang telah dialokasikan ke toko Anda.</p>
       </header>
 
       {errorMessage ? (
-        <p role="alert" className="rounded-md border border-[#f0d4cc] bg-[#fff5f1] px-4 py-3 text-sm text-[#9b4936]">Stok gagal dimuat: {errorMessage}</p>
+        <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">Stok gagal dimuat: {errorMessage}</p>
       ) : inventory.length === 0 ? (
-        <div className="rounded-md border border-[#e1e7e0] bg-white px-5 py-10 text-center text-sm text-[#68756e]">
+        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center text-sm text-[#6d7687]">
           Belum ada produk yang dialokasikan ke toko Anda.
         </div>
       ) : (
-        <section aria-label="Inventori toko mitra" className="overflow-hidden rounded-md border border-[#e1e7e0] bg-white shadow-sm shadow-[#173b32]/5">
-          <div className="border-b border-[#edf0ec] px-5 py-4">
-            <h2 className="font-semibold text-[#173b32]">Produk Toko</h2>
-            <p className="mt-1 text-sm text-[#7b877f]">{inventory.length} alokasi produk</p>
+        <section aria-label="Inventori toko mitra" className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5">
+          <div className="border-b border-slate-100 px-6 py-5">
+            <h2 className="font-bold text-[#2d3440]">Produk Toko</h2>
+            <p className="mt-1 text-sm text-[#7a8394]">{inventory.length} alokasi produk</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-[#f7f9f6] text-xs uppercase text-[#68756e]">
+              <thead className="bg-[#f0f2f5] text-xs uppercase tracking-wider text-[#6d7687] font-bold">
                 <tr>
-                  <th scope="col" className="px-5 py-3 font-medium">Toko</th>
-                  <th scope="col" className="px-5 py-3 font-medium">SKU</th>
-                  <th scope="col" className="px-5 py-3 font-medium">Produk</th>
-                  <th scope="col" className="px-5 py-3 font-medium">Kategori</th>
-                  <th scope="col" className="px-5 py-3 text-right font-medium">Stok</th>
-                  <th scope="col" className="px-5 py-3 text-right font-medium">Harga Jual</th>
+                  <th scope="col" className="px-6 py-3.5">Toko</th>
+                  <th scope="col" className="px-6 py-3.5">SKU</th>
+                  <th scope="col" className="px-6 py-3.5">Produk</th>
+                  <th scope="col" className="px-6 py-3.5">Kategori</th>
+                  <th scope="col" className="px-6 py-3.5 text-right">Stok</th>
+                  <th scope="col" className="px-6 py-3.5 text-right">Harga Jual</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#edf0ec]">
+              <tbody className="divide-y divide-slate-100">
                 {inventory.map((product) => (
-                  <tr key={product.allocationId} className="hover:bg-[#fafbf9]">
-                    <td className="px-5 py-4 text-[#68756e]">{product.storeName}</td>
-                    <td className="whitespace-nowrap px-5 py-4 text-xs text-[#7b877f]">{product.sku}</td>
-                    <th scope="row" className="px-5 py-4 font-medium text-[#293a32]">{product.name}</th>
-                    <td className="px-5 py-4 text-[#68756e]">{product.category}</td>
-                    <td className={`whitespace-nowrap px-5 py-4 text-right font-semibold ${product.stock_quantity <= 5 ? "text-[#a44d36]" : "text-[#293a32]"}`}>
+                  <tr key={product.allocationId} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="px-6 py-4 text-[#576071]">{product.storeName}</td>
+                    <td className="whitespace-nowrap px-6 py-4 text-xs font-mono text-[#7a8394]">{product.sku}</td>
+                    <th scope="row" className="px-6 py-4 font-semibold text-[#2d3440]">{product.name}</th>
+                    <td className="px-6 py-4 text-[#576071]">
+                      <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-[#576071]">
+                        {product.category}
+                      </span>
+                    </td>
+                    <td className={`whitespace-nowrap px-6 py-4 text-right font-bold ${product.stock_quantity <= 5 ? "text-amber-600" : "text-[#2d3440]"}`}>
                       {numberFormatter.format(product.stock_quantity)}
                     </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-right text-[#293a32]">{currencyFormatter.format(product.selling_price)}</td>
+                    <td className="whitespace-nowrap px-6 py-4 text-right font-black text-[#2d3440]">{currencyFormatter.format(product.selling_price)}</td>
                   </tr>
                 ))}
               </tbody>

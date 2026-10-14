@@ -42,37 +42,42 @@ const ThermalReceipt = forwardRef<HTMLDivElement, ReceiptProps>(({ data }, ref) 
       id="printable-receipt"
       className="hidden print:block"
     >
-      <div className="text-center mb-3">
-        <h1 className="font-bold text-lg mb-1">{data.storeName}</h1>
-        <p className="text-[10px]">Portal Mitra SarniyaSync</p>
+      {/* Header Struk */}
+      <div className="text-center mb-2">
+        <h1 className="font-bold text-sm tracking-wide uppercase mb-0.5">{data.storeName}</h1>
+        <p className="text-[10px] text-gray-700">SarniyaSync POS System</p>
       </div>
 
-      <div className="border-t border-b border-black border-dashed py-1.5 mb-2 text-[10px]">
+      {/* Info Transaksi */}
+      <div className="border-t border-b border-black border-dashed py-1.5 my-1.5 text-[10px]">
         <div className="flex justify-between">
           <span>Tgl:</span>
           <span>{data.date}</span>
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-between font-mono">
           <span>No:</span>
-          <span>{data.transactionNumber}</span>
+          <span className="font-semibold">{data.transactionNumber}</span>
         </div>
         <div className="flex justify-between">
           <span>Bayar:</span>
-          <span className="uppercase">{data.paymentMethod}</span>
+          <span className="uppercase font-semibold">{data.paymentMethod}</span>
         </div>
       </div>
 
-      <table className="w-full text-left mb-2">
+      {/* Daftar Item Belanja */}
+      <table className="w-full text-left my-2 border-collapse">
         <tbody>
           {data.items.map((item, i) => (
-            <tr key={i} className="align-top">
+            <tr key={i} className="border-b border-gray-300 border-dotted">
               <td className="py-1">
-                <div className="mb-0.5 max-w-[40mm] break-words leading-tight">
+                <div className="font-medium text-[11px] leading-tight break-words">
                   {item.name}
                 </div>
-                <div className="flex justify-between text-[10px]">
-                  <span>{item.qty} x {currencyFormatter.format(item.price)}</span>
-                  <span>{currencyFormatter.format(item.subtotal)}</span>
+                <div className="flex justify-between text-[10px] text-gray-800 mt-0.5">
+                  <span>
+                    {item.qty} x {currencyFormatter.format(item.price)}
+                  </span>
+                  <span className="font-semibold">{currencyFormatter.format(item.subtotal)}</span>
                 </div>
               </td>
             </tr>
@@ -80,18 +85,18 @@ const ThermalReceipt = forwardRef<HTMLDivElement, ReceiptProps>(({ data }, ref) 
         </tbody>
       </table>
 
-      <div className="border-t border-black border-dashed pt-1 mb-4 flex justify-between font-bold text-[12px]">
-        <span>Total:</span>
+      {/* Total Belanja */}
+      <div className="border-t border-black border-dashed pt-1.5 mt-2 flex justify-between font-bold text-[12px]">
+        <span>TOTAL:</span>
         <span>{currencyFormatter.format(data.grandTotal)}</span>
       </div>
 
-      <div className="text-center text-[10px]">
-        <p>Terima kasih telah berbelanja!</p>
-        <p>Barang yang sudah dibeli tidak dapat ditukar.</p>
+      {/* Footer Struk Thermal */}
+      <div className="text-center text-[9px] mt-4 pt-2 border-t border-gray-400 border-dashed space-y-0.5">
+        <p className="font-semibold">Terima Kasih Telah Berbelanja</p>
+        <p>Barang yang dibeli tidak dapat ditukar</p>
+        <p className="text-[8px] text-gray-500 mt-1">*** SARNIYASYNC POS ***</p>
       </div>
-      
-      {/* Page break trick to ensure receipt prints cleanly and stops */}
-      <div className="break-after-page"></div>
     </div>
   );
 

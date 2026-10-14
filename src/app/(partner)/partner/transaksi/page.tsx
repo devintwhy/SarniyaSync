@@ -1,13 +1,13 @@
 import { redirect } from "next/navigation";
 import type { Json } from "@/utils/supabase/database.types";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
-import PosCartForm from "./pos-cart-form";
+import TransactionsTableClient from "./transactions-table-client";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Kasir & Transaksi | Portal Mitra SarniyaSync",
-  description: "Catat penjualan multi-item dengan keranjang belanja dan tinjau riwayat transaksi toko.",
+  title: "Riwayat Transaksi | Portal Mitra SarniyaSync",
+  description: "Daftar riwayat transaksi dan penjualan toko mitra SarniyaSync.",
 };
 
 const PAGE_SIZE = 1000;
@@ -64,81 +64,6 @@ export default async function PartnerTransactionsPage() {
   const activeStores = (stores ?? []).filter((store) => store.is_active);
   const storeIds = activeStores.map((store) => store.id);
 
-  // ── Ambil inventaris (partner_store_inventory + produk) ─────────────────
-  type AllocationRow = {
-    id: string;
-    partner_store_id: string;
-    product_id: string;
-    stock_quantity: number;
-  };
-  const allocationRows: AllocationRow[] = [];
-  let inventoryError = "";
-
-  if (storeIds.length > 0) {
-    for (let offset = 0; ; offset += PAGE_SIZE) {
-      const { data, error } = await supabase
-        .from("partner_store_inventory")
-        .select("id, partner_store_id, product_id, stock_quantity")
-        .in("partner_store_id", storeIds)
-        .gt("stock_quantity", 0)
-        .range(offset, offset + PAGE_SIZE - 1);
-
-      if (error) {
-        inventoryError = error.message;
-        break;
-      }
-
-      const page = data ?? [];
-      allocationRows.push(...page);
-      if (page.length < PAGE_SIZE) break;
-    }
-  }
-
-  const allocatedProductIds = Array.from(
-    new Set(allocationRows.map((row) => row.product_id)),
-  );
-  const productsById = new Map<
-    string,
-    { id: string; sku: string; name: string; selling_price: number }
-  >();
-
-  for (
-    let offset = 0;
-    offset < allocatedProductIds.length && !inventoryError;
-    offset += PAGE_SIZE
-  ) {
-    const { data, error } = await supabase
-      .from("products")
-      .select("id, sku, name, selling_price")
-      .in("id", allocatedProductIds.slice(offset, offset + PAGE_SIZE))
-      .eq("is_active", true);
-
-    if (error) {
-      inventoryError = error.message;
-      break;
-    }
-
-    for (const product of data ?? []) productsById.set(product.id, product);
-  }
-
-  // ── Bentuk array inventory yang dibutuhkan PosCartForm ───────────────────
-  const partnerInventory = allocationRows.flatMap((allocation) => {
-    const product = productsById.get(allocation.product_id);
-    return product
-      ? [
-          {
-            storeId: allocation.partner_store_id,
-            allocationId: allocation.id,
-            productId: product.id,
-            sku: product.sku,
-            name: product.name,
-            sellingPrice: product.selling_price,
-            stock: allocation.stock_quantity,
-          },
-        ]
-      : [];
-  });
-
   // ── Ambil riwayat transaksi ──────────────────────────────────────────────
   const transactions: Array<{
     id: string;
@@ -150,7 +75,7 @@ export default async function PartnerTransactionsPage() {
     status: string;
     sold_at: string;
   }> = [];
-  let errorMessage = storesError?.message ?? inventoryError;
+  let errorMessage = storesError?.message ?? "";
 
   if (storeIds.length && !errorMessage) {
     for (let offset = 0; ; offset += PAGE_SIZE) {
@@ -192,126 +117,45 @@ export default async function PartnerTransactionsPage() {
     qris: "QRIS",
   };
 
-  // =========================================================================
   return (
     <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="mb-8">
-        <p className="mb-1.5 text-sm font-medium text-[#557b64]">Portal Mitra</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-[#173b32]">
-          Kasir &amp; Transaksi
+        <span className="inline-block rounded-full bg-[#f7e4d4] px-3 py-1 text-xs font-bold text-[#9d5c4c]">
+          Portal Mitra
+        </span>
+        <h1 className="mt-2 text-3xl font-black tracking-tight text-[#2d3440]">
+          Riwayat Transaksi
         </h1>
-        <p className="mt-2 text-sm text-[#68756e]">
-          Tambahkan item ke keranjang, lalu proses transaksi sekaligus.
+        <p className="mt-2 text-sm text-[#6d7687]">
+          Daftar seluruh transaksi penjualan yang telah selesai di toko Anda.
         </p>
       </header>
-
-      {/* ── Form POS Kasir ──────────────────────────────────────────────────── */}
-      <section className="mb-8 overflow-hidden rounded-xl border border-[#e1e7e0] bg-white shadow-sm shadow-[#173b32]/5">
-        <div className="border-b border-[#edf0ec] px-5 py-4">
-          <h2 className="font-semibold text-[#173b32]">Catat Penjualan</h2>
-          <p className="mt-0.5 text-sm text-[#7b877f]">
-            Pilih produk dan jumlah, tambahkan ke keranjang, lalu tekan Proses Transaksi.
-          </p>
-        </div>
-
-        {inventoryError ? (
-          <p role="alert" className="px-5 py-5 text-sm text-[#9b4936]">
-            Pilihan stok gagal dimuat: {inventoryError}
-          </p>
-        ) : (
-          <PosCartForm
-            stores={activeStores.map((store) => ({
-              id: store.id,
-              name: store.name,
-            }))}
-            inventory={partnerInventory}
-          />
-        )}
-      </section>
 
       {/* ── Riwayat Transaksi ───────────────────────────────────────────────── */}
       {errorMessage ? (
         <p
           role="alert"
-          className="rounded-xl border border-[#f0d4cc] bg-[#fff5f1] px-4 py-3 text-sm text-[#9b4936]"
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
         >
           Transaksi gagal dimuat: {errorMessage}
         </p>
       ) : historyRows.length === 0 ? (
-        <div className="rounded-xl border border-[#e1e7e0] bg-white px-5 py-10 text-center text-sm text-[#68756e]">
+        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center text-sm text-[#6d7687]">
           Belum ada transaksi toko.
         </div>
       ) : (
         <section
           aria-label="Riwayat transaksi toko"
-          className="overflow-hidden rounded-xl border border-[#e1e7e0] bg-white shadow-sm shadow-[#173b32]/5"
+          className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5"
         >
-          <div className="border-b border-[#edf0ec] px-5 py-4">
-            <h2 className="font-semibold text-[#173b32]">Riwayat Transaksi</h2>
-            <p className="mt-0.5 text-sm text-[#7b877f]">
-              {historyRows.length} item terjual — terbaru di atas.
+          <div className="border-b border-slate-100 px-6 py-5">
+            <h2 className="font-bold text-[#2d3440]">Data Transaksi Toko</h2>
+            <p className="mt-1 text-sm text-[#7a8394]">
+              {historyRows.length} item terjual — tanggal terbaru di atas.
             </p>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[680px] text-left text-sm">
-              <thead className="bg-[#f7f9f6] text-xs uppercase tracking-wide text-[#68756e]">
-                <tr>
-                  <th scope="col" className="px-5 py-3.5 font-medium">
-                    Produk
-                  </th>
-                  <th scope="col" className="px-5 py-3.5 text-right font-medium">
-                    Jml
-                  </th>
-                  <th scope="col" className="px-5 py-3.5 text-right font-medium">
-                    Harga Satuan
-                  </th>
-                  <th scope="col" className="px-5 py-3.5 font-medium">
-                    Toko
-                  </th>
-                  <th scope="col" className="px-5 py-3.5 font-medium">
-                    Bayar
-                  </th>
-                  <th scope="col" className="px-5 py-3.5 font-medium">
-                    Waktu
-                  </th>
-                  <th scope="col" className="px-5 py-3.5 text-right font-medium">
-                    Subtotal
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#edf0ec]">
-                {historyRows.map((item) => (
-                  <tr key={item.id} className="transition-colors hover:bg-[#fafbf9]">
-                    <th scope="row" className="px-5 py-4 font-medium text-[#293a32]">
-                      <span>{item.name}</span>
-                      <span className="mt-0.5 block text-xs font-normal text-[#7b877f]">
-                        {item.transactionNumber}
-                      </span>
-                    </th>
-                    <td className="whitespace-nowrap px-5 py-4 text-right tabular-nums font-medium text-[#293a32]">
-                      {item.quantity}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-right tabular-nums text-[#52645a]">
-                      {currencyFormatter.format(item.unitPrice)}
-                    </td>
-                    <td className="px-5 py-4 text-[#68756e]">{item.storeName}</td>
-                    <td className="whitespace-nowrap px-5 py-4">
-                      <span className="rounded-full bg-[#edf5e8] px-2.5 py-0.5 text-xs font-medium text-[#315d3e]">
-                        {paymentLabel[item.paymentMethod] ?? item.paymentMethod}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-[#68756e]">
-                      {dateFormatter.format(new Date(item.soldAt))}
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-4 text-right tabular-nums font-semibold text-[#293a32]">
-                      {currencyFormatter.format(item.total)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <TransactionsTableClient rows={historyRows} />
         </section>
       )}
     </div>

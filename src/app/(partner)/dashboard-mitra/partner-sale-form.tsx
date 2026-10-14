@@ -67,7 +67,7 @@ export default function PartnerSaleForm({ stores, inventory }: PartnerSaleFormPr
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-5">
       <div>
-        <label htmlFor="sale-store" className="mb-1.5 block text-sm font-medium text-[#293a32]">Toko</label>
+        <label htmlFor="sale-store" className="mb-1.5 block text-sm font-medium text-[#2d3440]">Toko</label>
         <select
           id="sale-store"
           value={storeId}
@@ -76,21 +76,21 @@ export default function PartnerSaleForm({ stores, inventory }: PartnerSaleFormPr
             setProductId("");
           }}
           required
-          className="min-h-11 w-full rounded-md border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+          className="min-h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
         >
           {stores.map((store) => <option key={store.id} value={store.id}>{store.name}</option>)}
         </select>
       </div>
 
       <div>
-        <label htmlFor="sale-product" className="mb-1.5 block text-sm font-medium text-[#293a32]">Produk</label>
+        <label htmlFor="sale-product" className="mb-1.5 block text-sm font-medium text-[#2d3440]">Produk</label>
         <select
           id="sale-product"
           value={productId}
           onChange={(event) => setProductId(event.target.value)}
           required
           disabled={availableProducts.length === 0}
-          className="min-h-11 w-full rounded-md border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20 disabled:bg-[#f7f9f6]"
+          className="min-h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-50"
         >
           <option value="">{availableProducts.length ? "Pilih produk" : "Tidak ada stok tersedia"}</option>
           {availableProducts.map((product) => (
@@ -103,7 +103,7 @@ export default function PartnerSaleForm({ stores, inventory }: PartnerSaleFormPr
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="sale-quantity" className="mb-1.5 block text-sm font-medium text-[#293a32]">Jumlah Terjual</label>
+          <label htmlFor="sale-quantity" className="mb-1.5 block text-sm font-medium text-[#2d3440]">Jumlah Terjual</label>
           <input
             id="sale-quantity"
             name="quantity"
@@ -112,16 +112,16 @@ export default function PartnerSaleForm({ stores, inventory }: PartnerSaleFormPr
             step="1"
             required
             inputMode="numeric"
-            className="min-h-11 w-full rounded-md border border-[#d9e1d9] px-3 text-sm text-[#293a32] outline-none focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+            className="min-h-11 w-full rounded-md border border-slate-200 px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
           />
         </div>
         <div>
-          <label htmlFor="sale-payment" className="mb-1.5 block text-sm font-medium text-[#293a32]">Pembayaran</label>
+          <label htmlFor="sale-payment" className="mb-1.5 block text-sm font-medium text-[#2d3440]">Pembayaran</label>
           <select
             id="sale-payment"
             name="payment_method"
             defaultValue="cash"
-            className="min-h-11 w-full rounded-md border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+            className="min-h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
           >
             <option value="cash">Tunai</option>
             <option value="transfer">Transfer</option>
@@ -136,7 +136,7 @@ export default function PartnerSaleForm({ stores, inventory }: PartnerSaleFormPr
       <button
         type="submit"
         disabled={isSubmitting || availableProducts.length === 0}
-        className="inline-flex min-h-10 items-center justify-center rounded-md bg-[#285b46] px-4 text-sm font-medium text-white transition-colors hover:bg-[#1f4938] disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex min-h-10 items-center justify-center rounded-md bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-sm font-medium text-white transition-colors hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSubmitting ? "Menyimpan transaksi..." : "Catat Penjualan"}
       </button>

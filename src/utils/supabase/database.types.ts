@@ -67,6 +67,8 @@ export type Database = {
           city: string | null;
           phone: string | null;
           is_active: boolean;
+          status: string;
+          status_message: string | null;
           created_at: string;
           updated_at: string;
         },
@@ -78,6 +80,8 @@ export type Database = {
           city?: string | null;
           phone?: string | null;
           is_active?: boolean;
+          status?: string;
+          status_message?: string | null;
           created_at?: string;
           updated_at?: string;
         },
@@ -88,6 +92,8 @@ export type Database = {
           city?: string | null;
           phone?: string | null;
           is_active?: boolean;
+          status?: string;
+          status_message?: string | null;
           updated_at?: string;
         }
       >;

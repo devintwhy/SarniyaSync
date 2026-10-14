@@ -52,7 +52,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
         type="button"
         id="btn-tambah-produk"
         onClick={openModal}
-        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-md bg-[#285b46] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1f4938] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6e9a75] focus-visible:ring-offset-2"
+        className="inline-flex min-h-12 shrink-0 items-center gap-2 rounded-2xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-5 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:brightness-105 active:scale-[0.99]"
       >
         <svg
           aria-hidden="true"
@@ -83,7 +83,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
           // Tutup jika klik backdrop
           if (e.target === dialogRef.current) closeModal();
         }}
-        className="m-auto max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-2xl border border-[#e1e7e0] bg-white p-0 shadow-2xl shadow-[#173b32]/20 backdrop:bg-[#173b32]/40 backdrop:backdrop-blur-sm open:flex open:flex-col"
+        className="m-auto max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-2xl border border-[#e1e7e0] bg-white p-0 shadow-2xl shadow-[#9d5c4c]/20 backdrop:bg-[#9d5c4c]/40 backdrop:backdrop-blur-sm open:flex open:flex-col"
         style={{ maxWidth: "38rem" }}
       >
         {/* Header Modal */}
@@ -91,7 +91,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
           <div>
             <h2
               id="modal-title"
-              className="text-lg font-semibold text-[#173b32]"
+              className="text-lg font-bold text-[#2d3440]"
             >
               Tambah Produk Baru
             </h2>
@@ -103,7 +103,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
             type="button"
             aria-label="Tutup modal"
             onClick={closeModal}
-            className="rounded-md p-1.5 text-[#7b877f] transition-colors hover:bg-[#f7f9f6] hover:text-[#293a32]"
+            className="rounded-md p-1.5 text-[#7b877f] transition-colors hover:bg-slate-50 hover:text-[#2d3440]"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
               <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
@@ -122,7 +122,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
           <div>
             <label
               htmlFor="produk-name"
-              className="mb-1.5 block text-sm font-medium text-[#293a32]"
+              className="mb-1.5 block text-sm font-medium text-[#2d3440]"
             >
               Nama Produk <span className="text-[#9b4936]">*</span>
             </label>
@@ -134,7 +134,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
               maxLength={160}
               autoComplete="off"
               placeholder="Contoh: Pashmina Voal Premium"
-              className="min-h-10 w-full rounded-lg border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+              className="min-h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
             />
           </div>
 
@@ -142,7 +142,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
           <div>
             <label
               htmlFor="produk-description"
-              className="mb-1.5 block text-sm font-medium text-[#293a32]"
+              className="mb-1.5 block text-sm font-medium text-[#2d3440]"
             >
               Deskripsi{" "}
               <span className="font-normal text-[#7b877f]">(opsional)</span>
@@ -153,7 +153,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
               rows={3}
               maxLength={500}
               placeholder="Deskripsi singkat produk..."
-              className="w-full resize-none rounded-lg border border-[#d9e1d9] bg-white px-3 py-2 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+              className="w-full resize-none rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
             />
           </div>
 
@@ -162,7 +162,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
             <div>
               <label
                 htmlFor="produk-category"
-                className="mb-1.5 block text-sm font-medium text-[#293a32]"
+                className="mb-1.5 block text-sm font-medium text-[#2d3440]"
               >
                 Kategori <span className="text-[#9b4936]">*</span>
               </label>
@@ -171,7 +171,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
                 name="category"
                 required
                 defaultValue=""
-                className="min-h-10 w-full rounded-lg border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+                className="min-h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
               >
                 <option value="" disabled>
                   Pilih kategori
@@ -184,7 +184,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
             <div>
               <label
                 htmlFor="produk-color"
-                className="mb-1.5 block text-sm font-medium text-[#293a32]"
+                className="mb-1.5 block text-sm font-medium text-[#2d3440]"
               >
                 Warna{" "}
                 <span className="font-normal text-[#7b877f]">(opsional)</span>
@@ -195,7 +195,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
                 type="text"
                 maxLength={80}
                 placeholder="Contoh: Hitam, Navy"
-                className="min-h-10 w-full rounded-lg border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+                className="min-h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
               />
             </div>
           </div>
@@ -204,7 +204,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
           <div>
             <label
               htmlFor="produk-size"
-              className="mb-1.5 block text-sm font-medium text-[#293a32]"
+              className="mb-1.5 block text-sm font-medium text-[#2d3440]"
             >
               Ukuran{" "}
               <span className="font-normal text-[#7b877f]">(opsional)</span>
@@ -215,7 +215,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
               type="text"
               maxLength={80}
               placeholder="Contoh: All Size, 115x115 cm"
-              className="min-h-10 w-full rounded-lg border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+              className="min-h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
             />
           </div>
 
@@ -224,7 +224,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
             <div>
               <label
                 htmlFor="produk-cost-price"
-                className="mb-1.5 block text-sm font-medium text-[#293a32]"
+                className="mb-1.5 block text-sm font-medium text-[#2d3440]"
               >
                 Harga Modal (Rp) <span className="text-[#9b4936]">*</span>
               </label>
@@ -237,13 +237,13 @@ export default function AddProductModal({ action }: AddProductModalProps) {
                 step="1"
                 inputMode="numeric"
                 placeholder="0"
-                className="min-h-10 w-full rounded-lg border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+                className="min-h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
               />
             </div>
             <div>
               <label
                 htmlFor="produk-selling-price"
-                className="mb-1.5 block text-sm font-medium text-[#293a32]"
+                className="mb-1.5 block text-sm font-medium text-[#2d3440]"
               >
                 Harga Jual (Rp) <span className="text-[#9b4936]">*</span>
               </label>
@@ -256,7 +256,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
                 step="1"
                 inputMode="numeric"
                 placeholder="0"
-                className="min-h-10 w-full rounded-lg border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+                className="min-h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
               />
             </div>
           </div>
@@ -265,7 +265,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
           <div>
             <label
               htmlFor="produk-stock"
-              className="mb-1.5 block text-sm font-medium text-[#293a32]"
+              className="mb-1.5 block text-sm font-medium text-[#2d3440]"
             >
               Stok Awal (pcs) <span className="text-[#9b4936]">*</span>
             </label>
@@ -278,7 +278,7 @@ export default function AddProductModal({ action }: AddProductModalProps) {
               step="1"
               inputMode="numeric"
               placeholder="0"
-              className="min-h-10 w-full rounded-lg border border-[#d9e1d9] bg-white px-3 text-sm text-[#293a32] outline-none transition focus:border-[#6e9a75] focus:ring-2 focus:ring-[#6e9a75]/20"
+              className="min-h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none transition focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
             />
           </div>
 
@@ -306,14 +306,14 @@ export default function AddProductModal({ action }: AddProductModalProps) {
               type="button"
               onClick={closeModal}
               disabled={isPending}
-              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#d9e1d9] px-4 text-sm font-medium text-[#52645a] transition-colors hover:bg-[#f7f9f6] disabled:opacity-50"
+              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-200 px-4 text-sm font-medium text-[#576071] transition-colors hover:bg-slate-50 disabled:opacity-50"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[#285b46] px-5 text-sm font-medium text-white transition-colors hover:bg-[#1f4938] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-6 text-sm font-bold text-white shadow-md transition-all hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isPending ? "Menyimpan..." : "Simpan Produk"}
             </button>

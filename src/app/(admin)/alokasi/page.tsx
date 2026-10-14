@@ -16,28 +16,29 @@ export default async function StockAllocationPage() {
   const role = await getProfileRole(supabase, user.id);
   if (role !== "admin" && role !== "pemilik") redirect("/partner");
 
-  const [{ data: stores, error: storesError }] = await Promise.all([
+  const [{ data: storesData, error: storesError }] = await Promise.all([
     supabase
       .from("partner_stores")
-      .select("id, name, city, is_active")
+      .select("id, name, city")
+      .eq("is_active", true)
       .order("name", { ascending: true }),
   ]);
 
-  const storeNames = new Map((stores ?? []).map((store) => [store.id, store]));
-  const activeStores = (stores ?? []).filter((store) => store.is_active);
+  const stores = storesData ?? [];
   const products: Array<{
     id: string;
     sku: string;
     name: string;
     stock_quantity: number;
-    is_active: boolean;
   }> = [];
   let productError = "";
 
   for (let offset = 0; ; offset += PAGE_SIZE) {
     const { data, error } = await supabase
       .from("products")
-      .select("id, sku, name, stock_quantity, is_active")
+      .select("id, sku, name, stock_quantity")
+      .eq("is_active", true)
+      .gt("stock_quantity", 0)
       .order("name", { ascending: true })
       .range(offset, offset + PAGE_SIZE - 1);
 
@@ -51,6 +52,7 @@ export default async function StockAllocationPage() {
     if (page.length < PAGE_SIZE) break;
   }
 
+  const storeNames = new Map(stores.map((store) => [store.id, store]));
   const productsById = new Map(products.map((product) => [product.id, product]));
   const allocations: Array<{
     id: string;
@@ -82,19 +84,21 @@ export default async function StockAllocationPage() {
   return (
     <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
       <header className="mb-8">
-        <p className="mb-2 text-sm font-medium text-[#557b64]">Area Pemilik/Admin</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-[#173b32]">Alokasi Stok</h1>
-        <p className="mt-2 text-sm text-[#68756e]">Pindahkan stok dari katalog pusat ke toko mitra.</p>
+        <span className="inline-block rounded-full bg-[#f7e4d4] px-3 py-1 text-xs font-bold text-[#9d5c4c]">
+          Area Pemilik / Admin
+        </span>
+        <h1 className="mt-2 text-3xl font-black tracking-tight text-[#2d3440]">Alokasi Stok</h1>
+        <p className="mt-2 text-sm text-[#6d7687]">Pindahkan stok dari katalog pusat ke toko mitra.</p>
       </header>
 
-      <section aria-label="Form alokasi stok" className="mb-6 overflow-hidden rounded-md border border-[#e1e7e0] bg-white shadow-sm shadow-[#173b32]/5">
-        <div className="border-b border-[#edf0ec] px-5 py-4">
-          <h2 className="font-semibold text-[#173b32]">Alokasikan Produk</h2>
-          <p className="mt-1 text-sm text-[#7b877f]">Stok pusat berkurang saat alokasi berhasil.</p>
+      <section aria-label="Form alokasi stok" className="mb-6 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5">
+        <div className="border-b border-slate-100 px-6 py-5">
+          <h2 className="font-bold text-[#2d3440]">Alokasikan Produk</h2>
+          <p className="mt-1 text-sm text-[#7a8394]">Stok pusat berkurang saat alokasi berhasil.</p>
         </div>
         <AllocationForm
-          stores={activeStores.map((store) => ({ id: store.id, name: store.name }))}
-          products={products.filter((product) => product.is_active && product.stock_quantity > 0).map((product) => ({
+          stores={stores.map((store) => ({ id: store.id, name: store.name }))}
+          products={products.map((product) => ({
             id: product.id,
             sku: product.sku,
             name: product.name,
@@ -103,39 +107,39 @@ export default async function StockAllocationPage() {
         />
       </section>
 
-      <section aria-label="Daftar alokasi stok" className="overflow-hidden rounded-md border border-[#e1e7e0] bg-white shadow-sm shadow-[#173b32]/5">
-        <div className="border-b border-[#edf0ec] px-5 py-4">
-          <h2 className="font-semibold text-[#173b32]">Stok di Toko Mitra</h2>
-          <p className="mt-1 text-sm text-[#7b877f]">{allocations.length} alokasi produk</p>
+      <section aria-label="Daftar alokasi stok" className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5">
+        <div className="border-b border-slate-100 px-6 py-5">
+          <h2 className="font-bold text-[#2d3440]">Stok di Toko Mitra</h2>
+          <p className="mt-1 text-sm text-[#7a8394]">{allocations.length} alokasi produk</p>
         </div>
         {loadError ? (
-          <p role="alert" className="px-5 py-5 text-sm text-[#9b4936]">Data alokasi gagal dimuat: {loadError}</p>
+          <p role="alert" className="px-6 py-5 text-sm text-red-600">Data alokasi gagal dimuat: {loadError}</p>
         ) : allocations.length === 0 ? (
-          <p className="px-5 py-8 text-center text-sm text-[#68756e]">Belum ada stok yang dialokasikan.</p>
+          <p className="px-6 py-8 text-center text-sm text-[#6d7687]">Belum ada stok yang dialokasikan.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] text-left text-sm">
-              <thead className="bg-[#f7f9f6] text-xs uppercase text-[#68756e]">
+              <thead className="bg-[#f0f2f5] text-xs uppercase tracking-wider text-[#6d7687]">
                 <tr>
-                  <th scope="col" className="px-5 py-3 font-medium">Toko Mitra</th>
-                  <th scope="col" className="px-5 py-3 font-medium">SKU</th>
-                  <th scope="col" className="px-5 py-3 font-medium">Produk</th>
-                  <th scope="col" className="px-5 py-3 text-right font-medium">Stok Dialokasikan</th>
+                  <th scope="col" className="px-6 py-3.5 font-bold">Toko Mitra</th>
+                  <th scope="col" className="px-6 py-3.5 font-bold">SKU</th>
+                  <th scope="col" className="px-6 py-3.5 font-bold">Produk</th>
+                  <th scope="col" className="px-6 py-3.5 text-right font-bold">Stok Dialokasikan</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#edf0ec]">
+              <tbody className="divide-y divide-slate-100">
                 {allocations.map((allocation) => {
                   const store = storeNames.get(allocation.partner_store_id);
                   const product = productsById.get(allocation.product_id);
 
                   return (
-                    <tr key={allocation.id} className="hover:bg-[#fafbf9]">
-                      <td className="px-5 py-4 text-[#68756e]">
+                    <tr key={allocation.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="px-6 py-4 text-[#576071]">
                         {store ? `${store.name}${store.city ? ` · ${store.city}` : ""}` : "Toko tidak ditemukan"}
                       </td>
-                      <td className="whitespace-nowrap px-5 py-4 text-xs text-[#7b877f]">{product?.sku ?? "-"}</td>
-                      <th scope="row" className="px-5 py-4 font-medium text-[#293a32]">{product?.name ?? "Produk tidak ditemukan"}</th>
-                      <td className="whitespace-nowrap px-5 py-4 text-right font-semibold text-[#293a32]">
+                      <td className="whitespace-nowrap px-6 py-4 text-xs font-mono text-[#7a8394]">{product?.sku ?? "-"}</td>
+                      <th scope="row" className="px-6 py-4 font-semibold text-[#2d3440]">{product?.name ?? "Produk tidak ditemukan"}</th>
+                      <td className="whitespace-nowrap px-6 py-4 text-right font-bold text-[#2d3440]">
                         {numberFormatter.format(allocation.stock_quantity)}
                       </td>
                     </tr>

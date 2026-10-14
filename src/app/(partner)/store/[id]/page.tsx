@@ -68,66 +68,70 @@ export default async function StoreReportPage({ params }: StorePageProps) {
   return (
     <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
       <header className="mb-8">
-        <Link href="/dashboard" className="mb-5 inline-flex text-sm font-medium text-[#557b64] hover:text-[#285b46]">
+        <Link href="/dashboard-mitra" className="mb-4 inline-flex text-sm font-semibold text-[#9d5c4c] hover:underline">
           &larr; Kembali ke dashboard mitra
         </Link>
-        <p className="mb-2 text-sm font-medium text-[#557b64]">Laporan toko mitra</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-[#173b32]">{store.name}</h1>
-        <p className="mt-2 text-sm text-[#68756e]">
-          {[store.address, store.city].filter(Boolean).join(", ") || "Alamat belum tersedia"}
-        </p>
+        <div>
+          <span className="inline-block rounded-full bg-[#f7e4d4] px-3 py-1 text-xs font-bold text-[#9d5c4c]">
+            Laporan Toko Mitra
+          </span>
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-[#2d3440]">{store.name}</h1>
+          <p className="mt-2 text-sm text-[#6d7687]">
+            {[store.address, store.city].filter(Boolean).join(", ") || "Alamat belum tersedia"}
+          </p>
+        </div>
       </header>
 
       <section aria-label="Ringkasan penjualan toko" className="mb-6 grid gap-4 sm:grid-cols-2">
-        <article className="rounded-md border border-[#e1e7e0] bg-white p-5 shadow-sm shadow-[#173b32]/5">
-          <p className="text-sm text-[#68756e]">Jumlah Transaksi</p>
-          <p className="mt-3 text-2xl font-semibold text-[#173b32]">{loadError ? "—" : transactions.length}</p>
+        <article className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-[#2d3440]/5">
+          <p className="text-xs font-bold uppercase tracking-wider text-[#7a8394]">Jumlah Transaksi</p>
+          <p className="mt-3 text-3xl font-black text-[#2d3440]">{loadError ? "—" : transactions.length}</p>
         </article>
-        <article className="rounded-md border border-[#e1e7e0] bg-white p-5 shadow-sm shadow-[#173b32]/5">
-          <p className="text-sm text-[#68756e]">Total Penjualan</p>
-          <p className="mt-3 break-words text-2xl font-semibold text-[#315d3e]">
+        <article className="rounded-2xl bg-gradient-to-br from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] p-6 text-white shadow-lg shadow-[#9d5c4c]/20">
+          <p className="text-xs font-bold uppercase tracking-wider text-white/80">Total Penjualan</p>
+          <p className="mt-3 break-words text-3xl font-black tracking-tight text-white">
             {loadError ? "—" : currencyFormatter.format(totalSales)}
           </p>
         </article>
       </section>
 
-      <section className="overflow-hidden rounded-md border border-[#e1e7e0] bg-white shadow-sm shadow-[#173b32]/5">
-        <div className="border-b border-[#edf0ec] px-5 py-4">
-          <h2 className="font-semibold text-[#173b32]">Transaksi Toko</h2>
-          <p className="mt-1 text-sm text-[#7b877f]">Riwayat transaksi berdasarkan waktu penjualan.</p>
+      <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5">
+        <div className="border-b border-slate-100 px-6 py-5">
+          <h2 className="font-bold text-[#2d3440]">Transaksi Toko</h2>
+          <p className="mt-1 text-sm text-[#7a8394]">Riwayat transaksi berdasarkan waktu penjualan.</p>
         </div>
         {loadError ? (
-          <p role="alert" className="px-5 py-6 text-sm text-[#9b4936]">Transaksi gagal dimuat: {loadError}</p>
+          <p role="alert" className="px-6 py-6 text-sm text-red-600">Transaksi gagal dimuat: {loadError}</p>
         ) : transactions.length === 0 ? (
-          <p className="px-5 py-8 text-center text-sm text-[#68756e]">Belum ada transaksi untuk toko ini.</p>
+          <p className="px-6 py-12 text-center text-sm text-[#6d7687]">Belum ada transaksi untuk toko ini.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-[#f7f9f6] text-xs uppercase text-[#68756e]">
+              <thead className="bg-[#f0f2f5] text-xs uppercase tracking-wider text-[#6d7687] font-bold">
                 <tr>
-                  <th scope="col" className="px-5 py-3 font-medium">Nomor</th>
-                  <th scope="col" className="px-5 py-3 font-medium">Waktu</th>
-                  <th scope="col" className="px-5 py-3 font-medium">Pelanggan</th>
-                  <th scope="col" className="px-5 py-3 font-medium">Kanal</th>
-                  <th scope="col" className="px-5 py-3 text-right font-medium">Total</th>
-                  <th scope="col" className="px-5 py-3 font-medium">Status</th>
+                  <th scope="col" className="px-6 py-3.5">Nomor</th>
+                  <th scope="col" className="px-6 py-3.5">Waktu</th>
+                  <th scope="col" className="px-6 py-3.5">Pelanggan</th>
+                  <th scope="col" className="px-6 py-3.5">Kanal</th>
+                  <th scope="col" className="px-6 py-3.5 text-right">Total</th>
+                  <th scope="col" className="px-6 py-3.5">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#edf0ec]">
+              <tbody className="divide-y divide-slate-100">
                 {transactions.map((transaction) => (
-                  <tr key={transaction.id} className="hover:bg-[#fafbf9]">
-                    <th scope="row" className="whitespace-nowrap px-5 py-4 font-medium text-[#293a32]">
+                  <tr key={transaction.id} className="hover:bg-slate-50/70 transition-colors">
+                    <th scope="row" className="whitespace-nowrap px-6 py-4 font-mono font-semibold text-[#2d3440]">
                       {transaction.transaction_number}
                     </th>
-                    <td className="whitespace-nowrap px-5 py-4 text-[#68756e]">
+                    <td className="whitespace-nowrap px-6 py-4 text-[#576071]">
                       {dateFormatter.format(new Date(transaction.sold_at))}
                     </td>
-                    <td className="px-5 py-4 text-[#68756e]">{transaction.customer_name || "-"}</td>
-                    <td className="px-5 py-4 text-[#68756e]">{transaction.channel}</td>
-                    <td className="whitespace-nowrap px-5 py-4 text-right font-medium text-[#293a32]">
+                    <td className="px-6 py-4 text-[#576071]">{transaction.customer_name || "-"}</td>
+                    <td className="px-6 py-4 text-[#576071]">{transaction.channel}</td>
+                    <td className="whitespace-nowrap px-6 py-4 text-right font-black text-[#2d3440]">
                       {currencyFormatter.format(Number(transaction.total || 0))}
                     </td>
-                    <td className="px-5 py-4 text-[#68756e]">{transaction.status}</td>
+                    <td className="px-6 py-4 text-[#576071]">{transaction.status}</td>
                   </tr>
                 ))}
               </tbody>

@@ -14,7 +14,7 @@ export async function GET() {
     }
 
     // Ambil data transaksi beserta nama mitra
-    const { data: transactions, error } = await supabase
+    const { data: transactions, error } = await (supabase
       .from("sales_transactions")
       .select(`
         id,
@@ -25,7 +25,7 @@ export async function GET() {
         items,
         partner_stores ( name )
       `)
-      .order("sold_at", { ascending: false });
+      .order("sold_at", { ascending: false }) as any);
 
     if (error) {
       console.error("Gagal mengambil data penjualan:", error);
@@ -44,7 +44,15 @@ export async function GET() {
         : tx.partner_stores?.name || "Unknown Store";
 
       const txDate = new Date(tx.sold_at).toLocaleString("id-ID");
-      
+
+      const paymentRaw = String(tx.payment_method || "cash").toLowerCase().trim();
+      const paymentDisplay =
+        paymentRaw === "qris"
+          ? "QRIS"
+          : paymentRaw === "transfer"
+          ? "Transfer"
+          : "Tunai";
+
       // Jika tidak ada items, buat 1 baris rekap
       if (!tx.items || !Array.isArray(tx.items) || tx.items.length === 0) {
         csvRows.push(
@@ -52,7 +60,7 @@ export async function GET() {
             `"${tx.transaction_number}"`,
             `"${txDate}"`,
             `"${storeName}"`,
-            `"${tx.payment_method || '-'}"`,
+            `"${paymentDisplay}"`,
             tx.total,
             "-",
             0,
@@ -63,20 +71,25 @@ export async function GET() {
         continue;
       }
 
-      // Jika ada items (multi-item JSONB), jabarkan per baris item
+      // Jika ada multi-items, pecah per item barang
       for (const item of tx.items) {
         const record = item as any;
+        const productName = record?.name || "Produk";
+        const qty = Number(record?.quantity || 0);
+        const unitPrice = Number(record?.unit_price || 0);
+        const lineTotal = Number(record?.line_total || (unitPrice * qty));
+
         csvRows.push(
           [
             `"${tx.transaction_number}"`,
             `"${txDate}"`,
             `"${storeName}"`,
-            `"${tx.payment_method || '-'}"`,
-            tx.total, // Diulang untuk tiap baris (atau bisa dikosongkan)
-            `"${record.productName || record.name || '-'}"`,
-            record.quantity || 0,
-            record.price || record.unit_price || 0,
-            (record.quantity || 0) * (record.price || record.unit_price || 0)
+            `"${paymentDisplay}"`,
+            tx.total,
+            `"${productName}"`,
+            qty,
+            unitPrice,
+            lineTotal
           ].join(",")
         );
       }
@@ -88,7 +101,7 @@ export async function GET() {
       status: 200,
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": `attachment; filename="Laporan_Penjualan_${new Date().toISOString().split("T")[0]}.csv"`,
+        "Content-Disposition": `attachment; filename="laporan_penjualan_detail.csv"`,
       },
     });
   } catch (error) {

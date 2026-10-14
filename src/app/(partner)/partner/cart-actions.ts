@@ -61,17 +61,20 @@ export async function recordCartTransaction(
     if ((await getProfileRole(supabase, user.id)) !== "mitra")
       return { error: "Hanya akun Mitra yang dapat mencatat penjualan." };
 
-    // ── Verifikasi kepemilikan toko ────────────────────────────────────────
+    // ── Verifikasi kepemilikan toko & status ────────────────────────────────
     const { data: store, error: storeError } = await supabase
       .from("partner_stores")
-      .select("id")
+      .select("id, status, is_active")
       .eq("id", input.partnerStoreId)
       .eq("owner_id", user.id)
-      .eq("is_active", true)
       .maybeSingle();
 
     if (storeError) throw storeError;
-    if (!store) return { error: "Toko tidak ditemukan atau tidak aktif." };
+    if (!store) return { error: "Toko tidak ditemukan." };
+    if (store.status === "pending")
+      return { error: "Akun toko Mitra Anda masih dalam proses peninjauan oleh Admin." };
+    if (store.status === "nonaktif" || !store.is_active)
+      return { error: "Toko Mitra Anda sedang dinonaktifkan." };
 
     // ── Ambil data produk (harga resmi dari server) ────────────────────────
     const productIds = input.items.map((i) => i.productId);

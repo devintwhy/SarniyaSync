@@ -28,5 +28,5 @@ export async function getProfileRole(
 }
 
 export function getRoleHomePath(role: AppRole) {
-  return role === "mitra" ? "/partner" : "/";
+  return role === "mitra" ? "/partner" : "/dashboard";
 }
