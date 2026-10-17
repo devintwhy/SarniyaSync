@@ -52,16 +52,16 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
   }, [stores, searchTerm, filterStatus]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* ── Search Bar & Filter Toolbar ──────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-5 py-4 border-b border-slate-100 bg-slate-50/60">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-b border-[#a3b1c6]/20 bg-[#e0e5ec]">
+        <div className="relative flex-1 max-w-sm">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#7a8394]">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
               <path
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -71,36 +71,40 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Cari nama toko, pemilik, kota, nomor telepon..."
-            className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-8 text-sm text-[#2d3440] outline-none transition-all placeholder:text-[#9ea8b4] focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+            placeholder="Cari nama toko, pemilik, kota, no telepon..."
+            style={{
+              boxShadow:
+                "inset 3px 3px 6px rgba(163, 177, 198, 0.65), inset -3px -3px 6px rgba(255, 255, 255, 0.85)",
+            }}
+            className="w-full h-9 rounded-xl border-none bg-[#e0e5ec] py-1.5 pl-9 pr-8 text-xs font-medium text-[#2d3440] outline-none transition-all placeholder:text-[#8f98a8] focus:ring-1 focus:ring-dusty-rose/50"
           />
           {searchTerm && (
             <button
               type="button"
               onClick={() => setSearchTerm("")}
-              className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-xs text-[#7a8394] hover:text-[#2d3440]"
+              className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-xs font-bold text-[#7a8394] hover:text-terracotta-clay"
             >
               ✕
             </button>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <label htmlFor="filter-status" className="text-xs font-medium text-[#576071]">
+        <div className="flex flex-wrap items-center gap-2">
+          <label htmlFor="filter-status" className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">
             Status:
           </label>
           <select
             id="filter-status"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-[#2d3440] outline-none focus:border-[#cc9787]"
+            className="h-9 rounded-xl border-none bg-[#e0e5ec] px-3 text-xs font-bold text-[#2d3440] shadow-neu-sm outline-none transition-all focus:ring-1 focus:ring-dusty-rose/40 cursor-pointer"
           >
             <option value="all">Semua Status ({stores.length})</option>
             <option value="aktif">Aktif</option>
             <option value="pending">Pending</option>
             <option value="nonaktif">Nonaktif</option>
           </select>
-          <span className="text-xs font-medium text-[#cc9787] ml-2">
+          <span className="rounded-full bg-almond-cream px-2.5 py-0.5 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
             {filteredStores.length} dari {stores.length} toko
           </span>
         </div>
@@ -108,23 +112,23 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
 
       {/* ── Tabel Toko Mitra ─────────────────────────────────────────────── */}
       {filteredStores.length === 0 ? (
-        <div className="px-5 py-12 text-center text-sm text-[#6d7687]">
+        <div className="px-4 py-10 text-center text-xs font-medium text-[#7a8394]">
           Tidak ada toko mitra yang cocok dengan pencarian{" "}
-          {searchTerm ? <span className="font-semibold text-[#2d3440]">"{searchTerm}"</span> : ""}.
+          {searchTerm ? <span className="font-bold text-terracotta-clay">"{searchTerm}"</span> : ""}.
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
-            <thead className="bg-[#f0f2f5] text-xs uppercase tracking-wider text-[#576071]">
+        <div className="overflow-x-auto px-1 pb-2">
+          <table className="w-full min-w-[700px] text-left text-xs">
+            <thead className="border-b border-[#a3b1c6]/25 text-[11px] font-bold uppercase tracking-wider text-[#576071]">
               <tr>
-                <th scope="col" className="px-5 py-3.5 font-bold">Nama Toko</th>
-                <th scope="col" className="px-5 py-3.5 font-bold">Pemilik</th>
-                <th scope="col" className="px-5 py-3.5 font-bold">Kontak</th>
-                <th scope="col" className="px-5 py-3.5 font-bold">Lokasi</th>
-                <th scope="col" className="px-5 py-3.5 font-bold">Kontrol Status &amp; Pesan Admin</th>
+                <th scope="col" className="px-4 py-2.5 font-black">Nama Toko</th>
+                <th scope="col" className="px-4 py-2.5 font-black">Pemilik</th>
+                <th scope="col" className="px-4 py-2.5 font-black">Kontak</th>
+                <th scope="col" className="px-4 py-2.5 font-black">Lokasi</th>
+                <th scope="col" className="px-4 py-2.5 font-black">Kontrol Status &amp; Pesan Admin</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[#a3b1c6]/20">
               {filteredStores.map((store) => {
                 const currentStatus = (store.status || (store.is_active ? "aktif" : "pending")) as
                   | "aktif"
@@ -136,17 +140,17 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                   : store.owner?.full_name ?? "—";
 
                 return (
-                  <tr key={store.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="px-5 py-4 font-medium text-[#2d3440]">
-                      <div className="font-semibold">{store.name}</div>
-                      <div className="text-xs text-[#7a8394]">ID: {store.id.slice(0, 8)}</div>
+                  <tr key={store.id} className="transition-colors hover:bg-almond-cream/25">
+                    <td className="px-4 py-2.5 font-medium text-[#2d3440]">
+                      <div className="font-bold text-[#2d3440]">{store.name}</div>
+                      <div className="text-[10px] font-medium text-[#7a8394]">ID: {store.id.slice(0, 8)}</div>
                     </td>
-                    <td className="px-5 py-4 text-[#2d3440]">{ownerName}</td>
-                    <td className="px-5 py-4 text-[#576071]">{store.phone || "—"}</td>
-                    <td className="px-5 py-4 text-[#576071]">
+                    <td className="px-4 py-2.5 font-semibold text-[#2d3440]">{ownerName}</td>
+                    <td className="px-4 py-2.5 font-medium text-[#576071]">{store.phone || "—"}</td>
+                    <td className="px-4 py-2.5 font-medium text-[#576071]">
                       {store.city || store.address || "—"}
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-2.5">
                       <StatusSelect
                         storeId={store.id}
                         initialStatus={currentStatus}

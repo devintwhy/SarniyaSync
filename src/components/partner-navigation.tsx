@@ -22,11 +22,65 @@ const navigationItems = [
   { label: "Pengaturan Akun", href: partnerRoutes.profile },
 ];
 
+function getPartnerNavIcon(label: string) {
+  const l = label.toLowerCase();
+  if (l.includes("dashboard")) {
+    return (
+      <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="7" height="9" rx="1" />
+        <rect x="14" y="3" width="7" height="5" rx="1" />
+        <rect x="14" y="12" width="7" height="9" rx="1" />
+        <rect x="3" y="16" width="7" height="5" rx="1" />
+      </svg>
+    );
+  }
+  if (l.includes("kasir")) {
+    return (
+      <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+        <line x1="2" y1="10" x2="22" y2="10" />
+        <line x1="7" y1="15" x2="7.01" y2="15" />
+        <line x1="12" y1="15" x2="12.01" y2="15" />
+        <line x1="17" y1="15" x2="17.01" y2="15" />
+      </svg>
+    );
+  }
+  if (l.includes("stok")) {
+    return (
+      <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16Z" />
+        <path d="m3.3 7 8.7 5 8.7-5" />
+        <path d="M12 22V12" />
+      </svg>
+    );
+  }
+  if (l.includes("transaksi")) {
+    return (
+      <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+        <polyline points="10 9 9 9 8 9" />
+      </svg>
+    );
+  }
+  return (
+    <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+    </svg>
+  );
+}
+
 export default function PartnerNavigation() {
   const pathname = usePathname();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // ── State Collapsible Sidebar (Default Terbuka w-64) ───────────────────────
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   async function handleLogout() {
     setIsLoggingOut(true);
@@ -45,53 +99,149 @@ export default function PartnerNavigation() {
   }
 
   return (
-    <aside className="flex w-full flex-col bg-[#1e242d] text-white lg:min-h-screen lg:w-64 lg:shrink-0">
-      <div className="flex items-center gap-3 px-6 py-5 lg:py-8">
-        <div className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/10 p-1 shadow-sm">
-          <Image
-            src="/logo-sarniya.png"
-            alt="Logo SarniyaSync"
-            width={40}
-            height={40}
-            className="h-full w-full object-contain"
-            priority
-          />
+    <aside
+      className={`relative flex flex-col border-b border-[#a3b1c6]/30 bg-[#e0e5ec] text-[#2d3440] shadow-[4px_0_15px_rgba(163,177,198,0.35)] transition-all duration-300 ease-in-out lg:min-h-screen lg:shrink-0 lg:border-b-0 lg:border-r ${
+        isSidebarOpen ? "w-full lg:w-64" : "w-full lg:w-20"
+      }`}
+    >
+      {/* ── Brand Header & Toggle Button ──────────────────────────────────── */}
+      <div
+        className={`flex items-center py-5 transition-all duration-300 ${
+          isSidebarOpen ? "justify-between px-5" : "flex-col justify-center gap-3 px-3"
+        }`}
+      >
+        <div className={`flex items-center gap-3 ${!isSidebarOpen ? "justify-center" : ""}`}>
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[#e0e5ec] p-1.5 shadow-neu-sm">
+            <Image
+              src="/logo-sarniya.png"
+              alt="Logo SarniyaSync"
+              width={30}
+              height={30}
+              className="h-full w-full object-contain"
+              priority
+            />
+          </div>
+          {isSidebarOpen && (
+            <div className="overflow-hidden whitespace-nowrap transition-opacity duration-200">
+              <span className="text-base font-black tracking-tight text-[#2d3440]">
+                SarniyaSync
+              </span>
+              <p className="text-[10px] font-medium text-[#7a8394]">Portal Mitra</p>
+            </div>
+          )}
         </div>
-        <div>
-          <p className="text-lg font-semibold">SarniyaSync</p>
-          <p className="text-xs text-white/60">Portal Mitra</p>
-        </div>
+
+        {/* Tombol Toggle Neumorphism Timbul (Terracotta Clay) */}
+        <button
+          type="button"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          aria-label={isSidebarOpen ? "Ciutkan Sidebar" : "Buka Sidebar"}
+          title={isSidebarOpen ? "Sembunyikan Menu" : "Buka Menu"}
+          className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-terracotta-clay text-white shadow-neu-sm transition-all duration-200 hover:brightness-110 active:scale-95"
+        >
+          <svg
+            className={`size-4 transition-transform duration-300 ${
+              isSidebarOpen ? "" : "rotate-180"
+            }`}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
       </div>
 
-      <nav aria-label="Navigasi Mitra" className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:px-4">
+      {/* ── Navigation List ───────────────────────────────────────────────── */}
+      <nav
+        aria-label="Navigasi Mitra"
+        className={`flex gap-1.5 overflow-x-auto px-3 pb-3 lg:flex-col ${
+          isSidebarOpen ? "lg:px-4" : "lg:px-2.5 items-center"
+        }`}
+      >
         {navigationItems.map((item) => {
           const isActive =
             pathname === item.href ||
             pathname.startsWith(`${item.href}/`) ||
             (item.href === "/dashboard-mitra" && pathname === "/partner");
+
           return (
             <Link
               key={item.href}
               href={item.href}
               aria-current={isActive ? "page" : undefined}
-              className={`flex shrink-0 items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors lg:w-full ${isActive ? "bg-white/12 font-medium text-white" : "text-white/65 hover:bg-white/8 hover:text-white"}`}
+              title={!isSidebarOpen ? item.label : undefined}
+              className={`group flex shrink-0 items-center rounded-2xl py-2.5 text-xs font-bold transition-all duration-200 ${
+                isSidebarOpen
+                  ? "w-full gap-3 px-3.5"
+                  : "size-11 justify-center p-0"
+              } ${
+                isActive
+                  ? "bg-terracotta-clay text-white shadow-neu-sm"
+                  : "text-[#576071] hover:bg-almond-cream/60 hover:text-terracotta-clay active:shadow-neu-inset-sm"
+              }`}
             >
-              <span className="size-1.5 rounded-full bg-[#cc8c7d]" aria-hidden="true" />
-              {item.label}
+              <span
+                className={`transition-colors ${
+                  isActive ? "text-white" : "text-[#7a8394] group-hover:text-terracotta-clay"
+                }`}
+              >
+                {getPartnerNavIcon(item.label)}
+              </span>
+
+              {isSidebarOpen && (
+                <span className="truncate whitespace-nowrap transition-opacity duration-200">
+                  {item.label}
+                </span>
+              )}
             </Link>
           );
         })}
       </nav>
 
-      <div className="mt-auto border-t border-white/10 px-4 py-4 lg:px-6 lg:py-5">
-        {errorMessage && <p role="alert" className="mb-3 text-xs text-[#ffd6ca]">{errorMessage}</p>}
+      {/* ── Footer & Logout ──────────────────────────────────────────────── */}
+      <div
+        className={`mt-auto border-t border-[#a3b1c6]/30 py-4 transition-all duration-300 ${
+          isSidebarOpen ? "px-4" : "px-2.5 flex flex-col items-center"
+        }`}
+      >
+        {errorMessage && isSidebarOpen && (
+          <p role="alert" className="mb-2.5 rounded-xl border border-rose-300 bg-rose-50/90 p-2 text-[10px] font-semibold text-rose-800 truncate">
+            {errorMessage}
+          </p>
+        )}
+
         <button
           type="button"
           onClick={() => void handleLogout()}
           disabled={isLoggingOut}
-          className="w-full rounded-md border border-white/15 px-3 py-2 text-left text-sm text-white/80 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50"
+          title={!isSidebarOpen ? "Keluar Sesi" : undefined}
+          className={`flex items-center justify-center rounded-2xl bg-[#e0e5ec] text-xs font-bold uppercase tracking-wider text-terracotta-clay shadow-neu-sm transition-all duration-200 hover:bg-almond-cream/50 active:shadow-neu-inset-sm disabled:cursor-not-allowed disabled:opacity-50 ${
+            isSidebarOpen ? "w-full gap-2 py-2.5 px-3" : "size-11 p-0"
+          }`}
         >
-          {isLoggingOut ? "Keluar..." : "Keluar"}
+          <svg
+            className="size-4 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+
+          {isSidebarOpen && (
+            <span className="truncate">
+              {isLoggingOut ? "Keluar..." : "Keluar Sesi"}
+            </span>
+          )}
         </button>
       </div>
     </aside>

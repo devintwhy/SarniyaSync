@@ -136,24 +136,24 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-      <header className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="w-full max-w-7xl mx-auto space-y-3 sm:space-y-4">
+      <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="inline-block rounded-full bg-[#f7e4d4] px-3.5 py-1 text-xs font-bold text-[#9d5c4c]">
+          <span className="inline-block rounded-full bg-[#f7e4d4] px-2.5 py-0.5 text-xs font-bold text-[#9d5c4c]">
             Area Pemilik / Administrator
           </span>
-          <h1 className="mt-2 text-3xl sm:text-4xl font-black tracking-tight text-[#2d3440]">Kelola Stok</h1>
-          <p className="mt-1 text-sm sm:text-base text-[#6d7687]">Daftar produk dan ketersediaan stok pusat.</p>
+          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">Kelola Stok</h1>
+          <p className="mt-0.5 text-xs sm:text-sm text-[#6d7687]">Daftar produk dan ketersediaan stok pusat.</p>
         </div>
-        <div className="flex items-center justify-between gap-4 sm:justify-end">
-          <p className="text-sm text-[#68756e]" aria-live="polite">
+        <div className="flex items-center justify-between gap-3 sm:justify-end">
+          <p className="text-xs text-[#68756e]" aria-live="polite">
             {isLoading ? "Memuat produk..." : `${products.length} produk`}
           </p>
           <Link
             href="/inventory/tambah"
-            className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-5 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:brightness-105 active:scale-[0.99]"
+            className="inline-flex h-9 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:brightness-105 active:scale-[0.99]"
           >
-            Tambah Produk
+            + Tambah Produk
           </Link>
         </div>
       </header>
@@ -161,7 +161,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
       {successMessage && (
         <div
           role="status"
-          className="mb-5 flex items-center justify-between gap-4 rounded-md border border-[#cfe2d0] bg-[#edf5e8] px-4 py-3 text-sm text-[#315d3e]"
+          className="flex items-center justify-between gap-3 rounded-lg border border-[#cfe2d0] bg-[#edf5e8] px-3.5 py-2 text-xs sm:text-sm text-[#315d3e]"
         >
           <p>{successMessage}</p>
           <button
@@ -174,7 +174,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
         </div>
       )}
       {actionError && (
-        <p role="alert" className="mb-5 rounded-md border border-[#f0d4cc] bg-[#fff5f1] px-4 py-3 text-sm text-[#9b4936]">
+        <p role="alert" className="rounded-lg border border-[#f0d4cc] bg-[#fff5f1] px-3.5 py-2 text-xs sm:text-sm text-[#9b4936]">
           {actionError}
         </p>
       )}
@@ -182,10 +182,10 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
       <form
         action="/inventory"
         method="get"
-        className="mb-5 flex flex-col gap-3 rounded-md border border-[#e1e7e0] bg-white p-4 sm:flex-row sm:items-end"
+        className="flex flex-col gap-2.5 rounded-xl border border-slate-200/80 bg-white p-3 sm:flex-row sm:items-end shadow-sm"
       >
         <div className="min-w-0 flex-1">
-          <label htmlFor="inventory-search" className="mb-1.5 block text-xs font-medium text-[#576071]">
+          <label htmlFor="inventory-search" className="mb-1 block text-xs font-semibold text-[#576071]">
             Cari nama produk atau SKU
           </label>
           <input
@@ -194,18 +194,18 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
             type="search"
             defaultValue={search}
             placeholder="Contoh: Pashmina atau HJ-001"
-            className="min-h-10 w-full rounded-md border border-slate-200 px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+            className="h-9 w-full rounded-lg border border-slate-200 px-3 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
           />
         </div>
-        <div className="sm:w-52">
-          <label htmlFor="inventory-category" className="mb-1.5 block text-xs font-medium text-[#576071]">
+        <div className="sm:w-48">
+          <label htmlFor="inventory-category" className="mb-1 block text-xs font-semibold text-[#576071]">
             Kategori
           </label>
           <select
             id="inventory-category"
             name="category"
             defaultValue={category || "all"}
-            className="min-h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+            className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
           >
             <option value="all">Semua kategori</option>
             <option value="Pashmina">Pashmina</option>
@@ -215,20 +215,20 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
         </div>
         <button
           type="submit"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-5 text-sm font-bold text-white shadow-sm transition-all hover:brightness-105"
+          className="inline-flex h-9 items-center justify-center rounded-lg bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:brightness-105"
         >
           Cari
         </button>
       </form>
 
-      <section aria-label="Daftar produk" className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
-        <div className="border-b border-slate-100 px-6 py-5">
-          <h2 className="text-lg font-bold text-[#2d3440]">Inventaris produk</h2>
-          <p className="mt-1 text-sm text-[#7b877f]">Data diperbarui dari katalog SarniyaSync.</p>
+      <section aria-label="Daftar produk" className="overflow-hidden rounded-xl border border-slate-200/70 bg-white shadow-sm">
+        <div className="border-b border-slate-100 px-4 py-3">
+          <h2 className="text-base font-bold text-[#2d3440]">Inventaris produk</h2>
+          <p className="mt-0.5 text-xs text-[#7b877f]">Data diperbarui dari katalog SarniyaSync.</p>
         </div>
 
         {isLoading ? (
-          <div className="px-5 py-12 text-center text-sm text-[#68756e]" role="status">
+          <div className="px-4 py-8 text-center text-xs sm:text-sm text-[#68756e]" role="status">
             Memuat data produk...
           </div>
         ) : (
@@ -236,26 +236,26 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
             {!isLoading && errorMessage && (
               <div
                 role="alert"
-                className="border-b border-[#f1dfc5] bg-[#fff9ef] px-5 py-3 text-sm text-[#765a36]"
+                className="border-b border-[#f1dfc5] bg-[#fff9ef] px-4 py-2.5 text-xs sm:text-sm text-[#765a36]"
               >
                 Produk gagal dimuat dari Supabase: {errorMessage}
               </div>
             )}
             {!isLoading && !errorMessage && products.length === 0 && (
-              <div role="status" className="border-b border-[#edf0ec] px-5 py-6 text-center text-sm text-[#68756e]">
+              <div role="status" className="border-b border-[#edf0ec] px-4 py-6 text-center text-xs sm:text-sm text-[#68756e]">
                 Belum ada produk di inventaris.
               </div>
             )}
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left text-sm">
-              <thead className="bg-[#f7f9f6] text-xs uppercase tracking-wide text-[#68756e]">
+            <table className="w-full min-w-[700px] text-left text-xs sm:text-sm">
+              <thead className="bg-[#f7f9f6] text-[11px] uppercase tracking-wider text-[#68756e]">
                 <tr>
-                  <th scope="col" className="px-5 py-3 font-medium">SKU</th>
-                  <th scope="col" className="px-5 py-3 font-medium">Nama produk</th>
-                  <th scope="col" className="px-5 py-3 font-medium">Kategori</th>
-                  <th scope="col" className="px-5 py-3 text-right font-medium">Stok</th>
-                  <th scope="col" className="px-5 py-3 text-right font-medium">Harga</th>
-                  <th scope="col" className="px-5 py-3 font-medium">Aksi</th>
+                  <th scope="col" className="px-3.5 py-2.5 font-bold">SKU</th>
+                  <th scope="col" className="px-3.5 py-2.5 font-bold">Nama produk</th>
+                  <th scope="col" className="px-3.5 py-2.5 font-bold">Kategori</th>
+                  <th scope="col" className="px-3.5 py-2.5 text-right font-bold">Stok</th>
+                  <th scope="col" className="px-3.5 py-2.5 text-right font-bold">Harga</th>
+                  <th scope="col" className="px-3.5 py-2.5 font-bold">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#edf0ec]">
@@ -266,46 +266,46 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
 
                   return (
                     <tr key={getText(product, ["id", "sku", "kode_produk"], String(index))} className="transition-colors hover:bg-[#fafbf9]">
-                      <td className="whitespace-nowrap px-5 py-4 text-xs text-[#7b877f]">
+                      <td className="whitespace-nowrap px-3.5 py-2 text-xs font-mono text-[#7b877f]">
                         {getText(product, ["sku", "code", "kode_produk", "id"])}
                       </td>
-                      <th scope="row" className="whitespace-nowrap px-5 py-4 font-medium text-[#2d3440]">
-                        <div className="flex items-center gap-3">
+                      <th scope="row" className="whitespace-nowrap px-3.5 py-2 font-medium text-[#2d3440]">
+                        <div className="flex items-center gap-2.5">
                           {imageUrl ? (
                             <Image
                               src={imageUrl}
                               alt={`Foto ${productName}`}
-                              width={44}
-                              height={44}
-                              sizes="44px"
-                              className="size-11 shrink-0 rounded border border-[#e1e7e0] object-cover"
+                              width={36}
+                              height={36}
+                              sizes="36px"
+                              className="size-9 shrink-0 rounded border border-[#e1e7e0] object-cover"
                             />
                           ) : (
                             <span
                               aria-hidden="true"
-                              className="flex size-11 shrink-0 items-center justify-center rounded border border-[#e1e7e0] bg-[#f7f9f6] text-[10px] font-medium text-[#7b877f]"
+                              className="flex size-9 shrink-0 items-center justify-center rounded border border-[#e1e7e0] bg-[#f7f9f6] text-[10px] font-medium text-[#7b877f]"
                             >
                               Foto
                             </span>
                           )}
-                          <span>{productName}</span>
+                          <span className="font-semibold">{productName}</span>
                         </div>
                       </th>
-                      <td className="whitespace-nowrap px-5 py-4 text-[#68756e]">
+                      <td className="whitespace-nowrap px-3.5 py-2 text-xs text-[#68756e]">
                         {getText(product, ["category", "kategori", "jenis"], "Hijab")}
                       </td>
-                      <td className="whitespace-nowrap px-5 py-4 text-right font-medium text-[#2d3440]">
-                        {stock ?? "-"} <span className="font-normal text-[#7b877f]">{getText(product, ["unit", "satuan"], "pcs")}</span>
+                      <td className="whitespace-nowrap px-3.5 py-2 text-right font-bold text-[#2d3440]">
+                        {stock ?? "-"} <span className="font-normal text-[11px] text-[#7b877f]">{getText(product, ["unit", "satuan"], "pcs")}</span>
                       </td>
-                      <td className="whitespace-nowrap px-5 py-4 text-right text-[#2d3440]">
+                      <td className="whitespace-nowrap px-3.5 py-2 text-right font-semibold text-[#2d3440]">
                         {getText(product, ["selling_price", "price", "harga_jual"], "-")}
                       </td>
-                      <td className="whitespace-nowrap px-5 py-4">
-                        <div className="flex items-center gap-2">
+                      <td className="whitespace-nowrap px-3.5 py-2">
+                        <div className="flex items-center gap-1.5">
                           <Link
                             href={`/inventory/edit/${encodeURIComponent(getText(product, ["id"], ""))}`}
                             aria-label={`Edit ${productName}`}
-                            className="rounded border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-[#576071] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cc9787]"
+                            className="rounded-lg border border-slate-200 px-2 py-1 text-xs font-medium text-[#576071] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cc9787]"
                           >
                             Edit
                           </Link>
@@ -314,9 +314,9 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                             onClick={() => void handleDelete(product)}
                             disabled={deletingId === getText(product, ["id"], "")}
                             aria-label={`Hapus ${productName}`}
-                            className="rounded border border-[#ead5cf] px-2.5 py-1.5 text-xs font-medium text-[#9b4936] opacity-60"
+                            className="rounded-lg border border-[#ead5cf] px-2 py-1 text-xs font-medium text-[#9b4936] opacity-60 hover:opacity-100"
                           >
-                            {deletingId === getText(product, ["id"], "") ? "Menghapus..." : "Hapus"}
+                            {deletingId === getText(product, ["id"], "") ? "..." : "Hapus"}
                           </button>
                         </div>
                       </td>

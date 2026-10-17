@@ -268,32 +268,32 @@ export default async function PartnerDashboardPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+    <div className="w-full max-w-7xl mx-auto space-y-3 sm:space-y-4">
       {/* ── Header Dasbor Mitra ─────────────────────────────────────────── */}
-      <header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <header className="flex flex-col justify-between gap-2.5 sm:flex-row sm:items-end">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center rounded-full bg-[#f7e4d4] px-3 py-0.5 text-xs font-bold text-[#9d5c4c]">
+          <div className="flex items-center gap-1.5">
+            <span className="inline-flex items-center rounded-full bg-[#f7e4d4] px-2.5 py-0.5 text-xs font-bold text-[#9d5c4c]">
               Portal Mitra
             </span>
             <span className="text-xs text-[#7a8394]">&bull; {storeNames}</span>
           </div>
-          <h1 className="mt-2 text-3xl font-black tracking-tight text-[#2d3440]">Dasbor Toko Saya</h1>
-          <p className="mt-1 text-sm text-[#6d7687]">
+          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">Dasbor Toko Saya</h1>
+          <p className="mt-0.5 text-xs sm:text-sm text-[#6d7687]">
             Pantau omzet harian, performa produk, dan peringatan stok inventaris toko Anda secara real-time.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <Link
             href="/partner/kasir"
-            className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-[#9d5c4c]/20 transition-all hover:brightness-105 active:scale-[0.99]"
+            className="inline-flex h-9 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:brightness-105 active:scale-[0.99]"
           >
             + Kasir POS
           </Link>
           <Link
             href="/partner/transaksi"
-            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-[#2d3440] shadow-sm transition-all hover:bg-slate-50"
+            className="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-3.5 text-xs sm:text-sm font-semibold text-[#2d3440] shadow-sm transition-all hover:bg-slate-50"
           >
             Riwayat Transaksi
           </Link>
@@ -301,11 +301,11 @@ export default async function PartnerDashboardPage() {
       </header>
 
       {/* ── 1. Pendapatan Hari Ini & Rincian Pembayaran (Live Banner) ────── */}
-      <section aria-label="Ringkasan Pendapatan Hari Ini" className="mb-8">
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-[#2d3440]/5">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-5 border-b border-slate-100">
-            <div className="flex items-center gap-2.5">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#f7e4d4] text-[#9d5c4c]">
+      <section aria-label="Ringkasan Pendapatan Hari Ini">
+        <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-sm shadow-[#2d3440]/5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-[#f7e4d4] text-[#9d5c4c]">
                 Hari Ini
               </span>
               <span className="text-xs text-[#7a8394]">
@@ -320,39 +320,39 @@ export default async function PartnerDashboardPage() {
             </div>
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-3.5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {/* Kartu Utama: Total Pendapatan Hari Ini (Rose Gold Gradient) */}
-            <div className="rounded-2xl bg-gradient-to-br from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] p-6 text-white shadow-lg shadow-[#9d5c4c]/20 flex flex-col justify-between">
+            <div className="rounded-xl bg-gradient-to-br from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] p-3.5 sm:p-4 text-white shadow-md flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-white/80">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-white/80">
                     Pendapatan Hari Ini
                   </span>
-                  <span className="inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
+                  <span className="inline-flex items-center rounded-full bg-white/20 px-1.5 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm">
                     Live
                   </span>
                 </div>
-                <p className="mt-3 text-2xl sm:text-3xl font-black tracking-tight text-white">
+                <p className="mt-2 text-xl sm:text-2xl font-black tracking-tight text-white">
                   {currencyFormatter.format(todayRevenue)}
                 </p>
               </div>
-              <p className="mt-4 text-xs font-medium text-white/80">Total omzet kas masuk toko hari ini</p>
+              <p className="mt-2 text-[11px] font-medium text-white/80">Total omzet kas masuk toko hari ini</p>
             </div>
 
             {/* Rincian Metode: QRIS */}
-            <div className="rounded-2xl border border-slate-200/80 bg-[#f0f2f5]/40 p-5 flex flex-col justify-between">
+            <div className="rounded-xl border border-slate-200/80 bg-[#f0f2f5]/40 p-3 sm:p-3.5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#7a8394]">QRIS</span>
-                  <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 border border-blue-200/60">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#7a8394]">QRIS</span>
+                  <span className="inline-flex items-center rounded-lg bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-200/60">
                     QRIS
                   </span>
                 </div>
-                <p className="mt-3 text-xl sm:text-2xl font-black text-[#2d3440]">
+                <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
                   {currencyFormatter.format(todayQris)}
                 </p>
               </div>
-              <div className="mt-3 flex items-center justify-between border-t border-slate-200/60 pt-2 text-xs text-[#7a8394]">
+              <div className="mt-2 flex items-center justify-between border-t border-slate-200/60 pt-1.5 text-[11px] text-[#7a8394]">
                 <span>Porsi hari ini</span>
                 <span className="font-bold text-[#2d3440]">
                   {todayRevenue > 0 ? Math.round((todayQris / todayRevenue) * 100) : 0}%
@@ -361,19 +361,19 @@ export default async function PartnerDashboardPage() {
             </div>
 
             {/* Rincian Metode: Transfer */}
-            <div className="rounded-2xl border border-slate-200/80 bg-[#f0f2f5]/40 p-5 flex flex-col justify-between">
+            <div className="rounded-xl border border-slate-200/80 bg-[#f0f2f5]/40 p-3 sm:p-3.5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#7a8394]">Transfer Bank</span>
-                  <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-200/60">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#7a8394]">Transfer Bank</span>
+                  <span className="inline-flex items-center rounded-lg bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200/60">
                     Transfer
                   </span>
                 </div>
-                <p className="mt-3 text-xl sm:text-2xl font-black text-[#2d3440]">
+                <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
                   {currencyFormatter.format(todayTransfer)}
                 </p>
               </div>
-              <div className="mt-3 flex items-center justify-between border-t border-slate-200/60 pt-2 text-xs text-[#7a8394]">
+              <div className="mt-2 flex items-center justify-between border-t border-slate-200/60 pt-1.5 text-[11px] text-[#7a8394]">
                 <span>Porsi hari ini</span>
                 <span className="font-bold text-[#2d3440]">
                   {todayRevenue > 0 ? Math.round((todayTransfer / todayRevenue) * 100) : 0}%
@@ -382,19 +382,19 @@ export default async function PartnerDashboardPage() {
             </div>
 
             {/* Rincian Metode: Tunai */}
-            <div className="rounded-2xl border border-slate-200/80 bg-[#f0f2f5]/40 p-5 flex flex-col justify-between">
+            <div className="rounded-xl border border-slate-200/80 bg-[#f0f2f5]/40 p-3 sm:p-3.5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#7a8394]">Tunai / Cash</span>
-                  <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700 border border-slate-300/60">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#7a8394]">Tunai / Cash</span>
+                  <span className="inline-flex items-center rounded-lg bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700 border border-slate-300/60">
                     Tunai
                   </span>
                 </div>
-                <p className="mt-3 text-xl sm:text-2xl font-black text-[#2d3440]">
+                <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
                   {currencyFormatter.format(todayTunai)}
                 </p>
               </div>
-              <div className="mt-3 flex items-center justify-between border-t border-slate-200/60 pt-2 text-xs text-[#7a8394]">
+              <div className="mt-2 flex items-center justify-between border-t border-slate-200/60 pt-1.5 text-[11px] text-[#7a8394]">
                 <span>Porsi hari ini</span>
                 <span className="font-bold text-[#2d3440]">
                   {todayRevenue > 0 ? Math.round((todayTunai / todayRevenue) * 100) : 0}%
@@ -406,74 +406,74 @@ export default async function PartnerDashboardPage() {
       </section>
 
       {/* ── 2. Top Metrics Toko Mitra Bulan Ini ──────────────────────────── */}
-      <section aria-label="Statistik Utama Mitra" className="grid gap-4 md:grid-cols-3 mb-8">
+      <section aria-label="Statistik Utama Mitra" className="grid gap-3 md:grid-cols-3">
         {metrics.map((metric) => (
           <article
             key={metric.label}
-            className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-[#2d3440]/5"
+            className="rounded-xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-sm shadow-[#2d3440]/5"
           >
-            <p className="text-xs font-bold uppercase tracking-wider text-[#7a8394]">{metric.label}</p>
-            <p className={`mt-3 break-words text-2xl font-black text-balance ${metric.valueClass.replace('text-[#9d5c4c]', 'text-[#2d3440]')}`}>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[#7a8394]">{metric.label}</p>
+            <p className={`mt-2 break-words text-xl sm:text-2xl font-black text-balance ${metric.valueClass.replace('text-[#9d5c4c]', 'text-[#2d3440]')}`}>
               {metric.value}
             </p>
-            <p className="mt-2 text-xs text-[#6d7687]">{metric.detail}</p>
+            <p className="mt-1 text-xs text-[#6d7687]">{metric.detail}</p>
           </article>
         ))}
       </section>
 
       {/* ── 3. Grafik Tren 30 Hari & Produk Terlaris Toko Saya ───────────── */}
-      <div className="mb-8">
+      <div>
         <PartnerDashboardCharts dailySales={dailySales} bestSellers={bestSellers} />
       </div>
 
       {/* ── 4. Tabel Peringatan Stok Menipis & 5 Transaksi Terbaru ─────────── */}
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
         {/* Peringatan Stok Menipis Toko Mitra */}
         <section
           aria-label="Peringatan stok menipis toko saya"
-          className="overflow-hidden rounded-2xl border border-amber-200 bg-white shadow-sm flex flex-col"
+          className="overflow-hidden rounded-xl border border-amber-200 bg-white shadow-sm flex flex-col"
         >
-          <div className="flex flex-col gap-1 border-b border-amber-100 bg-amber-50/60 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-1 border-b border-amber-100 bg-amber-50/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="font-bold text-amber-900">Peringatan Stok Toko Saya</h2>
-              <p className="mt-1 text-sm text-amber-700">Produk di inventaris toko dengan stok &le; 5 unit.</p>
+              <h2 className="font-bold text-amber-900 text-sm sm:text-base">Peringatan Stok Toko Saya</h2>
+              <p className="text-xs text-amber-700">Produk di inventaris toko dengan stok &le; 5 unit.</p>
             </div>
-            <span className="text-xs font-bold text-amber-800 bg-amber-100/80 px-2.5 py-1 rounded-full">
+            <span className="text-[11px] font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-full self-start sm:self-auto">
               {lowStockItems.length} produk menipis
             </span>
           </div>
 
           <div className="flex-1 overflow-x-auto">
             {lowStockItems.length === 0 ? (
-              <div className="px-6 py-10 text-center">
-                <span className="text-3xl">✅</span>
-                <p className="mt-2 text-sm font-bold text-emerald-700">Semua stok toko Anda dalam kondisi aman!</p>
-                <p className="text-xs text-[#7a8394]">Tidak ada produk dengan sisa stok &le; 5 unit.</p>
+              <div className="px-4 py-8 text-center">
+                <span className="text-2xl">✅</span>
+                <p className="mt-1.5 text-xs sm:text-sm font-bold text-emerald-700">Semua stok toko Anda dalam kondisi aman!</p>
+                <p className="text-[11px] text-[#7a8394]">Tidak ada produk dengan sisa stok &le; 5 unit.</p>
               </div>
             ) : (
-              <table className="w-full text-left text-sm">
-                <thead className="bg-amber-50/30 text-xs uppercase text-amber-900 font-bold">
+              <table className="w-full text-left text-xs sm:text-sm">
+                <thead className="bg-amber-50/30 text-[11px] uppercase text-amber-900 font-bold">
                   <tr>
-                    <th scope="col" className="px-6 py-3">Produk</th>
-                    <th scope="col" className="px-6 py-3">Kategori</th>
-                    <th scope="col" className="px-6 py-3 text-right">Sisa Stok</th>
+                    <th scope="col" className="px-3.5 py-2.5">Produk</th>
+                    <th scope="col" className="px-3.5 py-2.5">Kategori</th>
+                    <th scope="col" className="px-3.5 py-2.5 text-right">Sisa Stok</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-amber-100/60">
                   {lowStockItems.map((item) => (
                     <tr key={item.id} className="hover:bg-amber-50/20 transition-colors">
-                      <th scope="row" className="px-6 py-4 font-semibold text-[#2d3440]">
+                      <th scope="row" className="px-3.5 py-2 font-semibold text-[#2d3440]">
                         <div>{item.name}</div>
-                        <div className="mt-0.5 text-xs font-mono font-normal text-[#7a8394]">{item.sku}</div>
+                        <div className="text-[10px] font-mono font-normal text-[#7a8394]">{item.sku}</div>
                       </th>
-                      <td className="px-6 py-4 text-[#576071]">
-                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-[#576071]">
+                      <td className="px-3.5 py-2 text-[#576071]">
+                        <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-[#576071]">
                           {item.category}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-3.5 py-2 text-right">
                         <span
-                          className={`inline-flex min-w-[2.5rem] justify-center rounded-md px-2 py-1 text-xs font-bold ${
+                          className={`inline-flex min-w-[2rem] justify-center rounded px-1.5 py-0.5 text-xs font-bold ${
                             item.stock === 0
                               ? "bg-red-100 text-red-700"
                               : "bg-amber-100 text-amber-800"
@@ -493,45 +493,45 @@ export default async function PartnerDashboardPage() {
         {/* 5 Penjualan Terbaru Toko Mitra */}
         <section
           aria-label="Transaksi terbaru toko saya"
-          className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5 flex flex-col"
+          className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5 flex flex-col"
         >
-          <div className="flex flex-col gap-1 border-b border-slate-100 bg-[#f0f2f5]/40 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-1 border-b border-slate-100 bg-[#f0f2f5]/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="font-bold text-[#2d3440]">Penjualan Terbaru Toko Saya</h2>
-              <p className="mt-1 text-sm text-[#7a8394]">5 transaksi kasir terakhir.</p>
+              <h2 className="font-bold text-[#2d3440] text-sm sm:text-base">Penjualan Terbaru Toko Saya</h2>
+              <p className="text-xs text-[#7a8394]">5 transaksi kasir terakhir.</p>
             </div>
-            <Link href="/partner/transaksi" className="text-sm font-bold text-[#9d5c4c] hover:underline">
+            <Link href="/partner/transaksi" className="text-xs font-bold text-[#9d5c4c] hover:underline self-start sm:self-auto">
               Lihat Semua &rarr;
             </Link>
           </div>
 
           <div className="flex-1 overflow-x-auto">
             {recentTransactions.length === 0 ? (
-              <div className="px-6 py-10 text-center text-sm text-[#6d7687]">
+              <div className="px-4 py-8 text-center text-xs sm:text-sm text-[#6d7687]">
                 Belum ada transaksi penjualan yang tercatat.
               </div>
             ) : (
-              <table className="w-full text-left text-sm">
-                <thead className="bg-[#f0f2f5] text-xs uppercase tracking-wider text-[#6d7687] font-bold">
+              <table className="w-full text-left text-xs sm:text-sm">
+                <thead className="bg-[#f0f2f5] text-[11px] uppercase tracking-wider text-[#6d7687] font-bold">
                   <tr>
-                    <th scope="col" className="px-6 py-3">Tanggal</th>
-                    <th scope="col" className="px-6 py-3">No. Struk</th>
-                    <th scope="col" className="px-6 py-3 text-right">Total</th>
+                    <th scope="col" className="px-3.5 py-2.5">Tanggal</th>
+                    <th scope="col" className="px-3.5 py-2.5">No. Struk</th>
+                    <th scope="col" className="px-3.5 py-2.5 text-right">Total</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {recentTransactions.map((tx) => (
                     <tr key={tx.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="px-6 py-4 text-[#576071] whitespace-nowrap">
+                      <td className="px-3.5 py-2 text-[#576071] whitespace-nowrap text-[11px]">
                         {dateFormatter.format(new Date(tx.sold_at))}
                       </td>
-                      <th scope="row" className="px-6 py-4 font-semibold text-[#2d3440]">
+                      <th scope="row" className="px-3.5 py-2 font-semibold text-[#2d3440]">
                         <div>{tx.transaction_number}</div>
-                        <span className="inline-block mt-0.5 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-[#576071]">
+                        <span className="inline-block rounded bg-slate-100 px-1 py-0.2 text-[9px] font-bold uppercase text-[#576071]">
                           {tx.payment_method}
                         </span>
                       </th>
-                      <td className="px-6 py-4 text-right font-black text-[#2d3440] whitespace-nowrap">
+                      <td className="px-3.5 py-2 text-right font-black text-[#2d3440] whitespace-nowrap text-xs sm:text-sm">
                         {currencyFormatter.format(tx.total)}
                       </td>
                     </tr>

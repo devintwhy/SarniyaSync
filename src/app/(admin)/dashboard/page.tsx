@@ -145,7 +145,7 @@ export default async function AdminDashboardPage() {
     const bestSellers = Object.entries(salesByProduct)
         .map(([productName, quantity]) => ({ productName, quantity }))
         .sort((a, b) => b.quantity - a.quantity)
-        .slice(0, 5); // 5 Produk Terlaris
+        .slice(0, 10); // 10 Produk Terlaris
 
     // Ambil jumlah mitra aktif
     const { count: partnersCount, error: partnersError } = await supabase
@@ -260,29 +260,33 @@ export default async function AdminDashboardPage() {
     ];
 
     return (
-      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-        <header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <div className="mx-auto max-w-7xl px-2 py-3 sm:px-4 sm:py-4">
+        <header className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
           <div>
-            <span className="inline-block rounded-full bg-[#f7e4d4] px-3.5 py-1 text-xs font-bold text-[#9d5c4c]">
+            <span className="inline-block rounded-full bg-almond-cream px-3 py-0.5 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
               Ringkasan Operasional
             </span>
-            <h1 className="mt-2 text-3xl sm:text-4xl font-black tracking-tight text-[#2d3440]">Dashboard Admin</h1>
-            <p className="mt-1 text-sm sm:text-base text-[#6d7687]">Pantau performa penjualan, stok, dan mitra secara real-time.</p>
+            <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
+              Dashboard Admin
+            </h1>
+            <p className="mt-0.5 text-xs text-[#6d7687]">
+              Pantau performa penjualan, stok, dan mitra secara real-time.
+            </p>
           </div>
         </header>
 
         {loadError && (
-          <p role="alert" className="mb-5 rounded-2xl border border-rose-300 bg-rose-50/95 px-4 py-3 text-sm text-rose-800">
+          <p role="alert" className="mb-4 rounded-2xl border border-rose-300 bg-rose-50/95 px-4 py-2.5 text-xs text-rose-800">
             {loadError}
           </p>
         )}
 
         {/* 1. Ringkasan Pendapatan Hari Ini & Rincian Metode Pembayaran */}
-        <section aria-label="Ringkasan Pendapatan Hari Ini" className="mb-8">
-          <div className="rounded-2xl border border-slate-200/70 bg-white p-5 sm:p-6 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-5 border-b border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#f7e4d4] text-[#9d5c4c]">
+        <section aria-label="Ringkasan Pendapatan Hari Ini" className="mb-4">
+          <div className="rounded-2xl bg-[#e0e5ec] p-3.5 sm:p-4 shadow-neu-flat">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-[#a3b1c6]/20">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-almond-cream text-terracotta-clay shadow-neu-sm">
                   Hari Ini
                 </span>
                 <span className="text-xs text-[#7b877f]">
@@ -297,41 +301,41 @@ export default async function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {/* Kartu Utama: Pendapatan Hari Ini (Rose Gold Gradient) */}
-              <div className="rounded-2xl bg-gradient-to-br from-[#e1b5a4] via-[#cc9787] to-[#9d5c4c] p-5 text-white shadow-lg flex flex-col justify-between">
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Kartu Utama: Pendapatan Hari Ini */}
+              <div className="rounded-xl bg-gradient-to-br from-almond-silk via-rosy-taupe to-terracotta-clay p-3.5 text-white shadow-neu-sm flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-white/90">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-white/90">
                       Pendapatan Hari Ini
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white border border-white/30 backdrop-blur-sm">
+                    <span className="inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold text-white border border-white/30 backdrop-blur-sm">
                       Live
                     </span>
                   </div>
-                  <p className="mt-3 text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-sm">
+                  <p className="mt-2 text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow-sm">
                     {currencyFormatter.format(todayRevenue)}
                   </p>
                 </div>
-                <p className="mt-3 text-xs text-white/80">
+                <p className="mt-2 text-[11px] text-white/80">
                   Total omzet dari seluruh transaksi hari ini
                 </p>
               </div>
 
               {/* Rincian Metode: QRIS */}
-              <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm flex flex-col justify-between">
+              <div className="rounded-xl bg-[#e0e5ec] p-3.5 shadow-neu-sm flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#576071]">Metode QRIS</span>
-                    <span className="inline-flex items-center rounded-xl bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-700 border border-blue-200">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">Metode QRIS</span>
+                    <span className="inline-flex items-center rounded-lg bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700">
                       QRIS
                     </span>
                   </div>
-                  <p className="mt-3 text-xl sm:text-2xl font-black text-[#2d3440]">
+                  <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
                     {currencyFormatter.format(todayQris)}
                   </p>
                 </div>
-                <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2 text-xs text-[#7b877f]">
+                <div className="mt-2 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
                   <span>Porsi hari ini</span>
                   <span className="font-bold text-[#2d3440]">
                     {todayRevenue > 0 ? Math.round((todayQris / todayRevenue) * 100) : 0}%
@@ -340,19 +344,19 @@ export default async function AdminDashboardPage() {
               </div>
 
               {/* Rincian Metode: Transfer */}
-              <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm flex flex-col justify-between">
+              <div className="rounded-xl bg-[#e0e5ec] p-3.5 shadow-neu-sm flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#576071]">Metode Transfer</span>
-                    <span className="inline-flex items-center rounded-xl bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-200">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">Metode Transfer</span>
+                    <span className="inline-flex items-center rounded-lg bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
                       Transfer
                     </span>
                   </div>
-                  <p className="mt-3 text-xl sm:text-2xl font-black text-[#2d3440]">
+                  <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
                     {currencyFormatter.format(todayTransfer)}
                   </p>
                 </div>
-                <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2 text-xs text-[#7b877f]">
+                <div className="mt-2 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
                   <span>Porsi hari ini</span>
                   <span className="font-bold text-[#2d3440]">
                     {todayRevenue > 0 ? Math.round((todayTransfer / todayRevenue) * 100) : 0}%
@@ -361,19 +365,19 @@ export default async function AdminDashboardPage() {
               </div>
 
               {/* Rincian Metode: Tunai */}
-              <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm flex flex-col justify-between">
+              <div className="rounded-xl bg-[#e0e5ec] p-3.5 shadow-neu-sm flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#576071]">Metode Tunai</span>
-                    <span className="inline-flex items-center rounded-xl bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-700 border border-slate-200">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">Metode Tunai</span>
+                    <span className="inline-flex items-center rounded-lg bg-[#e0e5ec] px-2 py-0.5 text-[10px] font-bold text-[#2d3440] shadow-neu-sm">
                       Tunai
                     </span>
                   </div>
-                  <p className="mt-3 text-xl sm:text-2xl font-black text-[#2d3440]">
+                  <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
                     {currencyFormatter.format(todayTunai)}
                   </p>
                 </div>
-                <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2 text-xs text-[#7b877f]">
+                <div className="mt-2 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
                   <span>Porsi hari ini</span>
                   <span className="font-bold text-[#2d3440]">
                     {todayRevenue > 0 ? Math.round((todayTunai / todayRevenue) * 100) : 0}%
@@ -384,79 +388,112 @@ export default async function AdminDashboardPage() {
           </div>
         </section>
 
-        {/* 2. Top Metrics (Bulan Ini) - Tetap Utuh */}
-        <section aria-label="Statistik Utama" className="grid gap-4 md:grid-cols-3 mb-8">
+        {/* 2. Top Metrics (Bulan Ini) */}
+        <section aria-label="Statistik Utama" className="grid gap-3 md:grid-cols-3 mb-4">
           {metrics.map((metric) => (
-            <article key={metric.label} className="rounded-xl border border-[#f0ddd5] bg-white p-5 shadow-sm shadow-[#9d5c4c]/5">
-              <p className="text-sm font-medium text-[#576071]">{metric.label}</p>
-              <p className={`mt-3 break-words text-2xl font-bold text-balance ${metric.valueClass}`}>
+            <article key={metric.label} className="rounded-2xl bg-[#e0e5ec] p-3.5 shadow-neu-sm">
+              <p className="text-xs font-semibold text-[#576071]">{metric.label}</p>
+              <p className={`mt-2 break-words text-xl font-black ${metric.valueClass}`}>
                 {metric.value}
               </p>
-              <p className="mt-2 text-xs text-[#7a8394]">{metric.detail}</p>
+              <p className="mt-1 text-[11px] text-[#7a8394]">{metric.detail}</p>
             </article>
           ))}
         </section>
 
-        {/* 3. Advanced Analytics Charts - Tetap Utuh */}
-        <div className="mb-8">
-            <DashboardCharts 
-                dailySales={dailySales} 
-                topPartners={topPartners} 
-                bestSellers={bestSellers} 
-            />
+        {/* 3. Baris Tengah (Sandingkan 2 Kolom Sejajar: Grafik Tren Kiri + Leaderboard Kanan) */}
+        <div className="mb-4">
+          <DashboardCharts 
+            dailySales={dailySales} 
+            topPartners={topPartners} 
+          />
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* 4. Peringatan Stok Menipis - Tetap Utuh */}
-          <section aria-label="Peringatan stok menipis" className="overflow-hidden rounded-xl border border-[#f0ddd5] bg-white shadow-sm shadow-[#9d5c4c]/5 flex flex-col">
-            <div className="flex flex-col gap-1 border-b border-[#f7e4d4] bg-[#fef8f6] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* 4. Baris Bawah (Sandingkan 3 Kolom Sejajar: Produk Terlaris + Transaksi Terbaru + Stok Menipis) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+          {/* ── Kolom 1: Produk Terlaris (Top 5 Best Sellers) ───────────── */}
+          <section
+            aria-label="Produk Terlaris"
+            className="overflow-hidden rounded-2xl bg-[#e0e5ec] shadow-neu-flat flex flex-col justify-between h-full border border-white/40"
+          >
+            <div className="border-b border-[#a3b1c6]/20 px-3.5 py-2.5 flex items-center justify-between">
               <div>
-                <h2 className="font-semibold text-[#9d5c4c]">Peringatan Stok Menipis</h2>
-                <p className="mt-1 text-sm text-[#cc8c7d]">Produk dengan stok &le; 5 unit.</p>
+                <h2 className="text-sm font-black text-[#2d3440]">Produk Terlaris</h2>
+                <p className="text-[11px] text-[#7a8394]">Top 10 produk terfavorit bulan ini.</p>
               </div>
-              <span className="text-sm font-medium text-[#9d5c4c]">
-                {loadError ? "—" : `${lowStockItems.length} peringatan`}
+              <span className="inline-flex items-center rounded-full bg-almond-cream px-2 py-0.5 text-[10px] font-bold text-terracotta-clay shadow-neu-sm">
+                Top 10
               </span>
             </div>
 
-            <div className="flex-1 overflow-x-auto">
-              {loadError ? (
-                <p className="px-5 py-8 text-center text-sm text-[#7a8394]">Daftar peringatan belum tersedia.</p>
-              ) : lowStockItems.length === 0 ? (
-                <p className="px-5 py-8 text-center text-sm text-[#7a8394]">Tidak ada produk dengan stok menipis.</p>
+            <div className="p-3.5 flex-1 overflow-y-auto max-h-[320px]">
+              {bestSellers.length === 0 ? (
+                <p className="text-center text-xs text-[#6d7687] py-6">Belum ada data penjualan produk.</p>
               ) : (
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-[#fef8f6] text-xs uppercase text-[#cc9787]">
-                    <tr>
-                      <th scope="col" className="px-5 py-3 font-bold">Produk</th>
-                      <th scope="col" className="px-5 py-3 font-bold">Lokasi</th>
-                      <th scope="col" className="px-5 py-3 text-right font-bold">Sisa Stok</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#f7e4d4]">
-                    {lowStockItems.map((item) => (
-                      <tr key={item.id} className="hover:bg-[#fef8f6] transition-colors">
-                        <th scope="row" className="px-5 py-4 font-medium text-[#2d3440]">
-                          <div>{item.name}</div>
-                          <div className="mt-0.5 text-xs font-normal text-[#7a8394]">{item.sku} &middot; {item.category}</div>
-                        </th>
-                        <td className="px-5 py-4 text-[#576071]">
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            item.location === 'Pusat'
-                              ? 'bg-[#f7e4d4] text-[#9d5c4c]'
-                              : 'bg-slate-100 text-[#576071]'
-                          }`}>
-                            {item.location}
-                          </span>
+                <ul className="flex flex-col gap-2.5">
+                  {bestSellers.map((item, index) => (
+                    <li key={item.productName} className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="flex size-5 shrink-0 items-center justify-center rounded-md bg-almond-silk/50 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
+                          #{index + 1}
+                        </span>
+                        <p className="truncate text-xs font-bold text-[#2d3440]" title={item.productName}>
+                          {item.productName}
+                        </p>
+                      </div>
+                      <span className="shrink-0 rounded-full bg-almond-cream px-2 py-0.5 text-[11px] font-black tabular-nums text-terracotta-clay shadow-neu-sm">
+                        {numberFormatter.format(item.quantity)} pcs
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </section>
+
+          {/* ── Kolom 2: Transaksi Terbaru (5 Transaksi Terakhir) ───────── */}
+          <section
+            aria-label="Transaksi Terbaru"
+            className="overflow-hidden rounded-2xl bg-[#e0e5ec] shadow-neu-flat flex flex-col justify-between h-full border border-white/40"
+          >
+            <div className="border-b border-[#a3b1c6]/20 px-3.5 py-2.5 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-black text-[#2d3440]">Transaksi Terbaru</h2>
+                <p className="text-[11px] text-[#7a8394]">5 penjualan gerai kasir terakhir.</p>
+              </div>
+              <Link
+                href="/penjualan"
+                className="text-[11px] font-bold text-terracotta-clay hover:underline"
+              >
+                Semua &rarr;
+              </Link>
+            </div>
+
+            <div className="flex-1 overflow-x-auto p-1.5 flex flex-col justify-around">
+              {loadError ? (
+                <p className="px-3 py-6 text-center text-xs text-[#68756e]">Daftar transaksi belum tersedia.</p>
+              ) : recentTransactions.length === 0 ? (
+                <p className="px-3 py-6 text-center text-xs text-[#68756e]">Belum ada transaksi.</p>
+              ) : (
+                <table className="w-full text-left text-xs">
+                  <tbody className="divide-y divide-[#a3b1c6]/15">
+                    {recentTransactions.slice(0, 5).map((tx) => (
+                      <tr key={tx.id} className="hover:bg-almond-cream/20 transition-colors">
+                        <td className="px-2 py-1.5">
+                          <p className="font-bold text-[#2d3440] truncate max-w-[110px]" title={tx.store_name}>
+                            {tx.store_name}
+                          </p>
+                          <p className="text-[10px] text-[#7a8394] font-mono">
+                            {tx.transaction_number}
+                          </p>
                         </td>
-                        <td className="px-5 py-4 text-right">
-                          <span className={`inline-flex min-w-[2.5rem] justify-center rounded-md px-2 py-1 text-xs font-bold ${
-                            item.stock === 0
-                              ? 'bg-rose-50 text-rose-700'
-                              : 'bg-[#f7e4d4] text-[#9d5c4c]'
-                          }`}>
-                            {numberFormatter.format(item.stock)}
-                          </span>
+                        <td className="px-2 py-1.5 text-right whitespace-nowrap">
+                          <p className="font-black text-terracotta-clay text-xs">
+                            {currencyFormatter.format(tx.total)}
+                          </p>
+                          <p className="text-[10px] text-[#7a8394]">
+                            {dateFormatter.format(new Date(tx.sold_at))}
+                          </p>
                         </td>
                       </tr>
                     ))}
@@ -466,43 +503,49 @@ export default async function AdminDashboardPage() {
             </div>
           </section>
 
-          {/* 5. Transaksi Terbaru */}
-          <section aria-label="Transaksi Terbaru" className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm flex flex-col">
-            <div className="flex flex-col gap-1 border-b border-slate-100 bg-[#f8fafc] px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* ── Kolom 3: Peringatan Stok Menipis (Top 5 Stok Kritis) ────── */}
+          <section
+            aria-label="Peringatan stok menipis"
+            className="overflow-hidden rounded-2xl bg-[#e0e5ec] shadow-neu-flat flex flex-col justify-between h-full border border-white/40"
+          >
+            <div className="border-b border-[#a3b1c6]/20 px-3.5 py-2.5 flex items-center justify-between">
               <div>
-                <h2 className="font-bold text-[#2d3440]">Transaksi Terbaru</h2>
-                <p className="mt-0.5 text-xs text-[#7b877f]">5 penjualan terakhir.</p>
+                <h2 className="text-sm font-black text-terracotta-clay">Stok Menipis</h2>
+                <p className="text-[11px] text-[#7a8394]">Stok kritis &le; 5 unit.</p>
               </div>
-              <Link href="/penjualan" className="text-xs font-bold text-[#9d5c4c] hover:underline">
-                Lihat Semua &rarr;
-              </Link>
+              <span className="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-800 shadow-neu-sm">
+                {loadError ? "—" : `${lowStockItems.length} item`}
+              </span>
             </div>
 
-            <div className="flex-1 overflow-x-auto">
+            <div className="flex-1 overflow-x-auto p-1.5 flex flex-col justify-around">
               {loadError ? (
-                <p className="px-5 py-8 text-center text-sm text-[#68756e]">Daftar transaksi belum tersedia.</p>
-              ) : recentTransactions.length === 0 ? (
-                <p className="px-5 py-8 text-center text-sm text-[#68756e]">Belum ada transaksi.</p>
+                <p className="px-3 py-6 text-center text-xs text-[#7a8394]">Daftar peringatan belum tersedia.</p>
+              ) : lowStockItems.length === 0 ? (
+                <p className="px-3 py-6 text-center text-xs text-[#7a8394]">Tidak ada produk menipis.</p>
               ) : (
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-[#f8fafc] text-xs uppercase font-bold text-[#576071]">
-                    <tr>
-                      <th scope="col" className="px-5 py-3 font-bold">Tanggal</th>
-                      <th scope="col" className="px-5 py-3 font-bold">Toko Mitra</th>
-                      <th scope="col" className="px-5 py-3 text-right font-bold">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {recentTransactions.map((tx) => (
-                      <tr key={tx.id} className="hover:bg-slate-50/60 transition-colors">
-                        <td className="px-5 py-3.5 text-xs text-[#68756e] whitespace-nowrap">
-                          {dateFormatter.format(new Date(tx.sold_at))}
+                <table className="w-full text-left text-xs">
+                  <tbody className="divide-y divide-[#a3b1c6]/15">
+                    {lowStockItems.slice(0, 5).map((item) => (
+                      <tr key={item.id} className="hover:bg-almond-cream/20 transition-colors">
+                        <td className="px-2 py-1.5 min-w-0">
+                          <p className="font-bold text-[#2d3440] truncate max-w-[130px]" title={item.name}>
+                            {item.name}
+                          </p>
+                          <p className="text-[10px] text-[#7a8394] truncate">
+                            {item.location}
+                          </p>
                         </td>
-                        <th scope="row" className="px-5 py-3.5 text-sm font-semibold text-[#2d3440]">
-                          {tx.store_name}
-                        </th>
-                        <td className="px-5 py-3.5 text-right font-bold text-[#2d3440] whitespace-nowrap">
-                          {currencyFormatter.format(tx.total)}
+                        <td className="px-2 py-1.5 text-right whitespace-nowrap">
+                          <span
+                            className={`inline-flex min-w-[2.2rem] justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold shadow-neu-sm ${
+                              item.stock === 0
+                                ? "bg-rose-100 text-rose-800"
+                                : "bg-almond-cream text-terracotta-clay"
+                            }`}
+                          >
+                            {numberFormatter.format(item.stock)} pcs
+                          </span>
                         </td>
                       </tr>
                     ))}

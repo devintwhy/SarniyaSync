@@ -15,6 +15,8 @@ export type ReceiptData = {
     subtotal: number;
   }>;
   grandTotal: number;
+  cashReceived?: number;
+  cashChange?: number;
 };
 
 type ReceiptProps = {
@@ -35,6 +37,8 @@ const ThermalReceipt = forwardRef<HTMLDivElement, ReceiptProps>(({ data }, ref) 
   }, []);
 
   if (!data || !mounted) return null;
+
+  const isCash = data.paymentMethod.toLowerCase() === "cash" || data.paymentMethod.toLowerCase() === "tunai";
 
   const content = (
     <div
@@ -90,6 +94,20 @@ const ThermalReceipt = forwardRef<HTMLDivElement, ReceiptProps>(({ data }, ref) 
         <span>TOTAL:</span>
         <span>{currencyFormatter.format(data.grandTotal)}</span>
       </div>
+
+      {/* Informasi Tunai & Kembalian (Khusus Tunai) */}
+      {isCash && data.cashReceived !== undefined && (
+        <div className="border-t border-gray-300 border-dotted pt-1 mt-1 text-[10px] space-y-0.5">
+          <div className="flex justify-between">
+            <span>Diterima:</span>
+            <span>{currencyFormatter.format(data.cashReceived)}</span>
+          </div>
+          <div className="flex justify-between font-bold text-[11px]">
+            <span>Kembalian:</span>
+            <span>{currencyFormatter.format(data.cashChange ?? 0)}</span>
+          </div>
+        </div>
+      )}
 
       {/* Footer Struk Thermal */}
       <div className="text-center text-[9px] mt-4 pt-2 border-t border-gray-400 border-dashed space-y-0.5">

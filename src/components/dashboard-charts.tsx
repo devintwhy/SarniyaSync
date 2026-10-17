@@ -20,15 +20,9 @@ type PartnerPerformance = {
   totalSales: number;
 };
 
-type BestSeller = {
-  productName: string;
-  quantity: number;
-};
-
 type DashboardChartsProps = {
   dailySales: DailySales[];
   topPartners: PartnerPerformance[];
-  bestSellers: BestSeller[];
 };
 
 const currencyFormatter = new Intl.NumberFormat("id-ID", {
@@ -36,86 +30,127 @@ const currencyFormatter = new Intl.NumberFormat("id-ID", {
   currency: "IDR",
   maximumFractionDigits: 0,
 });
-const numberFormatter = new Intl.NumberFormat("id-ID");
 
 export default function DashboardCharts({
   dailySales,
   topPartners,
-  bestSellers,
 }: DashboardChartsProps) {
   return (
-    <div className="grid gap-8 lg:grid-cols-3">
-      {/* ── 1. Grafik Tren Penjualan ─────────────────────────────────────── */}
-      <section className="col-span-1 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5 lg:col-span-3">
-        <div className="border-b border-slate-100 px-6 py-5">
-          <h2 className="font-bold text-[#2d3440]">Grafik Tren Penjualan (30 Hari Terakhir)</h2>
-          <p className="mt-1 text-sm text-[#7a8394]">Akumulasi pendapatan harian.</p>
+    /* ── Baris Tengah (Sandingkan 2 Kolom Sejajar) ────────────────────────── */
+    <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 items-stretch">
+      {/* ── Kolom Kiri: Grafik Tren Penjualan — 5/8 layar (≈62.5%) ──────── */}
+      <section
+        aria-label="Grafik Tren Penjualan"
+        className="lg:col-span-5 rounded-2xl bg-[#e0e5ec] shadow-neu-flat overflow-hidden flex flex-col justify-between h-full border border-white/40"
+      >
+        <div className="border-b border-[#a3b1c6]/20 px-4 py-3 sm:px-5 flex flex-col gap-0.5">
+          <h2 className="text-sm sm:text-base font-black text-[#2d3440]">
+            Grafik Tren Penjualan (30 Hari Terakhir)
+          </h2>
+          <p className="text-xs text-[#7a8394]">
+            Akumulasi pendapatan harian dari seluruh transaksi gerai mitra.
+          </p>
         </div>
-        <div className="h-72 w-full px-6 py-6 sm:h-96">
+
+        <div className="h-72 w-full p-3 sm:p-4 flex-1 flex flex-col justify-center">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={dailySales}
               margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f2f5" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#cfd6e0" />
               <XAxis
                 dataKey="date"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: "#7a8394" }}
-                dy={10}
+                tick={{ fontSize: 11, fill: "#7a8394" }}
+                dy={6}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: "#7a8394" }}
-                tickFormatter={(value) => `Rp ${value / 1000}K`}
+                tick={{ fontSize: 11, fill: "#7a8394" }}
+                tickFormatter={(value) => `Rp ${value >= 1000000 ? `${(value / 1000000).toFixed(1)}M` : `${value / 1000}K`}`}
               />
               <Tooltip
-                cursor={{ fill: "#f0f2f5" }}
-                contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 8px 16px -4px rgba(45, 52, 64, 0.1)" }}
+                cursor={{ fill: "rgba(204, 151, 135, 0.15)" }}
+                contentStyle={{
+                  backgroundColor: "#e0e5ec",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(255,255,255,0.7)",
+                  boxShadow: "6px 6px 12px rgba(163, 177, 198, 0.6), -6px -6px 12px rgba(255, 255, 255, 0.9)",
+                  fontSize: "12px",
+                }}
                 formatter={(value: any) => [currencyFormatter.format(Number(value)), "Pendapatan"]}
-                labelStyle={{ color: "#2d3440", fontWeight: "bold", marginBottom: "4px" }}
+                labelStyle={{ color: "#2d3440", fontWeight: "bold", marginBottom: "3px" }}
               />
-              <Bar dataKey="total" fill="#cc9787" radius={[6, 6, 0, 0]} maxBarSize={48} />
+              <Bar
+                dataKey="total"
+                fill="#cc9787"
+                radius={[5, 5, 0, 0]}
+                maxBarSize={40}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </section>
 
-      {/* ── 2. Papan Peringkat Kinerja Mitra ─────────────────────────────── */}
-      <section className="col-span-1 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5 lg:col-span-2">
-        <div className="border-b border-slate-100 px-6 py-5">
-          <h2 className="font-bold text-[#2d3440]">Leaderboard Mitra Terbaik</h2>
-          <p className="mt-1 text-sm text-[#7a8394]">Top 5 mitra dengan omzet tertinggi bulan ini.</p>
+      {/* ── Kolom Kanan: Leaderboard Mitra Terbaik — 3/8 layar (≈37.5%) ──── */}
+      <section
+        aria-label="Leaderboard Mitra Terbaik"
+        className="lg:col-span-3 rounded-2xl bg-[#e0e5ec] shadow-neu-flat overflow-hidden flex flex-col justify-between h-full border border-white/40"
+      >
+        <div className="border-b border-[#a3b1c6]/20 px-4 py-3 sm:px-5 flex flex-col gap-0.5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm sm:text-base font-black text-[#2d3440]">
+              Leaderboard Mitra Terbaik
+            </h2>
+            <span className="inline-flex items-center rounded-full bg-almond-cream px-2 py-0.5 text-[10px] font-bold text-terracotta-clay shadow-neu-sm">
+              Bulan Ini
+            </span>
+          </div>
+          <p className="text-xs text-[#7a8394]">
+            Top 5 gerai mitra dengan akumulasi omzet tertinggi.
+          </p>
         </div>
-        <div className="px-6 py-6">
+
+        <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-around">
           {topPartners.length === 0 ? (
-            <p className="text-center text-sm text-[#6d7687]">Belum ada data penjualan mitra.</p>
+            <p className="text-center text-xs text-[#6d7687] py-8">
+              Belum ada data penjualan mitra bulan ini.
+            </p>
           ) : (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               {topPartners.map((partner, index) => {
-                // Kalkulasi persentase bar relatif terhadap juara 1 (index 0)
                 const maxSales = topPartners[0].totalSales || 1;
-                const percentage = Math.max(2, Math.round((partner.totalSales / maxSales) * 100));
-                
+                const percentage = Math.max(4, Math.round((partner.totalSales / maxSales) * 100));
+
                 return (
-                  <div key={partner.storeName} className="group relative">
-                    <div className="mb-2 flex items-end justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <span className="flex size-6 items-center justify-center rounded-lg bg-[#f7e4d4] text-xs font-bold text-[#9d5c4c]">
+                  <div key={partner.storeName} className="group">
+                    <div className="mb-1.5 flex items-center justify-between">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span
+                          className={`flex size-5.5 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold shadow-neu-sm ${
+                            index === 0
+                              ? "bg-gradient-to-r from-terracotta-clay to-dusty-rose text-white"
+                              : "bg-almond-cream text-terracotta-clay"
+                          }`}
+                        >
                           {index + 1}
                         </span>
-                        <span className="text-sm font-semibold text-[#2d3440]">{partner.storeName}</span>
+                        <span className="text-xs sm:text-[13px] font-bold text-[#2d3440] truncate">
+                          {partner.storeName}
+                        </span>
                       </div>
-                      <span className="text-sm font-bold tabular-nums text-[#2d3440]">
+                      <span className="text-xs sm:text-[13px] font-black tabular-nums text-terracotta-clay shrink-0 ml-2">
                         {currencyFormatter.format(partner.totalSales)}
                       </span>
                     </div>
-                    {/* Progress bar visual */}
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+
+                    {/* Progress Bar Neumorphic */}
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-[#d1d9e6] shadow-neu-inset-sm">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-[#cc9787] to-[#9d5c4c] transition-all duration-1000 ease-out"
+                        className="h-full rounded-full bg-gradient-to-r from-almond-silk via-rosy-taupe to-terracotta-clay transition-all duration-700 ease-out"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -123,37 +158,6 @@ export default function DashboardCharts({
                 );
               })}
             </div>
-          )}
-        </div>
-      </section>
-
-      {/* ── 3. Daftar Produk Terlaris (Top 5 Best Sellers) ───────────────── */}
-      <section className="col-span-1 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5">
-        <div className="border-b border-slate-100 px-6 py-5">
-          <h2 className="font-bold text-[#2d3440]">Produk Terlaris</h2>
-          <p className="mt-1 text-sm text-[#7a8394]">Bulan ini.</p>
-        </div>
-        <div className="px-6 py-6">
-          {bestSellers.length === 0 ? (
-            <p className="text-center text-sm text-[#6d7687]">Belum ada data produk terjual.</p>
-          ) : (
-            <ul className="flex flex-col gap-5">
-              {bestSellers.map((item, index) => (
-                <li key={item.productName} className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#e1b5a4]/30 font-bold text-[#9d5c4c]">
-                      #{index + 1}
-                    </div>
-                    <p className="truncate text-sm font-semibold text-[#2d3440]">{item.productName}</p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <span className="rounded-full bg-[#f7e4d4] px-3 py-1 text-xs font-bold tabular-nums text-[#9d5c4c]">
-                      {numberFormatter.format(item.quantity)} pcs
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
           )}
         </div>
       </section>

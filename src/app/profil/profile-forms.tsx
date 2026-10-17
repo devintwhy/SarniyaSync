@@ -20,7 +20,7 @@ function Avatar({ name }: { name: string }) {
     .slice(0, 2)
     .join("");
   return (
-    <div className="flex size-16 items-center justify-center rounded-full bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] text-xl font-bold text-white">
+    <div className="flex size-11 sm:size-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] text-sm sm:text-base font-bold text-white shadow-sm">
       {initials || "?"}
     </div>
   );
@@ -35,7 +35,7 @@ function Alert({ type, message }: { type: "success" | "error"; message: string }
       : "border-[#f0d4cc] bg-[#fff5f1] text-[#9b4936]";
   const icon = type === "success" ? "✓" : "✕";
   return (
-    <p role={type === "error" ? "alert" : "status"} className={`mt-4 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium ${styles}`}>
+    <p role={type === "error" ? "alert" : "status"} className={`mt-2 flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs sm:text-sm font-medium ${styles}`}>
       <span aria-hidden="true">{icon}</span>
       {message}
     </p>
@@ -49,7 +49,7 @@ function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: st
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex min-h-10 items-center justify-center rounded-lg bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-5 text-sm font-semibold text-white transition-colors hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex h-9 items-center justify-center rounded-lg bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-xs sm:text-sm font-semibold text-white shadow-sm transition-colors hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {pending ? pendingLabel : label}
     </button>
@@ -67,14 +67,14 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-3.5 sm:space-y-4">
       {/* ── Info Identitas ──────────────────────────────────────────────── */}
-      <div className="flex items-center gap-5 rounded-xl border border-[#e1e7e0] bg-white p-5 shadow-sm">
+      <div className="flex items-center gap-3.5 rounded-xl border border-[#e1e7e0] bg-white p-3.5 sm:p-4 shadow-sm">
         <Avatar name={initialName} />
         <div>
-          <p className="text-lg font-semibold text-[#9d5c4c]">{initialName}</p>
-          <p className="mt-0.5 text-sm text-[#68756e]">{email}</p>
-          <span className="mt-2 inline-flex rounded-full bg-[#edf5e8] px-2.5 py-0.5 text-xs font-semibold text-[#315d3e]">
+          <p className="text-sm sm:text-base font-bold text-[#9d5c4c]">{initialName}</p>
+          <p className="text-xs text-[#68756e]">{email}</p>
+          <span className="mt-1 inline-flex rounded-full bg-[#edf5e8] px-2 py-0.5 text-[10px] font-bold text-[#315d3e]">
             {roleLabel[role] ?? role}
           </span>
         </div>
@@ -82,13 +82,13 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
 
       {/* ── Form 1: Ubah Nama Profil ─────────────────────────────────────── */}
       <section className="overflow-hidden rounded-xl border border-[#e1e7e0] bg-white shadow-sm">
-        <div className="border-b border-[#edf0ec] px-5 py-4">
-          <h2 className="font-semibold text-[#9d5c4c]">Ubah Profil</h2>
-          <p className="mt-0.5 text-sm text-[#7b877f]">Perbarui nama tampilan akun Anda.</p>
+        <div className="border-b border-[#edf0ec] px-4 py-2.5">
+          <h2 className="text-sm sm:text-base font-bold text-[#9d5c4c]">Ubah Profil</h2>
+          <p className="text-xs text-[#7b877f]">Perbarui nama tampilan akun Anda.</p>
         </div>
-        <form action={profileAction} className="space-y-4 px-5 py-5">
+        <form action={profileAction} className="space-y-3 px-4 py-3 sm:py-3.5">
           <div>
-            <label htmlFor="fullName" className="mb-1.5 block text-sm font-medium text-[#2d3440]">
+            <label htmlFor="fullName" className="mb-1 block text-xs font-semibold text-[#2d3440]">
               Nama Lengkap
             </label>
             <input
@@ -99,7 +99,7 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
               minLength={2}
               maxLength={100}
               defaultValue={initialName}
-              className="min-h-11 w-full max-w-md rounded-lg border border-slate-200 px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+              className="h-9 w-full max-w-md rounded-lg border border-slate-200 px-3 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
             />
           </div>
           <Alert type={profileState.error ? "error" : "success"} message={profileState.error || profileState.success} />
@@ -109,14 +109,14 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
 
       {/* ── Form 2: Ubah Password ────────────────────────────────────────── */}
       <section className="overflow-hidden rounded-xl border border-[#e1e7e0] bg-white shadow-sm">
-        <div className="border-b border-[#edf0ec] px-5 py-4">
-          <h2 className="font-semibold text-[#9d5c4c]">Ubah Password</h2>
-          <p className="mt-0.5 text-sm text-[#7b877f]">Gunakan password yang kuat dan belum pernah dipakai sebelumnya.</p>
+        <div className="border-b border-[#edf0ec] px-4 py-2.5">
+          <h2 className="text-sm sm:text-base font-bold text-[#9d5c4c]">Ubah Password</h2>
+          <p className="text-xs text-[#7b877f]">Gunakan password yang kuat dan belum pernah dipakai sebelumnya.</p>
         </div>
-        <form action={passwordAction} className="space-y-4 px-5 py-5">
-          <div className="grid gap-4 sm:grid-cols-2">
+        <form action={passwordAction} className="space-y-3 px-4 py-3 sm:py-3.5">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label htmlFor="newPassword" className="mb-1.5 block text-sm font-medium text-[#2d3440]">
+              <label htmlFor="newPassword" className="mb-1 block text-xs font-semibold text-[#2d3440]">
                 Password Baru
               </label>
               <input
@@ -127,11 +127,11 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
                 minLength={8}
                 autoComplete="new-password"
                 placeholder="Minimal 8 karakter"
-                className="min-h-11 w-full rounded-lg border border-slate-200 px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+                className="h-9 w-full rounded-lg border border-slate-200 px-3 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
               />
             </div>
             <div>
-              <label htmlFor="confirmPassword" className="mb-1.5 block text-sm font-medium text-[#2d3440]">
+              <label htmlFor="confirmPassword" className="mb-1 block text-xs font-semibold text-[#2d3440]">
                 Konfirmasi Password
               </label>
               <input
@@ -142,7 +142,7 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
                 minLength={8}
                 autoComplete="new-password"
                 placeholder="Ulangi password baru"
-                className="min-h-11 w-full rounded-lg border border-slate-200 px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+                className="h-9 w-full rounded-lg border border-slate-200 px-3 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
               />
             </div>
           </div>

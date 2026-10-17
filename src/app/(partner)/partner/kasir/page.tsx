@@ -70,7 +70,7 @@ export default async function PartnerKasirPage() {
   );
   const productsById = new Map<
     string,
-    { id: string; sku: string; name: string; selling_price: number }
+    { id: string; sku: string; name: string; selling_price: number; image_url: string | null }
   >();
 
   for (
@@ -80,7 +80,7 @@ export default async function PartnerKasirPage() {
   ) {
     const { data, error } = await supabase
       .from("products")
-      .select("id, sku, name, selling_price")
+      .select("id, sku, name, selling_price, image_url")
       .in("id", allocatedProductIds.slice(offset, offset + PAGE_SIZE))
       .eq("is_active", true);
 
@@ -105,53 +105,50 @@ export default async function PartnerKasirPage() {
             name: product.name,
             sellingPrice: product.selling_price,
             stock: allocation.stock_quantity,
+            imageUrl: product.image_url ?? null,
           },
         ]
       : [];
   });
 
   return (
-    <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+    <div className="mx-auto w-full max-w-7xl px-2 py-3 sm:px-4 sm:py-4">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="mb-8">
-        <span className="inline-block rounded-full bg-[#f7e4d4] px-3 py-1 text-xs font-bold text-[#9d5c4c]">
-          Portal Mitra
-        </span>
-        <h1 className="mt-2 text-3xl font-black tracking-tight text-[#2d3440]">
-          Kasir Penjualan
-        </h1>
-        <p className="mt-2 text-sm text-[#6d7687]">
-          Pilih produk, tentukan jumlah, masukkan ke keranjang belanja, dan proses pembayaran transaksi.
-        </p>
-      </header>
-
-      {/* ── Form POS Kasir ──────────────────────────────────────────────────── */}
-      <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5">
-        <div className="border-b border-slate-100 px-6 py-5">
-          <h2 className="font-bold text-[#2d3440]">Point of Sale (POS)</h2>
-          <p className="mt-1 text-sm text-[#7a8394]">
-            Layar kasir untuk melayani pesanan belanja pelanggan secara langsung.
+      <header className="mb-3 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <span className="inline-block rounded-full bg-almond-cream px-3 py-0.5 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
+            Portal Mitra POS
+          </span>
+          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
+            Kasir Penjualan
+          </h1>
+          <p className="mt-0.5 text-xs font-medium text-[#7a8394]">
+            Layar kasir modern untuk melayani pesanan pelanggan secara cepat &amp; cetak struk nota.
           </p>
         </div>
+      </header>
 
-        {inventoryError ? (
-          <p role="alert" className="px-5 py-5 text-sm text-[#9b4936]">
-            Pilihan stok gagal dimuat: {inventoryError}
-          </p>
-        ) : activeStores.length === 0 ? (
-          <p className="px-5 py-10 text-center text-sm text-[#68756e]">
-            Belum ada toko aktif yang terdaftar untuk akun Anda.
-          </p>
-        ) : (
-          <PosCartForm
-            stores={activeStores.map((store) => ({
-              id: store.id,
-              name: store.name,
-            }))}
-            inventory={partnerInventory}
-          />
-        )}
-      </section>
+      {/* ── Konten Kasir Modern POS ────────────────────────────────────────── */}
+      {inventoryError ? (
+        <div
+          role="alert"
+          className="rounded-3xl border border-rose-300 bg-rose-50/95 p-6 text-sm font-semibold text-rose-800 shadow-neu-sm"
+        >
+          Pilihan stok gagal dimuat: {inventoryError}
+        </div>
+      ) : activeStores.length === 0 ? (
+        <div className="rounded-3xl bg-[#e0e5ec] p-12 text-center text-sm font-medium text-[#7a8394] shadow-neu-flat">
+          Belum ada toko aktif yang terdaftar untuk akun Anda.
+        </div>
+      ) : (
+        <PosCartForm
+          stores={activeStores.map((store) => ({
+            id: store.id,
+            name: store.name,
+          }))}
+          inventory={partnerInventory}
+        />
+      )}
     </div>
   );
 }

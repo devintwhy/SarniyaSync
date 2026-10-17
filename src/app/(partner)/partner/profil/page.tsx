@@ -57,18 +57,18 @@ export default async function PartnerProfilePage() {
   const email = user.email ?? "";
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-      <header className="mb-8">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center rounded-full bg-[#f7e4d4] px-3 py-1 text-xs font-bold text-[#9d5c4c]">
+    <div className="w-full max-w-3xl mx-auto space-y-3 sm:space-y-4">
+      <header>
+        <div className="flex items-center gap-1.5">
+          <span className="inline-flex items-center rounded-full bg-[#f7e4d4] px-2.5 py-0.5 text-xs font-bold text-[#9d5c4c]">
             Pengaturan Akun
           </span>
           <span className="text-xs text-[#7a8394]">&bull; Portal Mitra</span>
         </div>
-        <h1 className="mt-2 text-3xl font-black tracking-tight text-[#2d3440]">
+        <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
           Profil Pemilik & Toko
         </h1>
-        <p className="mt-2 text-sm text-[#6d7687]">
+        <p className="mt-0.5 text-xs sm:text-sm text-[#6d7687]">
           Kelola data pendaftaran mandiri, informasi operasional toko, dan keamanan kata sandi Anda.
         </p>
       </header>

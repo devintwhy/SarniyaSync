@@ -71,22 +71,22 @@ export default async function ProdukPage() {
   const supabase = await createSupabaseServerClient();
   const { data: products, error } = await supabase
     .from("products")
-    .select("id, sku, name, category, cost_price, selling_price, stock_quantity, is_active, created_at")
+    .select("id, sku, name, category, cost_price, selling_price, stock_quantity, image_url, is_active, created_at")
     .order("created_at", { ascending: false });
 
   return (
-    <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+    <div className="w-full max-w-7xl mx-auto space-y-3 sm:space-y-4">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="inline-block rounded-full bg-[#f7e4d4] px-3.5 py-1 text-xs font-bold text-[#9d5c4c]">
+          <span className="inline-block rounded-full bg-almond-cream px-2.5 py-0.5 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
             Area Pemilik / Administrator
           </span>
-          <h1 className="mt-2 text-3xl sm:text-4xl font-black tracking-tight text-[#2d3440]">
+          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
             Katalog Produk
           </h1>
-          <p className="mt-1 text-sm sm:text-base text-[#6d7687]">
-            Kelola seluruh produk — harga modal, harga jual, dan stok pusat.
+          <p className="mt-0.5 text-xs text-[#6d7687]">
+            Katalog visual produk pusat dengan stok, harga jual, dan aksi kelola.
           </p>
         </div>
 
@@ -94,30 +94,8 @@ export default async function ProdukPage() {
         <AddProductModal action={addProductAction} />
       </header>
 
-      {/* ── Tabel Produk ───────────────────────────────────────────────────── */}
-      <section
-        aria-label="Daftar produk"
-        className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm"
-      >
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
-          <div>
-            <h2 className="text-lg font-bold text-[#2d3440]">Semua Produk</h2>
-            <p className="mt-0.5 text-sm text-[#7b877f]">
-              {products ? `${products.length} produk terdaftar` : "Memuat data..."}
-            </p>
-          </div>
-          {error && (
-            <p
-              role="alert"
-              className="rounded-md border border-[#f0d4cc] bg-[#fff5f1] px-3 py-1.5 text-xs text-[#9b4936]"
-            >
-              Gagal memuat: {error.message}
-            </p>
-          )}
-        </div>
-
-        <ProductTableClient products={(products ?? []) as any} errorMessage={error?.message} />
-      </section>
+      {/* ── Grid Kartu Produk (Client Component) ─────────────────────────── */}
+      <ProductTableClient products={(products ?? []) as any} errorMessage={error?.message} />
     </div>
   );
 }

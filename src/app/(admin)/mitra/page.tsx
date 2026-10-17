@@ -30,40 +30,40 @@ export default async function PartnerManagementPage() {
   const errorMessage = storeError?.message ?? "";
 
   return (
-    <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-      <header className="mb-8">
-        <span className="inline-block rounded-full bg-[#f7e4d4] px-3.5 py-1 text-xs font-bold text-[#9d5c4c]">
+    <div className="mx-auto max-w-7xl px-2 py-3 sm:px-4 sm:py-4">
+      <header className="mb-4">
+        <span className="inline-block rounded-full bg-almond-cream px-3 py-0.5 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
           Area Pemilik / Administrator
         </span>
-        <h1 className="mt-2 text-3xl sm:text-4xl font-black tracking-tight text-[#2d3440]">
+        <h1 className="mt-1.5 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
           Manajemen Mitra
         </h1>
-        <p className="mt-1 text-sm sm:text-base text-[#6d7687]">
-          Kelola status operasional toko mitra (Aktif, Pending, atau Nonaktif) secara langsung.
+        <p className="mt-0.5 text-xs text-[#6d7687]">
+          Kelola status operasional toko mitra (Aktif, Pending, atau Nonaktif) secara langsung dengan kendali terpadu.
         </p>
       </header>
 
       {errorMessage ? (
-        <p
+        <div
           role="alert"
-          className="rounded-2xl border border-rose-300 bg-rose-50/95 px-4 py-3 text-sm text-rose-800"
+          className="rounded-2xl border border-rose-300 bg-rose-50/95 p-3.5 text-xs font-semibold text-rose-800 shadow-neu-sm"
         >
           Data mitra gagal dimuat: {errorMessage}
-        </p>
+        </div>
       ) : (
         <section
           aria-label="Daftar mitra"
-          className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm"
+          className="overflow-hidden rounded-2xl bg-[#e0e5ec] shadow-neu-flat"
         >
-          <div className="border-b border-slate-100 px-6 py-5">
-            <h2 className="text-lg font-bold text-[#2d3440]">Daftar Toko Mitra</h2>
-            <p className="mt-1 text-sm text-[#7b877f]">
-              {stores?.length ?? 0} toko mitra terdaftar dalam sistem
+          <div className="border-b border-[#a3b1c6]/25 px-4 py-3 sm:px-5">
+            <h2 className="text-base font-black text-[#2d3440]">Daftar Toko Mitra</h2>
+            <p className="mt-0.5 text-xs font-medium text-[#7a8394]">
+              {stores?.length ?? 0} toko mitra terdaftar dalam ekosistem SarniyaSync
             </p>
           </div>
 
           {!stores?.length ? (
-            <p className="px-5 py-8 text-center text-sm text-[#68756e]">
+            <p className="px-4 py-8 text-center text-xs font-medium text-[#7a8394]">
               Belum ada toko mitra yang terdaftar.
             </p>
           ) : (

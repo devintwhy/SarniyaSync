@@ -35,13 +35,13 @@ export default async function ProfilPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-      <header className="mb-8">
-        <span className="inline-block rounded-full bg-[#f7e4d4] px-3 py-1 text-xs font-bold text-[#9d5c4c]">
+    <div className="w-full max-w-2xl mx-auto space-y-3 sm:space-y-4">
+      <header>
+        <span className="inline-block rounded-full bg-[#f7e4d4] px-2.5 py-0.5 text-xs font-bold text-[#9d5c4c]">
           Akun Saya
         </span>
-        <h1 className="mt-2 text-3xl font-black tracking-tight text-[#2d3440]">Pengaturan Akun</h1>
-        <p className="mt-2 text-sm text-[#6d7687]">Kelola informasi profil dan keamanan akun Anda.</p>
+        <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">Pengaturan Akun</h1>
+        <p className="mt-0.5 text-xs sm:text-sm text-[#6d7687]">Kelola informasi profil dan keamanan akun Anda.</p>
       </header>
 
       <ProfileForms

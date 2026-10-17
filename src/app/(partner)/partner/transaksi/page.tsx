@@ -118,16 +118,16 @@ export default async function PartnerTransactionsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+    <div className="w-full max-w-7xl mx-auto space-y-3 sm:space-y-4">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="mb-8">
-        <span className="inline-block rounded-full bg-[#f7e4d4] px-3 py-1 text-xs font-bold text-[#9d5c4c]">
+      <header>
+        <span className="inline-block rounded-full bg-[#f7e4d4] px-2.5 py-0.5 text-xs font-bold text-[#9d5c4c]">
           Portal Mitra
         </span>
-        <h1 className="mt-2 text-3xl font-black tracking-tight text-[#2d3440]">
+        <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
           Riwayat Transaksi
         </h1>
-        <p className="mt-2 text-sm text-[#6d7687]">
+        <p className="mt-0.5 text-xs sm:text-sm text-[#6d7687]">
           Daftar seluruh transaksi penjualan yang telah selesai di toko Anda.
         </p>
       </header>
@@ -136,22 +136,22 @@ export default async function PartnerTransactionsPage() {
       {errorMessage ? (
         <p
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
+          className="rounded-lg border border-red-200 bg-red-50 px-3.5 py-2 text-xs sm:text-sm text-red-600"
         >
           Transaksi gagal dimuat: {errorMessage}
         </p>
       ) : historyRows.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center text-sm text-[#6d7687]">
+        <div className="rounded-xl border border-slate-200 bg-white px-4 py-8 text-center text-xs sm:text-sm text-[#6d7687]">
           Belum ada transaksi toko.
         </div>
       ) : (
         <section
           aria-label="Riwayat transaksi toko"
-          className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5"
+          className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5"
         >
-          <div className="border-b border-slate-100 px-6 py-5">
-            <h2 className="font-bold text-[#2d3440]">Data Transaksi Toko</h2>
-            <p className="mt-1 text-sm text-[#7a8394]">
+          <div className="border-b border-slate-100 px-4 py-3">
+            <h2 className="text-base font-bold text-[#2d3440]">Data Transaksi Toko</h2>
+            <p className="mt-0.5 text-xs text-[#7a8394]">
               {historyRows.length} item terjual — tanggal terbaru di atas.
             </p>
           </div>

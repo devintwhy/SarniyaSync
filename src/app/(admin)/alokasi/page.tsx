@@ -82,19 +82,19 @@ export default async function StockAllocationPage() {
   const loadError = storesError?.message ?? productError ?? allocationError;
 
   return (
-    <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-      <header className="mb-8">
-        <span className="inline-block rounded-full bg-[#f7e4d4] px-3 py-1 text-xs font-bold text-[#9d5c4c]">
+    <div className="w-full max-w-7xl mx-auto space-y-3 sm:space-y-4">
+      <header>
+        <span className="inline-block rounded-full bg-[#f7e4d4] px-2.5 py-0.5 text-xs font-bold text-[#9d5c4c]">
           Area Pemilik / Admin
         </span>
-        <h1 className="mt-2 text-3xl font-black tracking-tight text-[#2d3440]">Alokasi Stok</h1>
-        <p className="mt-2 text-sm text-[#6d7687]">Pindahkan stok dari katalog pusat ke toko mitra.</p>
+        <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">Alokasi Stok</h1>
+        <p className="mt-0.5 text-xs sm:text-sm text-[#6d7687]">Pindahkan stok dari katalog pusat ke toko mitra.</p>
       </header>
 
-      <section aria-label="Form alokasi stok" className="mb-6 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5">
-        <div className="border-b border-slate-100 px-6 py-5">
-          <h2 className="font-bold text-[#2d3440]">Alokasikan Produk</h2>
-          <p className="mt-1 text-sm text-[#7a8394]">Stok pusat berkurang saat alokasi berhasil.</p>
+      <section aria-label="Form alokasi stok" className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5">
+        <div className="border-b border-slate-100 px-4 py-3">
+          <h2 className="text-base font-bold text-[#2d3440]">Alokasikan Produk</h2>
+          <p className="mt-0.5 text-xs text-[#7a8394]">Stok pusat berkurang saat alokasi berhasil.</p>
         </div>
         <AllocationForm
           stores={stores.map((store) => ({ id: store.id, name: store.name }))}
@@ -107,24 +107,24 @@ export default async function StockAllocationPage() {
         />
       </section>
 
-      <section aria-label="Daftar alokasi stok" className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5">
-        <div className="border-b border-slate-100 px-6 py-5">
-          <h2 className="font-bold text-[#2d3440]">Stok di Toko Mitra</h2>
-          <p className="mt-1 text-sm text-[#7a8394]">{allocations.length} alokasi produk</p>
+      <section aria-label="Daftar alokasi stok" className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5">
+        <div className="border-b border-slate-100 px-4 py-3">
+          <h2 className="text-base font-bold text-[#2d3440]">Stok di Toko Mitra</h2>
+          <p className="mt-0.5 text-xs text-[#7a8394]">{allocations.length} alokasi produk</p>
         </div>
         {loadError ? (
-          <p role="alert" className="px-6 py-5 text-sm text-red-600">Data alokasi gagal dimuat: {loadError}</p>
+          <p role="alert" className="px-4 py-3 text-xs sm:text-sm text-red-600">Data alokasi gagal dimuat: {loadError}</p>
         ) : allocations.length === 0 ? (
-          <p className="px-6 py-8 text-center text-sm text-[#6d7687]">Belum ada stok yang dialokasikan.</p>
+          <p className="px-4 py-6 text-center text-xs sm:text-sm text-[#6d7687]">Belum ada stok yang dialokasikan.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left text-sm">
-              <thead className="bg-[#f0f2f5] text-xs uppercase tracking-wider text-[#6d7687]">
+            <table className="w-full min-w-[700px] text-left text-xs sm:text-sm">
+              <thead className="bg-[#f0f2f5] text-[11px] uppercase tracking-wider text-[#6d7687]">
                 <tr>
-                  <th scope="col" className="px-6 py-3.5 font-bold">Toko Mitra</th>
-                  <th scope="col" className="px-6 py-3.5 font-bold">SKU</th>
-                  <th scope="col" className="px-6 py-3.5 font-bold">Produk</th>
-                  <th scope="col" className="px-6 py-3.5 text-right font-bold">Stok Dialokasikan</th>
+                  <th scope="col" className="px-3.5 py-2.5 font-bold">Toko Mitra</th>
+                  <th scope="col" className="px-3.5 py-2.5 font-bold">SKU</th>
+                  <th scope="col" className="px-3.5 py-2.5 font-bold">Produk</th>
+                  <th scope="col" className="px-3.5 py-2.5 text-right font-bold">Stok Dialokasikan</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -134,12 +134,12 @@ export default async function StockAllocationPage() {
 
                   return (
                     <tr key={allocation.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="px-6 py-4 text-[#576071]">
+                      <td className="px-3.5 py-2 text-xs sm:text-sm text-[#576071]">
                         {store ? `${store.name}${store.city ? ` · ${store.city}` : ""}` : "Toko tidak ditemukan"}
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-xs font-mono text-[#7a8394]">{product?.sku ?? "-"}</td>
-                      <th scope="row" className="px-6 py-4 font-semibold text-[#2d3440]">{product?.name ?? "Produk tidak ditemukan"}</th>
-                      <td className="whitespace-nowrap px-6 py-4 text-right font-bold text-[#2d3440]">
+                      <td className="whitespace-nowrap px-3.5 py-2 text-xs font-mono text-[#7a8394]">{product?.sku ?? "-"}</td>
+                      <th scope="row" className="px-3.5 py-2 font-semibold text-[#2d3440]">{product?.name ?? "Produk tidak ditemukan"}</th>
+                      <td className="whitespace-nowrap px-3.5 py-2 text-right font-bold text-[#2d3440]">
                         {numberFormatter.format(allocation.stock_quantity)}
                       </td>
                     </tr>

@@ -58,10 +58,10 @@ export default function AllocationForm({ stores, products }: AllocationFormProps
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 p-6">
-      <div className="grid gap-6 md:grid-cols-2">
+    <form onSubmit={handleSubmit} className="space-y-3.5 p-4">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <label htmlFor="allocation-store" className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#576071]">
+          <label htmlFor="allocation-store" className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#576071]">
             Pilih Toko Mitra
           </label>
           <select
@@ -70,7 +70,7 @@ export default function AllocationForm({ stores, products }: AllocationFormProps
             onChange={(event) => setStoreId(event.target.value)}
             required
             disabled={!stores.length}
-            className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-[#2d3440] outline-none transition-all focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-50"
+            className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs sm:text-sm font-medium text-[#2d3440] outline-none transition-all focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-50"
           >
             {stores.length ? stores.map((store) => (
               <option key={store.id} value={store.id}>{store.name}</option>
@@ -79,7 +79,7 @@ export default function AllocationForm({ stores, products }: AllocationFormProps
         </div>
 
         <div>
-          <label htmlFor="allocation-product" className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#576071]">
+          <label htmlFor="allocation-product" className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#576071]">
             Pilih Produk
           </label>
           <select
@@ -88,7 +88,7 @@ export default function AllocationForm({ stores, products }: AllocationFormProps
             onChange={(event) => setProductId(event.target.value)}
             required
             disabled={!products.length}
-            className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-[#2d3440] outline-none transition-all focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-50"
+            className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs sm:text-sm font-medium text-[#2d3440] outline-none transition-all focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-50"
           >
             <option value="">{products.length ? "Pilih produk" : "Tidak ada stok pusat tersedia"}</option>
             {products.map((product) => (
@@ -101,7 +101,7 @@ export default function AllocationForm({ stores, products }: AllocationFormProps
       </div>
 
       <div className="max-w-xs">
-        <label htmlFor="allocation-quantity" className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#576071]">
+        <label htmlFor="allocation-quantity" className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#576071]">
           Jumlah yang Dikirim/Dialokasikan
         </label>
         <input
@@ -112,17 +112,17 @@ export default function AllocationForm({ stores, products }: AllocationFormProps
           step="1"
           required
           inputMode="numeric"
-          className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-medium text-[#2d3440] outline-none transition-all focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs sm:text-sm font-medium text-[#2d3440] outline-none transition-all focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
         />
       </div>
 
-      {errorMessage && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{errorMessage}</p>}
-      {successMessage && <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{successMessage}</p>}
+      {errorMessage && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs sm:text-sm text-red-600">{errorMessage}</p>}
+      {successMessage && <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs sm:text-sm text-emerald-700">{successMessage}</p>}
 
       <button
         type="submit"
         disabled={isSubmitting || stores.length === 0 || products.length === 0}
-        className="inline-flex min-h-12 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-6 text-sm font-bold text-white shadow-md shadow-[#9d5c4c]/20 transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex h-9 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-5 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSubmitting ? "Mengalokasikan..." : "Alokasikan Stok"}
       </button>

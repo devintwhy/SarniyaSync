@@ -12,9 +12,11 @@ export default async function PartnerLayout({ children }: Readonly<{ children: R
   if (await getProfileRole(supabase, user.id) !== "mitra") redirect("/");
 
   return (
-    <div className="flex min-h-screen flex-col lg:flex-row">
+    <div className="relative flex min-h-screen w-full flex-col bg-[#e0e5ec] text-[#2d3440] lg:flex-row">
       <PartnerNavigation />
-      <main className="min-w-0 flex-1">{children}</main>
+      <main className="relative flex-1 min-w-0 w-full overflow-y-auto bg-[#e0e5ec] transition-all duration-300 ease-in-out p-3 sm:p-4 lg:p-5">
+        {children}
+      </main>
     </div>
   );
 }

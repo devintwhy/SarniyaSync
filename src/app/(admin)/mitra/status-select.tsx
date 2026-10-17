@@ -48,28 +48,28 @@ export default function StatusSelect({
   }
 
   return (
-    <div className="flex min-w-[270px] max-w-sm flex-col gap-2 py-1">
-      <div className="flex items-center gap-2">
+    <div className="flex min-w-[270px] max-w-sm flex-col gap-2.5 py-1">
+      <div className="flex items-center gap-2.5">
         <div className="relative inline-flex items-center">
           <select
             value={status}
             disabled={isPending}
             onChange={(e) => handleStatusChange(e.target.value)}
             aria-label="Pilih status mitra"
-            className={`cursor-pointer rounded-full border px-3 py-1 pr-7 text-xs font-semibold outline-none transition-all focus:ring-2 disabled:cursor-wait disabled:opacity-60 ${statusStyles[status]}`}
+            className={`cursor-pointer rounded-2xl border px-3.5 py-1.5 pr-8 text-xs font-bold shadow-neu-sm outline-none transition-all focus:ring-2 focus:ring-dusty-rose/40 disabled:cursor-wait disabled:opacity-60 ${statusStyles[status]}`}
           >
-            <option value="aktif" className="bg-white text-emerald-700">
+            <option value="aktif" className="bg-[#e0e5ec] text-emerald-800">
               ● Aktif
             </option>
-            <option value="pending" className="bg-white text-amber-700">
+            <option value="pending" className="bg-[#e0e5ec] text-amber-800">
               ▲ Pending
             </option>
-            <option value="nonaktif" className="bg-white text-rose-700">
+            <option value="nonaktif" className="bg-[#e0e5ec] text-rose-800">
               ✕ Nonaktif
             </option>
           </select>
           <span
-            className="pointer-events-none absolute right-2 text-[10px] text-current opacity-70"
+            className="pointer-events-none absolute right-2.5 text-[10px] text-current opacity-70 font-bold"
             aria-hidden="true"
           >
             {isPending ? "⏳" : "▼"}
@@ -80,7 +80,7 @@ export default function StatusSelect({
           type="button"
           onClick={() => handleSave()}
           disabled={isPending}
-          className="rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-[#2d3440] hover:bg-slate-50 hover:border-[#cc9787] disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
+          className="rounded-2xl bg-terracotta-clay px-3.5 py-1.5 text-xs font-bold text-white shadow-neu-sm transition-all hover:brightness-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending ? "Menyimpan..." : "Simpan Pesan"}
         </button>
@@ -92,15 +92,19 @@ export default function StatusSelect({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Pesan kustom jika pending/nonaktif..."
-          className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-[#2d3440] placeholder:text-[#9ea8b4] outline-none focus:border-[#cc9787] focus:ring-1 focus:ring-[#cc9787]/25 transition-all"
+          style={{
+            boxShadow:
+              "inset 2px 2px 5px rgba(163, 177, 198, 0.6), inset -2px -2px 5px rgba(255, 255, 255, 0.8)",
+          }}
+          className="w-full rounded-xl border-none bg-[#e0e5ec] px-3.5 py-2 text-xs font-medium text-[#2d3440] placeholder:text-[#8f98a8] outline-none transition-all focus:ring-2 focus:ring-dusty-rose/40"
         />
       </div>
 
       {feedback && (
         <span
           role={feedback.type === "error" ? "alert" : "status"}
-          className={`text-[11px] font-medium ${
-            feedback.type === "error" ? "text-rose-600" : "text-emerald-600"
+          className={`text-[11px] font-bold ${
+            feedback.type === "error" ? "text-rose-600" : "text-emerald-700"
           }`}
         >
           {feedback.text}
