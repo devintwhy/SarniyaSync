@@ -97,22 +97,22 @@ export default async function PartnerKasirPage() {
     const product = productsById.get(allocation.product_id);
     return product
       ? [
-          {
-            storeId: allocation.partner_store_id,
-            allocationId: allocation.id,
-            productId: product.id,
-            sku: product.sku,
-            name: product.name,
-            sellingPrice: product.selling_price,
-            stock: allocation.stock_quantity,
-            imageUrl: product.image_url ?? null,
-          },
-        ]
+        {
+          storeId: allocation.partner_store_id,
+          allocationId: allocation.id,
+          productId: product.id,
+          sku: product.sku,
+          name: product.name,
+          sellingPrice: product.selling_price,
+          stock: allocation.stock_quantity,
+          imageUrl: product.image_url ?? null,
+        },
+      ]
       : [];
   });
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-2 py-3 sm:px-4 sm:py-4">
+    <div className="w-full px-2 py-3 sm:px-4 sm:py-4">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="mb-3 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
         <div>

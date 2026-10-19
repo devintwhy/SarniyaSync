@@ -53,7 +53,7 @@ export default async function PartnerDashboardPage() {
 
   if (storesError) {
     return (
-      <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8">
+      <div className="w-full px-5 py-8 sm:px-8">
         <p className="rounded-md border border-[#f0d4cc] bg-[#fff5f1] px-4 py-3 text-sm text-[#9b4936]">
           Gagal memuat profil toko: {storesError.message}
         </p>
@@ -69,7 +69,7 @@ export default async function PartnerDashboardPage() {
   // Jika mitra belum memiliki toko aktif
   if (activeStoreIds.length === 0) {
     return (
-      <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8">
+      <div className="w-full px-5 py-12 sm:px-8">
         <div className="rounded-2xl border border-[#d2ddd6] bg-white p-8 text-center shadow-sm">
           <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#f4f8f5] text-2xl">
             🏪
@@ -268,7 +268,7 @@ export default async function PartnerDashboardPage() {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-3 sm:space-y-4">
+    <div className="w-full space-y-3 sm:space-y-4">
       {/* ── Header Dasbor Mitra ─────────────────────────────────────────── */}
       <header className="flex flex-col justify-between gap-2.5 sm:flex-row sm:items-end">
         <div>

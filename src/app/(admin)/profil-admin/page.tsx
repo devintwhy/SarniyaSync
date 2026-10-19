@@ -31,7 +31,7 @@ export default async function ProfilPage() {
   const email = user.email ?? "";
 
   if (role === "mitra") {
-    redirect("/partner/profil");
+    redirect("/profil-mitra");
   }
 
   return (

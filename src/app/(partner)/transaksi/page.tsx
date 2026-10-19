@@ -1,1 +1,1 @@
-export { default, metadata, dynamic } from "../partner/transaksi/page";
+export { default, metadata, dynamic } from "../riwayat-mitra/page";

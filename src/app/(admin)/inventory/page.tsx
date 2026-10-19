@@ -136,7 +136,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-3 sm:space-y-4">
+    <div className="w-full space-y-3 sm:space-y-4">
       <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <span className="inline-block rounded-full bg-[#f7e4d4] px-2.5 py-0.5 text-xs font-bold text-[#9d5c4c]">

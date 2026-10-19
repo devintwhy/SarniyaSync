@@ -81,7 +81,7 @@ function getNavIcon(label: string) {
       </svg>
     );
   }
-  if (l.includes("transaksi")) {
+  if (l.includes("transaksi") || l.includes("riwayat")) {
     return (
       <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
@@ -152,10 +152,12 @@ export default function SidebarNavigation() {
           }));
           setNavigationItems([
             { label: "Dashboard Mitra", href: "/dashboard-mitra" },
+            { label: "Katalog Produk", href: "/partner/katalog" },
+            { label: "Stok Toko", href: "/partner/stok" },
             { label: "Kasir", href: "/partner/kasir" },
             { label: "Riwayat Transaksi", href: "/partner/transaksi" },
             ...storeItems,
-            { label: "Pengaturan Akun", href: "/partner/profil" },
+            { label: "Pengaturan Akun", href: "/profil-mitra" },
           ]);
           return;
         }
@@ -167,7 +169,7 @@ export default function SidebarNavigation() {
           { label: "Alokasi Stok", href: "/alokasi" },
           { label: "Manajemen Mitra", href: "/mitra" },
           { label: "Laporan Penjualan", href: "/penjualan" },
-          { label: "Pengaturan Akun", href: "/profil" },
+          { label: "Pengaturan Akun", href: "/profil-admin" },
         ]);
       } catch {
         if (isActive) router.replace("/login?error=profile");
@@ -235,18 +237,17 @@ export default function SidebarNavigation() {
           )}
         </div>
 
-        {/* Tombol Toggle Neumorphism Timbul (Terracotta Clay) */}
+        {/* Tombol Toggle Neumorphism Timbul/Tenggelam (Terracotta Clay) */}
         <button
           type="button"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           aria-label={isSidebarOpen ? "Ciutkan Sidebar" : "Buka Sidebar"}
           title={isSidebarOpen ? "Sembunyikan Menu" : "Buka Menu"}
-          className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-terracotta-clay text-white shadow-neu-sm transition-all duration-200 hover:brightness-110 active:scale-95"
+          className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-terracotta-clay text-white shadow-neu-sm transition-all duration-200 hover:brightness-110 active:shadow-neu-inset-sm active:scale-95"
         >
+          {/* Ikon Menu Garis Tiga (Hamburger Menu) */}
           <svg
-            className={`size-4 transition-transform duration-300 ${
-              isSidebarOpen ? "" : "rotate-180"
-            }`}
+            className="size-4 shrink-0"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -254,7 +255,9 @@ export default function SidebarNavigation() {
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <polyline points="15 18 9 12 15 6" />
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="18" x2="20" y2="18" />
           </svg>
         </button>
       </div>
@@ -262,14 +265,24 @@ export default function SidebarNavigation() {
       {/* ── Navigation List ───────────────────────────────────────────────── */}
       <nav
         aria-label="Navigasi utama"
-        className={`flex gap-1.5 overflow-x-auto px-3 pb-3 lg:flex-col ${
-          isSidebarOpen ? "lg:px-4" : "lg:px-2.5 items-center"
-        }`}
+        className="flex gap-1.5 overflow-x-auto px-3 pb-3 lg:flex-col"
       >
         {navigationItems.map((item) => {
+          const isPenjualanAlias =
+            (item.href === "/penjualan" || item.href === "/partner/transaksi") &&
+            (pathname.startsWith("/riwayat") || pathname.startsWith("/riwayat-admin") || pathname.startsWith("/riwayat-mitra"));
+          const isKatalogAlias =
+            (item.href === "/produk" || item.href === "/partner/katalog") &&
+            (pathname.startsWith("/katalog") || pathname.startsWith("/partner/katalog"));
+          const isProfilAlias =
+            (item.href === "/profil-admin" && pathname.startsWith("/profil-admin")) ||
+            (item.href === "/profil-mitra" && (pathname.startsWith("/profil-mitra") || pathname.startsWith("/partner/profil")));
           const isActive =
             pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(`${item.href}/`));
+            (item.href !== "/" && pathname.startsWith(`${item.href}/`)) ||
+            isPenjualanAlias ||
+            isKatalogAlias ||
+            isProfilAlias;
 
           return (
             <Link
@@ -277,31 +290,29 @@ export default function SidebarNavigation() {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               title={!isSidebarOpen ? item.label : undefined}
-              className={`group flex shrink-0 items-center rounded-2xl py-2.5 text-xs font-bold transition-all duration-200 ${
-                isSidebarOpen
-                  ? "w-full gap-3 px-3.5"
-                  : "size-11 justify-center p-0"
-              } ${
+              className={`group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-2xl h-11 px-4 text-xs font-bold overflow-hidden transition-all duration-200 ${
                 isActive
                   ? "bg-terracotta-clay text-white shadow-neu-sm"
                   : "text-[#576071] hover:bg-almond-cream/60 hover:text-terracotta-clay active:shadow-neu-inset-sm"
               }`}
             >
-              {/* Ikon Menu Representatif */}
+              {/* Kontainer Ikon Menu: Lebar Tetap w-6 h-6 mr-3 Menjamin Posisi Terkunci */}
               <span
-                className={`transition-colors ${
+                className={`flex size-6 shrink-0 items-center justify-center mr-3 transition-colors ${
                   isActive ? "text-white" : "text-[#7a8394] group-hover:text-terracotta-clay"
                 }`}
               >
                 {getNavIcon(item.label)}
               </span>
 
-              {/* Teks Label (Hanya Muncul saat isSidebarOpen bernilai true) */}
-              {isSidebarOpen && (
-                <span className="truncate whitespace-nowrap transition-opacity duration-200">
-                  {item.label}
-                </span>
-              )}
+              {/* Teks Label: Dikontrol transisi/disembunyikan tanpa mengganggu padding utama tombol */}
+              <span
+                className={`truncate whitespace-nowrap transition-all duration-200 ${
+                  isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"
+                }`}
+              >
+                {item.label}
+              </span>
             </Link>
           );
         })}
@@ -315,12 +326,10 @@ export default function SidebarNavigation() {
 
       {/* ── Footer & Logout Sesi ─────────────────────────────────────────── */}
       <div
-        className={`mt-auto border-t border-[#a3b1c6]/30 py-4 transition-all duration-300 ${
-          isSidebarOpen ? "px-4" : "px-2.5 flex flex-col items-center"
-        }`}
+        className="mt-auto border-t border-[#a3b1c6]/30 px-3 py-4 transition-all duration-300"
       >
         {isSidebarOpen && (
-          <p className="text-[11px] font-medium text-[#7a8394] mb-2 truncate">
+          <p className="text-[11px] font-medium text-[#7a8394] mb-2 truncate px-1">
             Rantai pasok, lebih terhubung.
           </p>
         )}
@@ -330,30 +339,33 @@ export default function SidebarNavigation() {
           onClick={() => void handleLogout()}
           disabled={isLoggingOut}
           title={!isSidebarOpen ? "Keluar Sesi" : undefined}
-          className={`flex items-center justify-center rounded-2xl bg-[#e0e5ec] text-xs font-bold uppercase tracking-wider text-terracotta-clay shadow-neu-sm transition-all duration-200 hover:bg-almond-cream/50 active:shadow-neu-inset-sm disabled:cursor-not-allowed disabled:opacity-50 ${
-            isSidebarOpen ? "w-full gap-2 py-2.5 px-3" : "size-11 p-0"
-          }`}
+          className="group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-2xl h-11 px-4 text-xs font-bold uppercase tracking-wider text-terracotta-clay bg-[#e0e5ec] shadow-neu-sm transition-all duration-200 hover:bg-almond-cream/50 active:shadow-neu-inset-sm disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden"
         >
-          {/* Ikon Logout */}
-          <svg
-            className="size-4 shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
+          {/* Kontainer Ikon Logout Lebar Tetap w-6 h-6 mr-3 */}
+          <span className="flex size-6 shrink-0 items-center justify-center mr-3 transition-colors">
+            <svg
+              className="size-4 shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </span>
 
-          {isSidebarOpen && (
-            <span className="truncate">
-              {isLoggingOut ? "Keluar..." : "Keluar Sesi"}
-            </span>
-          )}
+          {/* Elemen Teks Logout */}
+          <span
+            className={`truncate transition-all duration-200 ${
+              isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"
+            }`}
+          >
+            {isLoggingOut ? "Keluar..." : "Keluar Sesi"}
+          </span>
         </button>
       </div>
     </aside>

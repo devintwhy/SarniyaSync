@@ -21,15 +21,5 @@ export function createSupabaseBrowserClient() {
     throw new Error("Supabase environment variables are not configured.");
   }
 
-  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
-    cookieOptions: {
-      // Hapus maxAge & expires → menjadi session cookie (hilang saat browser ditutup)
-      // sameSite: "lax" tetap aman untuk aplikasi web standar
-      // secure: true wajib di production (HTTPS)
-      sameSite: "lax" as const,
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      // Jangan set maxAge atau expires di sini!
-    },
-  });
+  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
 }

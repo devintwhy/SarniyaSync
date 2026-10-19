@@ -85,8 +85,10 @@ export default function LoginPage() {
             safeNextPath.startsWith("/inventory") ||
             safeNextPath.startsWith("/mitra") ||
             safeNextPath.startsWith("/penjualan") ||
+            safeNextPath.startsWith("/riwayat") ||
             safeNextPath.startsWith("/produk") ||
             safeNextPath.startsWith("/alokasi") ||
+            safeNextPath.startsWith("/katalog") ||
             safeNextPath.startsWith("/profil") ||
             safeNextPath.startsWith("/admin/") ||
             safeNextPath.startsWith("/api/products")),
@@ -95,6 +97,8 @@ export default function LoginPage() {
         safeNextPath &&
           (safeNextPath === "/partner" ||
             safeNextPath.startsWith("/partner/") ||
+            safeNextPath.startsWith("/riwayat") ||
+            safeNextPath.startsWith("/katalog") ||
             safeNextPath === "/dashboard-mitra" ||
             safeNextPath.startsWith("/dashboard-mitra/") ||
             safeNextPath.startsWith("/store/") ||

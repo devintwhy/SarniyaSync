@@ -75,7 +75,7 @@ export default async function ProdukPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-3 sm:space-y-4">
+    <div className="w-full space-y-3 sm:space-y-4">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>

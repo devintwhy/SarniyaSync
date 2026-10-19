@@ -8,22 +8,27 @@ import { createSupabaseBrowserClient } from "@/utils/supabase/client";
 
 const partnerRoutes = {
   dashboard: "/dashboard-mitra",
-  kasir: "/partner/kasir",
+  katalog: "/partner/katalog",
   stock: "/partner/stok",
+  kasir: "/partner/kasir",
   transactions: "/partner/transaksi",
   profile: "/partner/profil",
 } as const;
 
+// ── Urutan Menu Navigasi Mitra Sesuai Alur Logis ─────────────────────────────
 const navigationItems = [
   { label: "Dashboard", href: partnerRoutes.dashboard },
-  { label: "Kasir", href: partnerRoutes.kasir },
+  { label: "Katalog", href: partnerRoutes.katalog },
   { label: "Stok Toko", href: partnerRoutes.stock },
+  { label: "Kasir", href: partnerRoutes.kasir },
   { label: "Riwayat Transaksi", href: partnerRoutes.transactions },
-  { label: "Pengaturan Akun", href: partnerRoutes.profile },
+  { label: "Pengaturan", href: partnerRoutes.profile },
 ];
 
 function getPartnerNavIcon(label: string) {
   const l = label.toLowerCase();
+
+  // 1. Dashboard
   if (l.includes("dashboard")) {
     return (
       <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -34,6 +39,30 @@ function getPartnerNavIcon(label: string) {
       </svg>
     );
   }
+
+  // 2. Katalog (Katalog Produk)
+  if (l.includes("katalog") || l.includes("produk")) {
+    return (
+      <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 01-8 0" />
+      </svg>
+    );
+  }
+
+  // 3. Stok Toko
+  if (l.includes("stok")) {
+    return (
+      <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16Z" />
+        <path d="m3.3 7 8.7 5 8.7-5" />
+        <path d="M12 22V12" />
+      </svg>
+    );
+  }
+
+  // 4. Kasir (POS)
   if (l.includes("kasir")) {
     return (
       <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -45,16 +74,9 @@ function getPartnerNavIcon(label: string) {
       </svg>
     );
   }
-  if (l.includes("stok")) {
-    return (
-      <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16Z" />
-        <path d="m3.3 7 8.7 5 8.7-5" />
-        <path d="M12 22V12" />
-      </svg>
-    );
-  }
-  if (l.includes("transaksi")) {
+
+  // 5. Riwayat Transaksi
+  if (l.includes("transaksi") || l.includes("riwayat")) {
     return (
       <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
@@ -65,6 +87,8 @@ function getPartnerNavIcon(label: string) {
       </svg>
     );
   }
+
+  // 6. Pengaturan Akun
   return (
     <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="3" />
@@ -131,18 +155,17 @@ export default function PartnerNavigation() {
           )}
         </div>
 
-        {/* Tombol Toggle Neumorphism Timbul (Terracotta Clay) */}
+        {/* Tombol Toggle Neumorphism Timbul/Tenggelam (Terracotta Clay) */}
         <button
           type="button"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           aria-label={isSidebarOpen ? "Ciutkan Sidebar" : "Buka Sidebar"}
           title={isSidebarOpen ? "Sembunyikan Menu" : "Buka Menu"}
-          className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-terracotta-clay text-white shadow-neu-sm transition-all duration-200 hover:brightness-110 active:scale-95"
+          className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-terracotta-clay text-white shadow-neu-sm transition-all duration-200 hover:brightness-110 active:shadow-neu-inset-sm active:scale-95"
         >
+          {/* Ikon Menu Garis Tiga (Hamburger Menu) */}
           <svg
-            className={`size-4 transition-transform duration-300 ${
-              isSidebarOpen ? "" : "rotate-180"
-            }`}
+            className="size-4 shrink-0"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -150,7 +173,9 @@ export default function PartnerNavigation() {
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <polyline points="15 18 9 12 15 6" />
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="18" x2="20" y2="18" />
           </svg>
         </button>
       </div>
@@ -158,15 +183,17 @@ export default function PartnerNavigation() {
       {/* ── Navigation List ───────────────────────────────────────────────── */}
       <nav
         aria-label="Navigasi Mitra"
-        className={`flex gap-1.5 overflow-x-auto px-3 pb-3 lg:flex-col ${
-          isSidebarOpen ? "lg:px-4" : "lg:px-2.5 items-center"
-        }`}
+        className="flex gap-1.5 overflow-x-auto px-3 pb-3 lg:flex-col"
       >
         {navigationItems.map((item) => {
           const isActive =
             pathname === item.href ||
             pathname.startsWith(`${item.href}/`) ||
-            (item.href === "/dashboard-mitra" && pathname === "/partner");
+            (item.href === "/dashboard-mitra" && (pathname === "/partner" || pathname.startsWith("/dashboard-mitra"))) ||
+            (item.href === "/partner/katalog" && (pathname === "/katalog" || pathname.startsWith("/katalog/"))) ||
+            (item.href === "/partner/kasir" && (pathname === "/kasir" || pathname.startsWith("/kasir/"))) ||
+            (item.href === "/partner/transaksi" && (pathname === "/riwayat" || pathname.startsWith("/riwayat/"))) ||
+            (item.href === "/partner/profil" && (pathname === "/profil" || pathname.startsWith("/profil/")));
 
           return (
             <Link
@@ -174,29 +201,29 @@ export default function PartnerNavigation() {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               title={!isSidebarOpen ? item.label : undefined}
-              className={`group flex shrink-0 items-center rounded-2xl py-2.5 text-xs font-bold transition-all duration-200 ${
-                isSidebarOpen
-                  ? "w-full gap-3 px-3.5"
-                  : "size-11 justify-center p-0"
-              } ${
+              className={`group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-2xl h-11 px-4 text-xs font-bold overflow-hidden transition-all duration-200 ${
                 isActive
                   ? "bg-terracotta-clay text-white shadow-neu-sm"
                   : "text-[#576071] hover:bg-almond-cream/60 hover:text-terracotta-clay active:shadow-neu-inset-sm"
               }`}
             >
+              {/* Kontainer Ikon Menu: Lebar Tetap w-6 h-6 mr-3 Menjamin Posisi Terkunci */}
               <span
-                className={`transition-colors ${
+                className={`flex size-6 shrink-0 items-center justify-center mr-3 transition-colors ${
                   isActive ? "text-white" : "text-[#7a8394] group-hover:text-terracotta-clay"
                 }`}
               >
                 {getPartnerNavIcon(item.label)}
               </span>
 
-              {isSidebarOpen && (
-                <span className="truncate whitespace-nowrap transition-opacity duration-200">
-                  {item.label}
-                </span>
-              )}
+              {/* Teks Label: Dikontrol transisi/disembunyikan tanpa mengganggu padding utama tombol */}
+              <span
+                className={`truncate whitespace-nowrap transition-all duration-200 ${
+                  isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"
+                }`}
+              >
+                {item.label}
+              </span>
             </Link>
           );
         })}
@@ -204,9 +231,7 @@ export default function PartnerNavigation() {
 
       {/* ── Footer & Logout ──────────────────────────────────────────────── */}
       <div
-        className={`mt-auto border-t border-[#a3b1c6]/30 py-4 transition-all duration-300 ${
-          isSidebarOpen ? "px-4" : "px-2.5 flex flex-col items-center"
-        }`}
+        className="mt-auto border-t border-[#a3b1c6]/30 px-3 py-4 transition-all duration-300"
       >
         {errorMessage && isSidebarOpen && (
           <p role="alert" className="mb-2.5 rounded-xl border border-rose-300 bg-rose-50/90 p-2 text-[10px] font-semibold text-rose-800 truncate">
@@ -219,29 +244,33 @@ export default function PartnerNavigation() {
           onClick={() => void handleLogout()}
           disabled={isLoggingOut}
           title={!isSidebarOpen ? "Keluar Sesi" : undefined}
-          className={`flex items-center justify-center rounded-2xl bg-[#e0e5ec] text-xs font-bold uppercase tracking-wider text-terracotta-clay shadow-neu-sm transition-all duration-200 hover:bg-almond-cream/50 active:shadow-neu-inset-sm disabled:cursor-not-allowed disabled:opacity-50 ${
-            isSidebarOpen ? "w-full gap-2 py-2.5 px-3" : "size-11 p-0"
-          }`}
+          className="group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-2xl h-11 px-4 text-xs font-bold uppercase tracking-wider text-terracotta-clay bg-[#e0e5ec] shadow-neu-sm transition-all duration-200 hover:bg-almond-cream/50 active:shadow-neu-inset-sm disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden"
         >
-          <svg
-            className="size-4 shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
+          {/* Kontainer Ikon Logout Lebar Tetap w-6 h-6 mr-3 */}
+          <span className="flex size-6 shrink-0 items-center justify-center mr-3 transition-colors">
+            <svg
+              className="size-4 shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </span>
 
-          {isSidebarOpen && (
-            <span className="truncate">
-              {isLoggingOut ? "Keluar..." : "Keluar Sesi"}
-            </span>
-          )}
+          {/* Elemen Teks Logout */}
+          <span
+            className={`truncate transition-all duration-200 ${
+              isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"
+            }`}
+          >
+            {isLoggingOut ? "Keluar..." : "Keluar Sesi"}
+          </span>
         </button>
       </div>
     </aside>

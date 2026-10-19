@@ -260,7 +260,7 @@ export default async function AdminDashboardPage() {
     ];
 
     return (
-      <div className="mx-auto max-w-7xl px-2 py-3 sm:px-4 sm:py-4">
+      <div className="w-full px-2 py-3 sm:px-4 sm:py-4">
         <header className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
           <div>
             <span className="inline-block rounded-full bg-almond-cream px-3 py-0.5 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">

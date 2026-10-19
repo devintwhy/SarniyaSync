@@ -283,21 +283,21 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-[2.7fr_1.3fr] gap-4 items-start">
       {/* =========================================================================
-          AREA TENGAH: Grid Katalog Produk Ultra-Compact
+          AREA KIRI: Grid Katalog Produk Ultra-Compact (2.7fr)
          ========================================================================= */}
       <section
         aria-label="Katalog Produk Kasir"
-        className="flex-1 min-w-0 rounded-2xl bg-almond-cream/40 p-3.5 sm:p-4.5 shadow-neu-sm border border-[#a3b1c6]/20 flex flex-col gap-3.5"
+        className="min-w-0 rounded-2xl bg-almond-cream/40 p-3 sm:p-3.5 shadow-neu-sm border border-[#a3b1c6]/20 flex flex-col gap-3"
       >
         {/* Toolbar Katalog: Pemilihan Toko & Pencarian Cepat */}
-        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           {/* Toko Selector */}
           <div className="flex items-center gap-2">
             <label
               htmlFor={`${uid}-store-selector`}
-              className="text-[11px] font-bold uppercase tracking-wider text-[#576071]"
+              className="text-[10px] font-bold uppercase tracking-wider text-[#576071]"
             >
               Toko:
             </label>
@@ -306,7 +306,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
               value={storeId}
               onChange={(e) => handleStoreChange(e.target.value)}
               disabled={isPending}
-              className="h-9 rounded-xl border-none bg-[#e0e5ec] px-3 text-xs font-bold text-[#2d3440] shadow-neu-sm outline-none transition-all focus:ring-1 focus:ring-dusty-rose/40 cursor-pointer"
+              className="h-8.5 rounded-xl border-none bg-[#e0e5ec] px-2.5 text-xs font-bold text-[#2d3440] shadow-neu-sm outline-none transition-all focus:ring-1 focus:ring-dusty-rose/40 cursor-pointer"
             >
               {stores.map((s) => (
                 <option key={s.id} value={s.id} className="bg-[#e0e5ec] text-[#2d3440]">
@@ -318,8 +318,8 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
 
           {/* Kolom Pencarian Produk Neumorphism Inset */}
           <div className="relative flex-1 max-w-xs">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#7a8394]">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-[#7a8394]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   stroke="currentColor"
@@ -335,13 +335,13 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari produk / SKU..."
               style={neuInputInset}
-              className="h-9 w-full rounded-xl border-none bg-[#e0e5ec] pl-8 pr-8 text-xs font-medium text-[#2d3440] placeholder:text-[#8f98a8] outline-none transition-all focus:ring-1 focus:ring-dusty-rose/40"
+              className="h-8.5 w-full rounded-xl border-none bg-[#e0e5ec] pl-8 pr-7 text-xs font-medium text-[#2d3440] placeholder:text-[#8f98a8] outline-none transition-all focus:ring-1 focus:ring-dusty-rose/40"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-xs font-bold text-[#7a8394] hover:text-terracotta-clay"
+                className="absolute inset-y-0 right-0 flex items-center pr-2 text-xs font-bold text-[#7a8394] hover:text-terracotta-clay"
               >
                 ✕
               </button>
@@ -350,23 +350,23 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
         </div>
 
         {/* Status Produk */}
-        <div className="flex items-center justify-between text-[11px] text-[#7a8394]">
+        <div className="flex items-center justify-between text-[10px] text-[#7a8394]">
           <p className="font-medium">
             Tersedia <strong className="text-terracotta-clay">{filteredProducts.length}</strong> produk di rak
           </p>
-          <span className="hidden sm:inline-block text-[10px] text-[#7a8394]">
+          <span className="hidden sm:inline-block text-[9px] text-[#7a8394]">
             *Klik kartu untuk langsung masukkan ke keranjang
           </span>
         </div>
 
-        {/* Grid Kartu Produk */}
+        {/* Grid Kartu Produk (Pasti 4 Kolom) */}
         {filteredProducts.length === 0 ? (
           <div
-            className="flex min-h-[240px] flex-col items-center justify-center rounded-2xl bg-[#e0e5ec] p-6 text-center"
+            className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl bg-[#e0e5ec] p-6 text-center"
             style={neuInputInset}
           >
-            <div className="flex size-11 items-center justify-center rounded-xl bg-[#e0e5ec] p-2.5 text-terracotta-clay shadow-neu-sm mb-2">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-[#e0e5ec] p-2 text-terracotta-clay shadow-neu-sm mb-2">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
                   stroke="currentColor"
@@ -377,14 +377,14 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
               </svg>
             </div>
             <p className="font-bold text-xs text-[#2d3440]">Tidak Ada Produk Ditemukan</p>
-            <p className="mt-0.5 text-[11px] text-[#7a8394] max-w-xs">
+            <p className="mt-0.5 text-[10px] text-[#7a8394] max-w-xs">
               {searchQuery
                 ? `Tidak ada produk dengan kata kunci "${searchQuery}".`
                 : "Belum ada alokasi stok produk aktif untuk toko ini."}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
+          <div className="grid grid-cols-4 gap-3">
             {filteredProducts.map((item) => {
               const inCartQty =
                 cart.find((r) => r.allocationId === item.allocationId)?.quantity ?? 0;
@@ -405,7 +405,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                     }
                   }}
                   style={isPressed ? neuPressed : neuButtonRaised}
-                  className={`group relative flex flex-col justify-between rounded-2xl bg-[#e0e5ec] p-3 text-left transition-all duration-150 select-none ${
+                  className={`group relative flex flex-col justify-between rounded-xl bg-[#e0e5ec] p-2 sm:p-2.5 text-left transition-all duration-150 select-none ${
                     isOutOfStock
                       ? "opacity-60 cursor-not-allowed"
                       : "cursor-pointer hover:brightness-105 active:scale-[0.98]"
@@ -413,22 +413,22 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                 >
                   {/* Bagian Atas: Gambar Produk & Badge Stok */}
                   <div>
-                    <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-[#e0e5ec] p-1.5 flex items-center justify-center border border-[#a3b1c6]/20">
+                    <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-[#e0e5ec] p-1 flex items-center justify-center border border-[#a3b1c6]/20">
                       {item.imageUrl ? (
                         <Image
                           src={item.imageUrl}
                           alt={item.name}
                           fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          className="object-contain p-1 transition-transform duration-200 group-hover:scale-105"
+                          sizes="(max-width: 640px) 25vw, 20vw"
+                          className="object-contain p-0.5 transition-transform duration-200 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="flex size-11 items-center justify-center rounded-xl bg-almond-cream/60 p-1.5 text-terracotta-clay shadow-neu-sm">
+                        <div className="flex size-9 items-center justify-center rounded-lg bg-almond-cream/60 p-1 text-terracotta-clay shadow-neu-sm">
                           <Image
                             src="/logo-sarniya.png"
                             alt="Sarniya"
-                            width={26}
-                            height={26}
+                            width={22}
+                            height={22}
                             className="object-contain opacity-80"
                           />
                         </div>
@@ -436,7 +436,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
 
                       {/* Badge Sisa Stok */}
                       <span
-                        className={`absolute top-2 right-2 rounded-full px-2 py-0.5 text-[9px] font-black tracking-wide ${
+                        className={`absolute top-1.5 right-1.5 rounded-full px-1.5 py-0.2 text-[8px] sm:text-[9px] font-black tracking-wide ${
                           isOutOfStock
                             ? "bg-rose-100 text-rose-800"
                             : item.stock <= 5
@@ -444,33 +444,33 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                             : "bg-almond-cream text-terracotta-clay shadow-neu-sm"
                         }`}
                       >
-                        {isOutOfStock ? "Habis" : `Sisa ${item.stock}`}
+                        {isOutOfStock ? "Habis" : `${item.stock}`}
                       </span>
 
                       {/* Badge Indikator Jumlah di Keranjang */}
                       {inCartQty > 0 && (
-                        <span className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-terracotta-clay px-2 py-0.5 text-[9px] font-bold text-white shadow-md">
-                          <span>{inCartQty} di keranjang</span>
+                        <span className="absolute bottom-1.5 left-1.5 flex items-center gap-0.5 rounded-full bg-terracotta-clay px-1.5 py-0.2 text-[8px] sm:text-[9px] font-bold text-white shadow-md">
+                          <span>{inCartQty} di cart</span>
                         </span>
                       )}
                     </div>
 
                     {/* Info Nama & SKU */}
-                    <div className="mt-2.5">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#7a8394]">
+                    <div className="mt-2">
+                      <p className="text-[9px] font-mono text-[#7a8394] truncate">
                         {item.sku}
                       </p>
-                      <h3 className="mt-0.5 line-clamp-2 text-xs font-bold text-[#2d3440] leading-snug group-hover:text-terracotta-clay transition-colors">
+                      <h3 className="mt-0.5 line-clamp-2 text-[11px] sm:text-xs font-bold text-[#2d3440] leading-tight min-h-[1.75rem] group-hover:text-terracotta-clay transition-colors" title={item.name}>
                         {item.name}
                       </h3>
                     </div>
                   </div>
 
                   {/* Bagian Bawah: Harga & Aksi Cepat */}
-                  <div className="mt-3 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-2.5">
-                    <div>
-                      <p className="text-[9px] font-medium text-[#7a8394]">Harga Satuan</p>
-                      <p className="text-xs sm:text-sm font-black text-terracotta-clay">
+                  <div className="mt-2 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1.5">
+                    <div className="min-w-0 pr-1">
+                      <p className="text-[8px] text-[#7a8394]">Harga</p>
+                      <p className="text-[11px] sm:text-xs font-black text-terracotta-clay truncate">
                         {idr.format(item.sellingPrice)}
                       </p>
                     </div>
@@ -479,9 +479,9 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                       type="button"
                       disabled={isOutOfStock || isLimitReached}
                       aria-label={`Tambah ${item.name}`}
-                      className="flex size-7.5 items-center justify-center rounded-xl bg-terracotta-clay text-white shadow-neu-sm transition-transform active:scale-90 disabled:opacity-40"
+                      className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-terracotta-clay text-white shadow-neu-sm transition-transform active:scale-90 disabled:opacity-40"
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                         <path
                           d="M12 4v16m8-8H4"
                           stroke="currentColor"
@@ -499,18 +499,18 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
       </section>
 
       {/* =========================================================================
-          AREA KANAN: Panel Keranjang & Pembayaran Ultra-Compact
+          AREA KANAN: Panel Keranjang & Pembayaran Ultra-Compact (1.3fr)
          ========================================================================= */}
       <aside
         aria-label="Panel Keranjang dan Pembayaran"
-        className="w-full lg:w-80 xl:w-96 shrink-0 rounded-2xl bg-[#e0e5ec] p-3.5 sm:p-4.5 shadow-neu-flat flex flex-col justify-between"
+        className="w-full rounded-2xl bg-[#e0e5ec] p-3 sm:p-3.5 shadow-neu-flat flex flex-col justify-between"
       >
         <div>
           {/* Header Panel Keranjang */}
-          <div className="flex items-center justify-between border-b border-[#a3b1c6]/25 pb-3">
+          <div className="flex items-center justify-between border-b border-[#a3b1c6]/25 pb-2.5">
             <div className="flex items-center gap-2">
-              <div className="flex size-8 items-center justify-center rounded-xl bg-almond-cream text-terracotta-clay shadow-neu-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <div className="flex size-7 items-center justify-center rounded-xl bg-almond-cream text-terracotta-clay shadow-neu-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                     stroke="currentColor"
@@ -521,7 +521,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                 </svg>
               </div>
               <div>
-                <h2 className="text-sm font-black tracking-tight text-[#2d3440]">
+                <h2 className="text-xs sm:text-sm font-black tracking-tight text-[#2d3440]">
                   Keranjang Kasir
                 </h2>
                 <p className="text-[10px] font-medium text-[#7a8394]">

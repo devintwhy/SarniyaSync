@@ -66,7 +66,7 @@ export default async function StoreReportPage({ params }: StorePageProps) {
   const totalSales = transactions.reduce((sum, transaction) => sum + Number(transaction.total || 0), 0);
 
   return (
-    <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+    <div className="w-full px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
       <header className="mb-8">
         <Link href="/dashboard-mitra" className="mb-4 inline-flex text-sm font-semibold text-[#9d5c4c] hover:underline">
           &larr; Kembali ke dashboard mitra

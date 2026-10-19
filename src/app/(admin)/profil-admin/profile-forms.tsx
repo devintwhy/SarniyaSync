@@ -1,7 +1,8 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
-import { updateProfileAction, updatePasswordAction } from "./actions";
+import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { createSupabaseBrowserClient } from "@/utils/supabase/client";
 
 type ProfileFormProps = {
   userId?: string;
@@ -42,23 +43,36 @@ function Alert({ type, message }: { type: "success" | "error"; message: string }
   );
 }
 
-// ── Submit Button dengan useFormStatus (React 18) ──────────────────────────
-function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: string }) {
-  const { pending } = useFormStatus();
+// ── Submit Button ──────────────────────────────────────────────────────────
+function ActionButton({
+  label,
+  pendingLabel,
+  isPending,
+}: {
+  label: string;
+  pendingLabel: string;
+  isPending: boolean;
+}) {
   return (
     <button
       type="submit"
-      disabled={pending}
-      className="inline-flex h-9 items-center justify-center rounded-lg bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-xs sm:text-sm font-semibold text-white shadow-sm transition-colors hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+      disabled={isPending}
+      className="inline-flex h-9 items-center justify-center rounded-lg bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-xs sm:text-sm font-semibold text-white shadow-sm transition-colors hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {pending ? pendingLabel : label}
+      {isPending ? pendingLabel : label}
     </button>
   );
 }
 
 export default function ProfileForms({ initialName, email, role }: ProfileFormProps) {
-  const [profileState, profileAction] = useFormState(updateProfileAction, emptyState);
-  const [passwordState, passwordAction] = useFormState(updatePasswordAction, emptyState);
+  const router = useRouter();
+  const [profileState, setProfileState] = useState(emptyState);
+  const [isSubmittingProfile, setIsSubmittingProfile] = useState(false);
+
+  const [passwordState, setPasswordState] = useState(emptyState);
+  const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
+
+  const [displayedName, setDisplayedName] = useState(initialName);
 
   const roleLabel: Record<string, string> = {
     pemilik: "Pemilik",
@@ -66,13 +80,129 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
     mitra: "Mitra",
   };
 
+  async function handleProfileSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsSubmittingProfile(true);
+    setProfileState(emptyState);
+
+    const formData = new FormData(event.currentTarget);
+    const fullName = String(formData.get("fullName") ?? "").trim();
+
+    if (!fullName || fullName.length < 2) {
+      setProfileState({ error: "Nama lengkap minimal 2 karakter.", success: "" });
+      setIsSubmittingProfile(false);
+      return;
+    }
+
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError || !user) {
+        throw new Error("Sesi tidak valid. Silakan login kembali.");
+      }
+
+      const nowIso = new Date().toISOString();
+
+      const { error: upsertError } = await supabase
+        .from("profiles")
+        .upsert({
+          id: user.id,
+          full_name: fullName,
+          role: role || "admin",
+          updated_at: nowIso,
+        });
+
+      if (upsertError) {
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({
+            full_name: fullName,
+            updated_at: nowIso,
+          })
+          .eq("id", user.id);
+
+        if (updateError) {
+          throw new Error(`Gagal menyimpan profil: ${upsertError.message || updateError.message}`);
+        }
+      }
+
+      setDisplayedName(fullName);
+      setProfileState({ error: "", success: "Nama profil berhasil diperbarui!" });
+      router.refresh();
+    } catch (err) {
+      setProfileState({
+        error: err instanceof Error ? err.message : "Terjadi kesalahan saat memperbarui profil.",
+        success: "",
+      });
+    } finally {
+      setIsSubmittingProfile(false);
+    }
+  }
+
+  async function handlePasswordSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsSubmittingPassword(true);
+    setPasswordState(emptyState);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const newPassword = String(formData.get("newPassword") ?? "");
+    const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+    if (!newPassword || newPassword.length < 8) {
+      setPasswordState({ error: "Password minimal 8 karakter.", success: "" });
+      setIsSubmittingPassword(false);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordState({ error: "Konfirmasi password tidak cocok.", success: "" });
+      setIsSubmittingPassword(false);
+      return;
+    }
+
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError || !user) {
+        throw new Error("Sesi tidak valid. Silakan login kembali.");
+      }
+
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (updateError) {
+        throw new Error(`Gagal memperbarui password: ${updateError.message}`);
+      }
+
+      form.reset();
+      setPasswordState({ error: "", success: "Password berhasil diperbarui!" });
+    } catch (err) {
+      setPasswordState({
+        error: err instanceof Error ? err.message : "Terjadi kesalahan saat memperbarui password.",
+        success: "",
+      });
+    } finally {
+      setIsSubmittingPassword(false);
+    }
+  }
+
   return (
     <div className="space-y-3.5 sm:space-y-4">
       {/* ── Info Identitas ──────────────────────────────────────────────── */}
       <div className="flex items-center gap-3.5 rounded-xl border border-[#e1e7e0] bg-white p-3.5 sm:p-4 shadow-sm">
-        <Avatar name={initialName} />
+        <Avatar name={displayedName} />
         <div>
-          <p className="text-sm sm:text-base font-bold text-[#9d5c4c]">{initialName}</p>
+          <p className="text-sm sm:text-base font-bold text-[#9d5c4c]">{displayedName}</p>
           <p className="text-xs text-[#68756e]">{email}</p>
           <span className="mt-1 inline-flex rounded-full bg-[#edf5e8] px-2 py-0.5 text-[10px] font-bold text-[#315d3e]">
             {roleLabel[role] ?? role}
@@ -86,7 +216,7 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
           <h2 className="text-sm sm:text-base font-bold text-[#9d5c4c]">Ubah Profil</h2>
           <p className="text-xs text-[#7b877f]">Perbarui nama tampilan akun Anda.</p>
         </div>
-        <form action={profileAction} className="space-y-3 px-4 py-3 sm:py-3.5">
+        <form onSubmit={handleProfileSubmit} className="space-y-3 px-4 py-3 sm:py-3.5">
           <div>
             <label htmlFor="fullName" className="mb-1 block text-xs font-semibold text-[#2d3440]">
               Nama Lengkap
@@ -103,7 +233,7 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
             />
           </div>
           <Alert type={profileState.error ? "error" : "success"} message={profileState.error || profileState.success} />
-          <SubmitButton label="Simpan Perubahan" pendingLabel="Menyimpan..." />
+          <ActionButton label="Simpan Perubahan" pendingLabel="Menyimpan..." isPending={isSubmittingProfile} />
         </form>
       </section>
 
@@ -113,7 +243,7 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
           <h2 className="text-sm sm:text-base font-bold text-[#9d5c4c]">Ubah Password</h2>
           <p className="text-xs text-[#7b877f]">Gunakan password yang kuat dan belum pernah dipakai sebelumnya.</p>
         </div>
-        <form action={passwordAction} className="space-y-3 px-4 py-3 sm:py-3.5">
+        <form onSubmit={handlePasswordSubmit} className="space-y-3 px-4 py-3 sm:py-3.5">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label htmlFor="newPassword" className="mb-1 block text-xs font-semibold text-[#2d3440]">
@@ -147,7 +277,7 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
             </div>
           </div>
           <Alert type={passwordState.error ? "error" : "success"} message={passwordState.error || passwordState.success} />
-          <SubmitButton label="Perbarui Password" pendingLabel="Memperbarui..." />
+          <ActionButton label="Perbarui Password" pendingLabel="Memperbarui..." isPending={isSubmittingPassword} />
         </form>
       </section>
     </div>
