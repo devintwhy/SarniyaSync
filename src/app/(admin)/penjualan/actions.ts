@@ -46,16 +46,20 @@ export async function cancelPartnerSale(transactionId: string): Promise<CancelRe
 
     const { data: transaction, error: transactionError } = await supabase
       .from("sales_transactions")
-      .select("id, partner_store_id, items")
+      .select("id, transaction_number, partner_store_id, items, status")
       .eq("id", transactionId)
       .maybeSingle();
 
     if (transactionError) throw transactionError;
     if (!transaction) return { error: "Transaksi tidak ditemukan." };
 
+    if (transaction.status === "Batal" || transaction.status === "Dibatalkan") {
+      return { error: "Transaksi ini sudah dibatalkan sebelumnya." };
+    }
+
     const saleItems = parseSaleItems(transaction.items);
-    if (!saleItems) {
-      console.warn("Transaction has no valid product details; deleting without stock restoration:", transaction.id);
+    if (!saleItems || saleItems.length === 0) {
+      console.warn("Transaction has no valid product details; cancelling transaction without stock restoration:", transaction.id);
     }
 
     const productIds = (saleItems ?? []).map((item) => item.productId);
@@ -68,69 +72,67 @@ export async function cancelPartnerSale(transactionId: string): Promise<CancelRe
       : { data: [], error: null };
 
     if (allocationError) {
-      console.warn("Allocation rows could not be read; transaction will still be deleted:", allocationError.message);
+      console.warn("Allocation rows could not be read:", allocationError.message);
     }
 
     const allocationsByProduct = new Map((allocations ?? []).map((allocation) => [allocation.product_id, allocation]));
-    const restorations: Array<{ id: string; previous: number; restored: number }> = [];
 
+    // Rollback Inventory: Kembalikan stok ke toko mitra
     for (const item of saleItems ?? []) {
       const allocation = allocationsByProduct.get(item.productId);
       if (!allocation) {
-        console.warn("Allocation row not found; skipping stock restoration:", {
-          transactionId: transaction.id,
-          productId: item.productId,
-          storeId: transaction.partner_store_id,
-        });
+        // Jika baris belum ada di inventaris mitra, buat baris baru
+        const { error: insertError } = await supabase
+          .from("partner_store_inventory")
+          .insert({
+            partner_store_id: transaction.partner_store_id,
+            product_id: item.productId,
+            stock_quantity: item.quantity,
+          });
+
+        if (insertError) {
+          console.error("Gagal menambahkan inventaris baru mitra:", insertError.message);
+        }
         continue;
       }
 
-      const restoredStock = allocation.stock_quantity + item.quantity;
-      const { data, error } = await supabase
+      const restoredStock = Number(allocation.stock_quantity || 0) + item.quantity;
+      const { error: updateError } = await supabase
         .from("partner_store_inventory")
-        .update({ stock_quantity: restoredStock, updated_at: new Date().toISOString() })
-        .eq("id", allocation.id)
-        .eq("stock_quantity", allocation.stock_quantity)
-        .select("id")
-        .maybeSingle();
+        .update({
+          stock_quantity: restoredStock,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", allocation.id);
 
-      if (error || !data) {
-        console.warn("Allocation stock could not be restored; transaction will still be deleted:", {
-          transactionId: transaction.id,
-          productId: item.productId,
-          error: error?.message,
-        });
-        continue;
+      if (updateError) {
+        console.error("Gagal mengembalikan stok mitra:", updateError.message);
+        throw new Error(`Gagal mengembalikan stok produk: ${updateError.message}`);
       }
-
-      restorations.push({ id: allocation.id, previous: allocation.stock_quantity, restored: restoredStock });
     }
 
-    const { data: deletedTransaction, error: deleteError } = await supabase
+    // Ubah status transaksi menjadi 'Batal'
+    const { data: updatedTransaction, error: updateTxError } = await supabase
       .from("sales_transactions")
-      .delete()
+      .update({
+        status: "Batal",
+      })
       .eq("id", transaction.id)
-      .select("id")
+      .select("id, status")
       .maybeSingle();
 
-    if (deleteError || !deletedTransaction) {
-      for (const restoration of restorations.reverse()) {
-        const { error: rollbackError } = await supabase
-          .from("partner_store_inventory")
-          .update({ stock_quantity: restoration.previous, updated_at: new Date().toISOString() })
-          .eq("id", restoration.id)
-          .eq("stock_quantity", restoration.restored);
-        if (rollbackError) console.error("Failed to roll back stock after transaction delete failure:", rollbackError.message);
-      }
-      if (deleteError) throw deleteError;
-      return { error: "Transaksi tidak terhapus; stok dialokasikan telah dipulihkan kembali." };
+    if (updateTxError || !updatedTransaction) {
+      if (updateTxError) throw updateTxError;
+      return { error: "Status transaksi gagal diperbarui." };
     }
 
     revalidatePath("/penjualan");
+    revalidatePath("/riwayat-admin");
     revalidatePath("/partner/transaksi");
     revalidatePath("/partner/stok");
     revalidatePath("/partner");
     revalidatePath("/alokasi");
+    revalidatePath("/dashboard");
     return {};
   } catch (error) {
     console.error("Failed to cancel partner sale:", error);

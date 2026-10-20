@@ -89,8 +89,10 @@ export default function BulkAllocationClient({
       if (prev.find((p) => p.product.id === product.id)) {
         return prev.filter((p) => p.product.id !== product.id);
       }
-      // Jika belum ada, masukkan dengan qty awal 10
-      return [...prev, { product, quantity: 10 }]; // <-- PASTIKAN BARIS INI BENAR
+      // Jika belum ada, masukkan dengan qty awal min(10, stok gudang)
+      // agar tidak langsung melewati batas stok tersedia
+      const defaultQty = Math.min(10, Math.max(1, product.stock_quantity));
+      return [...prev, { product, quantity: defaultQty }];
     });
     setErrorMessage("");
   };
@@ -101,12 +103,16 @@ export default function BulkAllocationClient({
       const filteredIds = new Set(filteredProducts.map((p) => p.id));
       setSelectedProducts((prev) => prev.filter((p) => !filteredIds.has(p.product.id)));
     } else {
-      // Masukkan semua produk terfilter dengan default 10 pcs
+      // Masukkan semua produk terfilter
+      // Qty awal = min(10, stok gudang) agar tidak melewati stok tersedia
       setSelectedProducts((prev) => {
         const existingIds = new Set(prev.map((p) => p.product.id));
         const toAdd = filteredProducts
           .filter((p) => !existingIds.has(p.id))
-          .map((product) => ({ product, quantity: 10 }));
+          .map((product) => ({
+            product,
+            quantity: Math.min(10, Math.max(1, product.stock_quantity)),
+          }));
         return [...prev, ...toAdd];
       });
     }
@@ -161,6 +167,22 @@ export default function BulkAllocationClient({
     if (selectedProducts.length === 0) {
       setErrorMessage("Silakan pilih minimal 1 produk pada tabel gudang.");
       return;
+    }
+
+    // ── Lapis 2: Pre-flight Check (Validasi Stok sebelum Submit) ────────────
+    // Cegah submit jika ada item yang melebihi stok gudang pusat
+    const overStockItems = selectedProducts.filter(
+      (item) => item.quantity > item.product.stock_quantity
+    );
+
+    if (overStockItems.length > 0) {
+      const firstViolation = overStockItems[0];
+      setErrorMessage(
+        `⚠️ Gagal: Alokasi "${firstViolation.product.name}" (${firstViolation.quantity} pcs) ` +
+        `melebihi stok gudang tersedia (${firstViolation.product.stock_quantity} pcs). ` +
+        `Kurangi jumlahnya dan coba lagi.`
+      );
+      return; // Hentikan eksekusi — jangan sentuh Supabase
     }
 
     setIsSubmitting(true);
@@ -551,21 +573,32 @@ export default function BulkAllocationClient({
                               max={maxStock}
                               value={qty}
                               onChange={(e) => handleDirectQuantityChange(prod.id, Number(e.target.value))}
-                              className="w-16 h-7 rounded-lg bg-[#e0e5ec] shadow-neu-inset-sm text-center text-xs font-black text-[#2d3440] outline-none focus:ring-1 focus:ring-terracotta-clay"
+                              className={`w-16 h-7 rounded-lg bg-[#e0e5ec] shadow-neu-inset-sm text-center text-xs font-black outline-none focus:ring-1 transition-all ${
+                                qty >= maxStock
+                                  ? "text-rose-600 focus:ring-rose-400"
+                                  : "text-[#2d3440] focus:ring-terracotta-clay"
+                              }`}
                             />
 
-                            {/* Increase Button: Naik per 10 */}
+                            {/* Increase Button: Naik per 10, dibatasi maxStock */}
                             <button
                               type="button"
                               onClick={() => handleUpdateQuantity(prod.id, "increase")}
                               disabled={qty >= maxStock}
-                              title="Tambah 10 unit"
+                              title={qty >= maxStock ? `Maksimal ${maxStock} pcs (batas stok gudang)` : "Tambah 10 unit"}
                               className="size-7 rounded-lg bg-[#e0e5ec] shadow-neu-sm flex items-center justify-center text-xs font-black text-[#2d3440] hover:text-terracotta-clay active:shadow-neu-inset-sm disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                             >
                               +
                             </button>
                           </div>
                         </div>
+
+                        {/* Peringatan visual jika qty menyentuh batas stok gudang */}
+                        {qty >= maxStock && (
+                          <p className="text-[10px] font-bold text-rose-600 bg-rose-50 rounded-lg px-2 py-1 border border-rose-200/60">
+                            ⚠️ Batas maksimal stok gudang tercapai ({maxStock} pcs)
+                          </p>
+                        )}
                       </div>
                     );
                   })}

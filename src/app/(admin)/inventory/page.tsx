@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Pencil, Trash2 } from "lucide-react";
 
 type Product = Record<string, unknown>;
 
@@ -51,6 +52,32 @@ function getStock(product: Product) {
   }
 
   return null;
+}
+
+function getPrice(product: Product): number | null {
+  for (const field of ["selling_price", "price", "harga_jual", "harga"]) {
+    const value = product[field];
+    if (typeof value === "number" || typeof value === "string") {
+      const price = Number(value);
+      if (Number.isFinite(price) && price >= 0) return price;
+    }
+  }
+  return null;
+}
+
+const currencyFormatter = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  minimumFractionDigits: 0,
+});
+
+/**
+ * Menyingkat SKU panjang secara visual di tabel.
+ * Contoh: "1712345678901234" → "17123456...1234"
+ */
+function truncateSku(sku: string, maxLen = 12): string {
+  if (sku.length <= maxLen) return sku;
+  return `${sku.slice(0, 8)}...${sku.slice(-4)}`;
 }
 
 type InventoryPageProps = {
@@ -267,7 +294,15 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                   return (
                     <tr key={getText(product, ["id", "sku", "kode_produk"], String(index))} className="transition-colors hover:bg-[#fafbf9]">
                       <td className="whitespace-nowrap px-3.5 py-2 text-xs font-mono text-[#7b877f]">
-                        {getText(product, ["sku", "code", "kode_produk", "id"])}
+                        {(() => {
+                          const sku = getText(product, ["sku", "code", "kode_produk", "id"]);
+                          const truncated = truncateSku(sku);
+                          return sku !== truncated ? (
+                            <span title={sku}>{truncated}</span>
+                          ) : (
+                            sku
+                          );
+                        })()}
                       </td>
                       <th scope="row" className="whitespace-nowrap px-3.5 py-2 font-medium text-[#2d3440]">
                         <div className="flex items-center gap-2.5">
@@ -298,25 +333,36 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                         {stock ?? "-"} <span className="font-normal text-[11px] text-[#7b877f]">{getText(product, ["unit", "satuan"], "pcs")}</span>
                       </td>
                       <td className="whitespace-nowrap px-3.5 py-2 text-right font-semibold text-[#2d3440]">
-                        {getText(product, ["selling_price", "price", "harga_jual"], "-")}
+                        {(() => {
+                          const price = getPrice(product);
+                          return price !== null ? currencyFormatter.format(price) : "-";
+                        })()}
                       </td>
                       <td className="whitespace-nowrap px-3.5 py-2">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1">
+                          {/* Tombol Edit (Ikon) */}
                           <Link
                             href={`/inventory/edit/${encodeURIComponent(getText(product, ["id"], ""))}`}
                             aria-label={`Edit ${productName}`}
-                            className="rounded-lg border border-slate-200 px-2 py-1 text-xs font-medium text-[#576071] transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cc9787]"
+                            title={`Edit ${productName}`}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-[#f7f9f6] text-[#576071] transition-all hover:border-[#cc9787]/50 hover:bg-[#fdf5f1] hover:text-[#9d5c4c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cc9787] active:scale-95"
                           >
-                            Edit
+                            <Pencil size={14} strokeWidth={2} />
                           </Link>
+                          {/* Tombol Hapus (Ikon) */}
                           <button
                             type="button"
                             onClick={() => void handleDelete(product)}
                             disabled={deletingId === getText(product, ["id"], "")}
                             aria-label={`Hapus ${productName}`}
-                            className="rounded-lg border border-[#ead5cf] px-2 py-1 text-xs font-medium text-[#9b4936] opacity-60 hover:opacity-100"
+                            title={`Hapus ${productName}`}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#ead5cf] bg-[#fff5f1] text-[#c0665a] transition-all hover:border-[#c0665a]/60 hover:bg-[#fdecea] hover:text-[#9b4936] active:scale-95 disabled:cursor-wait disabled:opacity-40"
                           >
-                            {deletingId === getText(product, ["id"], "") ? "..." : "Hapus"}
+                            {deletingId === getText(product, ["id"], "") ? (
+                              <span className="text-[10px] animate-pulse">⏳</span>
+                            ) : (
+                              <Trash2 size={14} strokeWidth={2} />
+                            )}
                           </button>
                         </div>
                       </td>

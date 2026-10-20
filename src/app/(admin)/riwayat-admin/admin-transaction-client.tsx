@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import * as XLSX from "xlsx";
-import CancelSaleButton from "../penjualan/cancel-sale-button";
+import { cancelPartnerSale } from "../penjualan/actions";
 
 export type AdminTransactionItem = {
   name: string;
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  productId?: string;
 };
 
 export type AdminTransaction = {
@@ -19,7 +20,14 @@ export type AdminTransaction = {
   soldAt: string;
   total: number;
   paymentMethod: string | null;
+  status: string;
   items: AdminTransactionItem[];
+};
+
+type Toast = {
+  id: number;
+  type: "success" | "error";
+  message: string;
 };
 
 type StoreOption = {
@@ -85,12 +93,71 @@ export default function AdminTransactionClient({
   stores,
   errorMessage,
 }: AdminTransactionClientProps) {
-  const [transactions] = useState<AdminTransaction[]>(initialTransactions);
+  const [transactions, setTransactions] = useState<AdminTransaction[]>(initialTransactions);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedPayment, setSelectedPayment] = useState<string>("all");
   const [selectedStore, setSelectedStore] = useState<string>("all");
+  const [selectedStatus, setSelectedStatus] = useState<string>("active");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [cancellingIds, setCancellingIds] = useState<Set<string>>(new Set());
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  // Auto-sync jika initialTransactions berubah (navigasi/refresh)
+  useEffect(() => {
+    setTransactions(initialTransactions);
+  }, [initialTransactions]);
+
+  // Fungsi toast
+  const addToast = useCallback((type: "success" | "error", message: string) => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, type, message }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
+  }, []);
+
+  // Fungsi Pembatalan Transaksi dengan Optimistic Update
+  const handleCancelTransaction = useCallback(async (tx: AdminTransaction) => {
+    if (tx.status === "Batal" || tx.status === "Dibatalkan") {
+      addToast("error", "Transaksi ini sudah dibatalkan sebelumnya.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Yakin ingin membatalkan transaksi ini?\n\nNo: ${tx.transactionNumber}\nToko: ${tx.storeName}\n\nStok produk akan otomatis dikembalikan ke etalase Mitra.`
+    );
+    if (!confirmed) return;
+
+    // Optimistic update: langsung tandai sebagai Batal di UI
+    setCancellingIds((prev) => new Set(prev).add(tx.id));
+    setTransactions((prev) =>
+      prev.map((t) => (t.id === tx.id ? { ...t, status: "Batal" } : t))
+    );
+
+    try {
+      const result = await cancelPartnerSale(tx.id);
+      if (result.error) {
+        // Rollback optimistic update jika server gagal
+        setTransactions((prev) =>
+          prev.map((t) => (t.id === tx.id ? { ...t, status: tx.status } : t))
+        );
+        addToast("error", `Pembatalan gagal: ${result.error}`);
+      } else {
+        addToast("success", `Transaksi ${tx.transactionNumber} berhasil dibatalkan. Stok telah dikembalikan ke mitra.`);
+      }
+    } catch (error) {
+      // Rollback jika exception
+      setTransactions((prev) =>
+        prev.map((t) => (t.id === tx.id ? { ...t, status: tx.status } : t))
+      );
+      addToast("error", error instanceof Error ? error.message : "Pembatalan transaksi gagal.");
+    } finally {
+      setCancellingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(tx.id);
+        return next;
+      });
+    }
+  }, [addToast]);
 
   // Tanggal Hari Ini & Kemarin untuk Shortcut Cepat
   const todayStr = useMemo(() => getLocalDateString(new Date()), []);
@@ -105,6 +172,11 @@ export default function AdminTransactionClient({
     const q = searchTerm.toLowerCase().trim();
 
     return transactions.filter((tx) => {
+      // Filter Status
+      const isCancelled = tx.status === "Batal" || tx.status === "Dibatalkan";
+      if (selectedStatus === "active" && isCancelled) return false;
+      if (selectedStatus === "cancelled" && !isCancelled) return false;
+
       // Filter Tanggal
       if (selectedDate) {
         const txDateStr = getLocalDateString(tx.soldAt);
@@ -136,9 +208,15 @@ export default function AdminTransactionClient({
 
       return matchTxNumber || matchStore || matchItems || matchPayment;
     });
-  }, [transactions, selectedDate, selectedStore, selectedPayment, searchTerm]);
+  }, [transactions, selectedDate, selectedStore, selectedPayment, selectedStatus, searchTerm]);
 
-  // Kalkulasi Reaktif Ringkasan Total Penjualan
+  // Hanya hitung transaksi yang TIDAK dibatalkan untuk ringkasan pendapatan
+  const activeForMetrics = useMemo(
+    () => filteredTransactions.filter((tx) => tx.status !== "Batal" && tx.status !== "Dibatalkan"),
+    [filteredTransactions]
+  );
+
+  // Kalkulasi Reaktif Ringkasan Total Penjualan (HANYA transaksi aktif — bukan Batal)
   const summaryMetrics = useMemo(() => {
     let totalOmzet = 0;
     let totalItems = 0;
@@ -146,7 +224,7 @@ export default function AdminTransactionClient({
     let transferRevenue = 0;
     let cashRevenue = 0;
 
-    for (const tx of filteredTransactions) {
+    for (const tx of activeForMetrics) {
       const amount = Number(tx.total || 0);
       totalOmzet += amount;
 
@@ -166,7 +244,7 @@ export default function AdminTransactionClient({
 
     return {
       totalOmzet,
-      totalTransactions: filteredTransactions.length,
+      totalTransactions: activeForMetrics.length,
       totalItems,
       qrisRevenue,
       qrisPercent,
@@ -175,7 +253,7 @@ export default function AdminTransactionClient({
       cashRevenue,
       cashPercent,
     };
-  }, [filteredTransactions]);
+  }, [activeForMetrics]);
 
   // Fungsi Ekspor ke Excel (.xlsx) Berdasarkan Filter yang Aktif
   function handleExportExcel() {
@@ -263,6 +341,29 @@ export default function AdminTransactionClient({
 
   return (
     <div className="space-y-3 sm:space-y-4">
+
+      {/* ── Toast Notification Stack ─────────────────────────────────────── */}
+      <div
+        aria-live="polite"
+        className="fixed bottom-5 right-4 z-[99] flex flex-col gap-2 pointer-events-none"
+      >
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            role="alert"
+            className={`pointer-events-auto flex items-start gap-3 rounded-2xl border px-4 py-3 text-xs font-semibold shadow-neu-flat max-w-xs backdrop-blur-sm transition-all animate-in slide-in-from-right ${
+              toast.type === "success"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                : "border-rose-200 bg-rose-50 text-rose-800"
+            }`}
+          >
+            <span className="text-base leading-none">
+              {toast.type === "success" ? "✅" : "❌"}
+            </span>
+            <span className="leading-snug">{toast.message}</span>
+          </div>
+        ))}
+      </div>
       {/* ── Toolbar: Date Picker, Dropdown Filter & Tombol Download Excel ── */}
       <div className="rounded-2xl bg-[#e0e5ec] p-3 sm:p-4 shadow-neu-flat border border-white/40">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -361,6 +462,17 @@ export default function AdminTransactionClient({
 
           {/* Kolom Kanan: Filter Dropdowns & Tombol Download Excel */}
           <div className="flex flex-wrap items-center gap-2">
+            {/* Filter Status Transaksi */}
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="h-9 rounded-xl bg-[#e0e5ec] px-3 text-xs font-semibold text-[#2d3440] shadow-neu-sm outline-none transition-all focus:ring-2 focus:ring-terracotta-clay/30"
+            >
+              <option value="active">Transaksi Aktif</option>
+              <option value="all">Semua Status</option>
+              <option value="cancelled">Hanya Dibatalkan</option>
+            </select>
+
             {/* Filter Toko Mitra */}
             <select
               value={selectedStore}
@@ -585,62 +697,101 @@ export default function AdminTransactionClient({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#a3b1c6]/15">
-                {filteredTransactions.map((tx) => (
-                  <tr key={tx.id} className="align-top hover:bg-almond-cream/25 transition-colors">
-                    {/* No. Transaksi */}
-                    <td className="px-3 py-2 font-mono text-xs font-bold text-[#2d3440]">
-                      {tx.transactionNumber}
-                    </td>
+                {filteredTransactions.map((tx) => {
+                  const isCancelled = tx.status === "Batal" || tx.status === "Dibatalkan";
+                  const isCancelling = cancellingIds.has(tx.id);
+                  return (
+                    <tr
+                      key={tx.id}
+                      className={`align-top transition-colors ${
+                        isCancelled
+                          ? "opacity-60 bg-rose-50/30"
+                          : "hover:bg-almond-cream/25"
+                      }`}
+                    >
+                      {/* No. Transaksi */}
+                      <td className="px-3 py-2 font-mono text-xs font-bold text-[#2d3440]">
+                        <div className="flex flex-col gap-1">
+                          <span className={isCancelled ? "line-through text-[#9a9a9a]" : ""}>
+                            {tx.transactionNumber}
+                          </span>
+                          {isCancelled && (
+                            <span className="inline-flex w-fit items-center rounded-md border border-rose-200 bg-rose-50 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-rose-700">
+                              ✕ Dibatalkan
+                            </span>
+                          )}
+                        </div>
+                      </td>
 
-                    {/* Toko Mitra */}
-                    <td className="px-3 py-2 font-semibold text-[#2d3440]">
-                      {tx.storeName}
-                    </td>
+                      {/* Toko Mitra */}
+                      <td className="px-3 py-2 font-semibold text-[#2d3440]">
+                        {tx.storeName}
+                      </td>
 
-                    {/* Tanggal */}
-                    <td className="whitespace-nowrap px-3 py-2 text-[11px] text-[#7a8394]">
-                      {dateFormatter.format(new Date(tx.soldAt))}
-                    </td>
+                      {/* Tanggal */}
+                      <td className="whitespace-nowrap px-3 py-2 text-[11px] text-[#7a8394]">
+                        {dateFormatter.format(new Date(tx.soldAt))}
+                      </td>
 
-                    {/* Metode Pembayaran */}
-                    <td className="whitespace-nowrap px-3 py-2">
-                      <PaymentMethodBadge method={tx.paymentMethod} />
-                    </td>
+                      {/* Metode Pembayaran */}
+                      <td className="whitespace-nowrap px-3 py-2">
+                        <PaymentMethodBadge method={tx.paymentMethod} />
+                      </td>
 
-                    {/* Item Belanja */}
-                    <td className="px-3 py-2 max-w-[280px]">
-                      {tx.items.length > 0 ? (
-                        <ul className="space-y-1">
-                          {tx.items.map((item, idx) => (
-                            <li key={idx} className="flex items-center gap-1.5 text-xs text-[#2d3440]">
-                              <span className="truncate font-medium" title={item.name}>
-                                • {item.name}
+                      {/* Item Belanja */}
+                      <td className="px-3 py-2 max-w-[280px]">
+                        {tx.items.length > 0 ? (
+                          <ul className="space-y-1">
+                            {tx.items.map((item, idx) => (
+                              <li key={idx} className="flex items-center gap-1.5 text-xs text-[#2d3440]">
+                                <span className="truncate font-medium" title={item.name}>
+                                  • {item.name}
+                                </span>
+                                <span className="inline-flex shrink-0 items-center rounded-md bg-almond-cream px-1.5 py-0.2 text-[10px] font-bold text-terracotta-clay shadow-neu-sm">
+                                  ×{item.quantity}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <span className="text-[11px] italic text-[#7a8394]">Rincian produk tidak tersedia</span>
+                        )}
+                      </td>
+
+                      {/* Grand Total */}
+                      <td className={`whitespace-nowrap px-3 py-2 text-right font-black text-xs sm:text-sm ${
+                        isCancelled ? "text-[#9a9a9a] line-through" : "text-terracotta-clay"
+                      }`}>
+                        {currencyFormatter.format(Number(tx.total || 0))}
+                      </td>
+
+                      {/* Aksi Pembatalan */}
+                      <td className="whitespace-nowrap px-3 py-2 text-right">
+                        {isCancelled ? (
+                          <span className="inline-flex items-center rounded-lg border border-rose-200 bg-rose-50 px-2 py-1 text-[10px] font-bold text-rose-600">
+                            Dibatalkan
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => void handleCancelTransaction(tx)}
+                            disabled={isCancelling}
+                            className="rounded-lg border border-[#ead5cf] px-2.5 py-1.5 text-xs font-medium text-[#9b4936] transition-all hover:bg-rose-50 hover:border-rose-300 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {isCancelling ? (
+                              <span className="flex items-center gap-1.5">
+                                <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-[#9b4936] border-t-transparent" />
+                                Memproses...
                               </span>
-                              <span className="inline-flex shrink-0 items-center rounded-md bg-almond-cream px-1.5 py-0.2 text-[10px] font-bold text-terracotta-clay shadow-neu-sm">
-                                ×{item.quantity}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <span className="text-[11px] italic text-[#7a8394]">Rincian produk tidak tersedia</span>
-                      )}
-                    </td>
-
-                    {/* Grand Total */}
-                    <td className="whitespace-nowrap px-3 py-2 text-right font-black text-terracotta-clay text-xs sm:text-sm">
-                      {currencyFormatter.format(Number(tx.total || 0))}
-                    </td>
-
-                    {/* Aksi Pembatalan */}
-                    <td className="whitespace-nowrap px-3 py-2 text-right">
-                      <CancelSaleButton
-                        transactionId={tx.id}
-                        transactionNumber={tx.transactionNumber}
-                      />
-                    </td>
-                  </tr>
-                ))}
+                            ) : (
+                              "Batalkan"
+                            )}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}

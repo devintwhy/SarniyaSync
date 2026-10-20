@@ -28,6 +28,7 @@ function parseTransactionItems(items: Json): AdminTransactionItem[] {
 
     return [
       {
+        productId: typeof record.product_id === "string" ? record.product_id : "",
         name: typeof record.name === "string" ? record.name : "Produk",
         quantity: Number.isSafeInteger(quantity) && quantity > 0 ? quantity : 0,
         unitPrice: Number.isFinite(unitPrice) ? unitPrice : 0,
@@ -60,6 +61,7 @@ export default async function AdminRiwayatPage() {
     total: number;
     payment_method: string | null;
     sold_at: string;
+    status: string;
   }> = [];
 
   let errorMessage = "";
@@ -67,7 +69,7 @@ export default async function AdminRiwayatPage() {
   for (let offset = 0; ; offset += PAGE_SIZE) {
     const { data, error } = await supabase
       .from("sales_transactions")
-      .select("id, transaction_number, partner_store_id, items, total, payment_method, sold_at")
+      .select("id, transaction_number, partner_store_id, items, total, payment_method, sold_at, status")
       .order("sold_at", { ascending: false })
       .range(offset, offset + PAGE_SIZE - 1);
 
@@ -76,7 +78,7 @@ export default async function AdminRiwayatPage() {
       break;
     }
 
-    const page = data ?? [];
+    const page = (data ?? []) as any[];
     rawTransactions.push(...page);
     if (page.length < PAGE_SIZE) break;
   }
@@ -97,6 +99,7 @@ export default async function AdminRiwayatPage() {
     soldAt: tx.sold_at,
     total: Number(tx.total || 0),
     paymentMethod: tx.payment_method,
+    status: tx.status || "completed",
     items: parseTransactionItems(tx.items),
   }));
 

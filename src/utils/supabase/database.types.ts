@@ -173,6 +173,39 @@ export type Database = {
           created_at?: string;
         }
       >;
+      stock_transfers: Table<
+        {
+          id: string;
+          product_id: string;
+          partner_store_id: string;
+          quantity: number;
+          status: string;
+          created_by: string | null;
+          notes: string | null;
+          sent_at: string;
+          received_at: string | null;
+          created_at: string;
+          updated_at: string;
+        },
+        {
+          id?: string;
+          product_id: string;
+          partner_store_id: string;
+          quantity: number;
+          status?: string;
+          created_by?: string | null;
+          notes?: string | null;
+          sent_at?: string;
+          received_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        },
+        {
+          status?: string;
+          received_at?: string | null;
+          updated_at?: string;
+        }
+      >;
     };
     Views: Record<string, never>;
     Functions: {
@@ -184,6 +217,12 @@ export type Database = {
           p_payment_method?: string | null;
         };
         Returns: string;
+      };
+      receive_stock_transfer: {
+        Args: {
+          p_transfer_id: string;
+        };
+        Returns: Json;
       };
     };
     Enums: Record<string, never>;
