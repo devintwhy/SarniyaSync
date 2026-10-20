@@ -34,7 +34,7 @@ const dateFormatter = new Intl.DateTimeFormat("id-ID", {
 
 export default async function AdminDashboardPage() {
   const supabase = await createSupabaseServerClient();
-  let loadError = "";
+  const loadError = "";
 
   // 0. Metrik Hari Ini & Metode Pembayaran (Baru)
   let todayRevenue = 0;
@@ -145,7 +145,7 @@ export default async function AdminDashboardPage() {
     const bestSellers = Object.entries(salesByProduct)
         .map(([productName, quantity]) => ({ productName, quantity }))
         .sort((a, b) => b.quantity - a.quantity)
-        .slice(0, 10); // 10 Produk Terlaris
+        .slice(0, 5); // 5 Produk Terlaris (Top 5)
 
     // Ambil jumlah mitra aktif
     const { count: partnersCount, error: partnersError } = await supabase
@@ -208,8 +208,9 @@ export default async function AdminDashboardPage() {
       });
     }
 
-    // Urutkan item dengan stok paling sedikit
+    // Urutkan item dengan stok paling sedikit dan batasi maksimal 5 item
     lowStockItems.sort((a, b) => a.stock - b.stock);
+    const displayLowStockItems = lowStockItems.slice(0, 5);
 
     // Ambil 5 transaksi terbaru
     const { data: recentData, error: recentError } = await (supabase
@@ -237,6 +238,7 @@ export default async function AdminDashboardPage() {
         };
       });
     }
+    const displayRecentTransactions = recentTransactions.slice(0, 5);
 
     const metrics = [
       {
@@ -410,43 +412,57 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* 4. Baris Bawah (Sandingkan 3 Kolom Sejajar: Produk Terlaris + Transaksi Terbaru + Stok Menipis) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
           {/* ── Kolom 1: Produk Terlaris (Top 5 Best Sellers) ───────────── */}
           <section
             aria-label="Produk Terlaris"
-            className="overflow-hidden rounded-2xl bg-[#e0e5ec] shadow-neu-flat flex flex-col justify-between h-full border border-white/40"
+            className="h-full flex flex-col rounded-2xl bg-[#e0e5ec] shadow-neu-flat border border-white/40 overflow-hidden"
           >
-            <div className="border-b border-[#a3b1c6]/20 px-3.5 py-2.5 flex items-center justify-between">
+            {/* Bagian Header (flex-shrink-0) */}
+            <div className="border-b border-[#a3b1c6]/20 px-4 py-3 flex items-center justify-between flex-shrink-0">
               <div>
                 <h2 className="text-sm font-black text-[#2d3440]">Produk Terlaris</h2>
-                <p className="text-[11px] text-[#7a8394]">Top 10 produk terfavorit bulan ini.</p>
+                <p className="text-[11px] text-[#7a8394]">Top 5 produk terfavorit bulan ini.</p>
               </div>
-              <span className="inline-flex items-center rounded-full bg-almond-cream px-2 py-0.5 text-[10px] font-bold text-terracotta-clay shadow-neu-sm">
-                Top 10
+              <span className="inline-flex items-center rounded-full bg-almond-cream px-2.5 py-0.5 text-[10px] font-bold text-terracotta-clay shadow-neu-sm">
+                Top 5
               </span>
             </div>
 
-            <div className="p-3.5 flex-1 overflow-y-auto max-h-[320px]">
+            {/* Bagian Daftar Item (flex flex-col flex-1 justify-between) */}
+            <div className="flex-1 flex flex-col p-4">
               {bestSellers.length === 0 ? (
-                <p className="text-center text-xs text-[#6d7687] py-6">Belum ada data penjualan produk.</p>
+                <p className="text-center text-xs text-[#6d7687] py-6 my-auto">
+                  Belum ada data penjualan produk.
+                </p>
               ) : (
-                <ul className="flex flex-col gap-2.5">
+                <div
+                  className={`flex flex-col flex-1 ${
+                    bestSellers.length >= 4 ? "justify-between" : "justify-start gap-2.5"
+                  }`}
+                >
                   {bestSellers.map((item, index) => (
-                    <li key={item.productName} className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
+                    <div
+                      key={item.productName}
+                      className="flex items-center justify-between gap-2 py-1.5 px-2 rounded-xl hover:bg-almond-cream/20 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
                         <span className="flex size-5 shrink-0 items-center justify-center rounded-md bg-almond-silk/50 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
                           #{index + 1}
                         </span>
-                        <p className="truncate text-xs font-bold text-[#2d3440]" title={item.productName}>
+                        <p
+                          className="truncate text-xs font-bold text-[#2d3440]"
+                          title={item.productName}
+                        >
                           {item.productName}
                         </p>
                       </div>
                       <span className="shrink-0 rounded-full bg-almond-cream px-2 py-0.5 text-[11px] font-black tabular-nums text-terracotta-clay shadow-neu-sm">
                         {numberFormatter.format(item.quantity)} pcs
                       </span>
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
           </section>
@@ -454,9 +470,10 @@ export default async function AdminDashboardPage() {
           {/* ── Kolom 2: Transaksi Terbaru (5 Transaksi Terakhir) ───────── */}
           <section
             aria-label="Transaksi Terbaru"
-            className="overflow-hidden rounded-2xl bg-[#e0e5ec] shadow-neu-flat flex flex-col justify-between h-full border border-white/40"
+            className="h-full flex flex-col rounded-2xl bg-[#e0e5ec] shadow-neu-flat border border-white/40 overflow-hidden"
           >
-            <div className="border-b border-[#a3b1c6]/20 px-3.5 py-2.5 flex items-center justify-between">
+            {/* Bagian Header (flex-shrink-0) */}
+            <div className="border-b border-[#a3b1c6]/20 px-4 py-3 flex items-center justify-between flex-shrink-0">
               <div>
                 <h2 className="text-sm font-black text-[#2d3440]">Transaksi Terbaru</h2>
                 <p className="text-[11px] text-[#7a8394]">5 penjualan gerai kasir terakhir.</p>
@@ -469,36 +486,49 @@ export default async function AdminDashboardPage() {
               </Link>
             </div>
 
-            <div className="flex-1 overflow-x-auto p-1.5 flex flex-col justify-around">
+            {/* Bagian Daftar Item (flex flex-col flex-1 justify-between) */}
+            <div className="flex-1 flex flex-col p-4">
               {loadError ? (
-                <p className="px-3 py-6 text-center text-xs text-[#68756e]">Daftar transaksi belum tersedia.</p>
-              ) : recentTransactions.length === 0 ? (
-                <p className="px-3 py-6 text-center text-xs text-[#68756e]">Belum ada transaksi.</p>
+                <p className="px-3 py-6 text-center text-xs text-[#68756e] my-auto">
+                  Daftar transaksi belum tersedia.
+                </p>
+              ) : displayRecentTransactions.length === 0 ? (
+                <p className="px-3 py-6 text-center text-xs text-[#68756e] my-auto">
+                  Belum ada transaksi.
+                </p>
               ) : (
-                <table className="w-full text-left text-xs">
-                  <tbody className="divide-y divide-[#a3b1c6]/15">
-                    {recentTransactions.slice(0, 5).map((tx) => (
-                      <tr key={tx.id} className="hover:bg-almond-cream/20 transition-colors">
-                        <td className="px-2 py-1.5">
-                          <p className="font-bold text-[#2d3440] truncate max-w-[110px]" title={tx.store_name}>
-                            {tx.store_name}
-                          </p>
-                          <p className="text-[10px] text-[#7a8394] font-mono">
-                            {tx.transaction_number}
-                          </p>
-                        </td>
-                        <td className="px-2 py-1.5 text-right whitespace-nowrap">
-                          <p className="font-black text-terracotta-clay text-xs">
-                            {currencyFormatter.format(tx.total)}
-                          </p>
-                          <p className="text-[10px] text-[#7a8394]">
-                            {dateFormatter.format(new Date(tx.sold_at))}
-                          </p>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div
+                  className={`flex flex-col flex-1 divide-y divide-[#a3b1c6]/15 ${
+                    displayRecentTransactions.length >= 4 ? "justify-between" : "justify-start gap-2"
+                  }`}
+                >
+                  {displayRecentTransactions.map((tx) => (
+                    <div
+                      key={tx.id}
+                      className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-almond-cream/20 transition-colors rounded-xl"
+                    >
+                      <div className="min-w-0">
+                        <p
+                          className="font-bold text-[#2d3440] truncate max-w-[130px]"
+                          title={tx.store_name}
+                        >
+                          {tx.store_name}
+                        </p>
+                        <p className="text-[10px] text-[#7a8394] font-mono">
+                          {tx.transaction_number}
+                        </p>
+                      </div>
+                      <div className="text-right whitespace-nowrap">
+                        <p className="font-black text-terracotta-clay text-xs">
+                          {currencyFormatter.format(tx.total)}
+                        </p>
+                        <p className="text-[10px] text-[#7a8394]">
+                          {dateFormatter.format(new Date(tx.sold_at))}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </section>
@@ -506,51 +536,65 @@ export default async function AdminDashboardPage() {
           {/* ── Kolom 3: Peringatan Stok Menipis (Top 5 Stok Kritis) ────── */}
           <section
             aria-label="Peringatan stok menipis"
-            className="overflow-hidden rounded-2xl bg-[#e0e5ec] shadow-neu-flat flex flex-col justify-between h-full border border-white/40"
+            className="h-full flex flex-col rounded-2xl bg-[#e0e5ec] shadow-neu-flat border border-white/40 overflow-hidden"
           >
-            <div className="border-b border-[#a3b1c6]/20 px-3.5 py-2.5 flex items-center justify-between">
+            {/* Bagian Header (flex-shrink-0) */}
+            <div className="border-b border-[#a3b1c6]/20 px-4 py-3 flex items-center justify-between flex-shrink-0">
               <div>
                 <h2 className="text-sm font-black text-terracotta-clay">Stok Menipis</h2>
-                <p className="text-[11px] text-[#7a8394]">Stok kritis &le; 5 unit.</p>
+                <p className="text-[11px] text-[#7a8394]">Maksimal 5 item kritis (&le; 5 unit).</p>
               </div>
-              <span className="inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-800 shadow-neu-sm">
-                {loadError ? "—" : `${lowStockItems.length} item`}
+              <span className="inline-flex items-center rounded-full bg-rose-100 px-2.5 py-0.5 text-[10px] font-bold text-rose-800 shadow-neu-sm">
+                {loadError ? "—" : `${displayLowStockItems.length} item`}
               </span>
             </div>
 
-            <div className="flex-1 overflow-x-auto p-1.5 flex flex-col justify-around">
+            {/* Bagian Daftar Item (flex flex-col flex-1 justify-between saat penuh, rata atas saat 1) */}
+            <div className="flex-1 flex flex-col p-4">
               {loadError ? (
-                <p className="px-3 py-6 text-center text-xs text-[#7a8394]">Daftar peringatan belum tersedia.</p>
-              ) : lowStockItems.length === 0 ? (
-                <p className="px-3 py-6 text-center text-xs text-[#7a8394]">Tidak ada produk menipis.</p>
+                <p className="px-3 py-6 text-center text-xs text-[#7a8394] my-auto">
+                  Daftar peringatan belum tersedia.
+                </p>
+              ) : displayLowStockItems.length === 0 ? (
+                <p className="px-3 py-6 text-center text-xs text-[#7a8394] my-auto">
+                  Tidak ada produk menipis.
+                </p>
               ) : (
-                <table className="w-full text-left text-xs">
-                  <tbody className="divide-y divide-[#a3b1c6]/15">
-                    {lowStockItems.slice(0, 5).map((item) => (
-                      <tr key={item.id} className="hover:bg-almond-cream/20 transition-colors">
-                        <td className="px-2 py-1.5 min-w-0">
-                          <p className="font-bold text-[#2d3440] truncate max-w-[130px]" title={item.name}>
-                            {item.name}
-                          </p>
-                          <p className="text-[10px] text-[#7a8394] truncate">
-                            {item.location}
-                          </p>
-                        </td>
-                        <td className="px-2 py-1.5 text-right whitespace-nowrap">
-                          <span
-                            className={`inline-flex min-w-[2.2rem] justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold shadow-neu-sm ${
-                              item.stock === 0
-                                ? "bg-rose-100 text-rose-800"
-                                : "bg-almond-cream text-terracotta-clay"
-                            }`}
-                          >
-                            {numberFormatter.format(item.stock)} pcs
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div
+                  className={`flex flex-col flex-1 divide-y divide-[#a3b1c6]/15 ${
+                    displayLowStockItems.length >= 4 ? "justify-between" : "justify-start gap-2"
+                  }`}
+                >
+                  {displayLowStockItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-almond-cream/20 transition-colors rounded-xl"
+                    >
+                      <div className="min-w-0">
+                        <p
+                          className="font-bold text-[#2d3440] truncate max-w-[140px]"
+                          title={item.name}
+                        >
+                          {item.name}
+                        </p>
+                        <p className="text-[10px] text-[#7a8394] truncate">
+                          {item.location}
+                        </p>
+                      </div>
+                      <div className="text-right whitespace-nowrap">
+                        <span
+                          className={`inline-flex min-w-[2.2rem] justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold shadow-neu-sm ${
+                            item.stock === 0
+                              ? "bg-rose-100 text-rose-800"
+                              : "bg-almond-cream text-terracotta-clay"
+                          }`}
+                        >
+                          {numberFormatter.format(item.stock)} pcs
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </section>

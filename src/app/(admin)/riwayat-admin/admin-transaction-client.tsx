@@ -39,6 +39,8 @@ const currencyFormatter = new Intl.NumberFormat("id-ID", {
   maximumFractionDigits: 0,
 });
 
+const numberFormatter = new Intl.NumberFormat("id-ID");
+
 const dateFormatter = new Intl.DateTimeFormat("id-ID", {
   dateStyle: "medium",
   timeStyle: "short",
@@ -158,13 +160,20 @@ export default function AdminTransactionClient({
       else cashRevenue += amount;
     }
 
+    const qrisPercent = totalOmzet > 0 ? Math.round((qrisRevenue / totalOmzet) * 100) : 0;
+    const transferPercent = totalOmzet > 0 ? Math.round((transferRevenue / totalOmzet) * 100) : 0;
+    const cashPercent = totalOmzet > 0 ? Math.round((cashRevenue / totalOmzet) * 100) : 0;
+
     return {
       totalOmzet,
       totalTransactions: filteredTransactions.length,
       totalItems,
       qrisRevenue,
+      qrisPercent,
       transferRevenue,
+      transferPercent,
       cashRevenue,
+      cashPercent,
     };
   }, [filteredTransactions]);
 
@@ -404,84 +413,128 @@ export default function AdminTransactionClient({
         )}
       </div>
 
-      {/* ── Ringkasan Total Penjualan (Total Omzet Reaktif) ──────────────── */}
-      <section aria-label="Ringkasan Penjualan Terfilter" className="rounded-2xl bg-[#e0e5ec] p-3.5 sm:p-4 shadow-neu-flat border border-white/40">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2.5 border-b border-[#a3b1c6]/20">
+      {/* ── Ringkasan Terfilter (Grid 5 Kolom Bergaya Dashboard) ──────────── */}
+      <section aria-label="Ringkasan Terfilter" className="rounded-2xl bg-[#e0e5ec] p-3.5 sm:p-4 shadow-neu-flat border border-white/40">
+        {/* Header Bergaya Dashboard */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-[#a3b1c6]/20">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-almond-cream text-terracotta-clay shadow-neu-sm">
-              Ringkasan Terfilter
+              Periode Filter
             </span>
-            <span className="text-xs text-[#7a8394]">
+            <span className="text-xs text-[#7b877f]">
               {selectedDate
-                ? `Tanggal: ${new Intl.DateTimeFormat("id-ID", { dateStyle: "full" }).format(new Date(selectedDate))}`
-                : "Periode: Seluruh Riwayat Transaksi"}
+                ? new Intl.DateTimeFormat("id-ID", { dateStyle: "full" }).format(new Date(selectedDate))
+                : "Seluruh Riwayat Transaksi"}
             </span>
           </div>
-          <span className="text-xs font-bold text-[#576071]">
-            Menampilkan: <span className="text-[#2d3440] font-black">{filteredTransactions.length}</span> transaksi
-          </span>
+          <div className="text-xs text-[#68756e]">
+            Total: <span className="font-bold text-[#2d3440]">{numberFormatter.format(filteredTransactions.length)} transaksi</span>
+          </div>
         </div>
 
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Kartu 1: Total Penjualan Reaktif (Terracotta Clay Highlight) */}
-          <div className="rounded-xl bg-[#e0e5ec] p-3 shadow-neu-sm flex flex-col justify-between border border-white/60">
+        {/* Grid 5 Kartu (Tinggi Sejajar) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-4">
+          {/* Kartu 1: Total Pendapatan (Solid Color Terracotta/Cokelat Sarniya) */}
+          <div className="h-full flex flex-col justify-between rounded-xl bg-terracotta-clay p-3.5 sm:p-4 text-white shadow-neu-sm">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#576071]">
-                Total Penjualan
-              </span>
-              <p className="mt-1 text-lg sm:text-xl font-black tracking-tight text-terracotta-clay">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-white/90">
+                  TOTAL PENDAPATAN
+                </span>
+                <span className="inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold text-white border border-white/30 backdrop-blur-sm">
+                  Total
+                </span>
+              </div>
+              <p className="mt-2 text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow-sm">
                 {currencyFormatter.format(summaryMetrics.totalOmzet)}
               </p>
             </div>
-            <p className="mt-1.5 text-[10px] text-[#7a8394] border-t border-[#a3b1c6]/20 pt-1">
+            <div className="mt-2 border-t border-white/20 pt-1.5 text-[11px] text-white/80">
               Akumulasi omzet data terfilter
-            </p>
+            </div>
           </div>
 
-          {/* Kartu 2: Total Unit Terjual */}
-          <div className="rounded-xl bg-[#e0e5ec] p-3 shadow-neu-sm flex flex-col justify-between border border-white/60">
+          {/* Kartu 2: Neumorphism (Total Unit Terjual) */}
+          <div className="h-full flex flex-col justify-between rounded-xl bg-[#e0e5ec] p-3.5 sm:p-4 shadow-neu-sm border border-white/60">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#576071]">
-                Total Unit Terjual
-              </span>
-              <p className="mt-1 text-lg sm:text-xl font-black text-[#2d3440]">
-                {summaryMetrics.totalItems} pcs
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">
+                  TOTAL UNIT TERJUAL
+                </span>
+                <span className="inline-flex items-center rounded-lg bg-[#d7dde6] px-2 py-0.5 text-[10px] font-bold text-[#576071]">
+                  Unit
+                </span>
+              </div>
+              <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
+                {numberFormatter.format(summaryMetrics.totalItems)} pcs
               </p>
             </div>
-            <p className="mt-1.5 text-[10px] text-[#7a8394] border-t border-[#a3b1c6]/20 pt-1">
-              Jumlah kuantitas hijab keluar
-            </p>
+            <div className="mt-2 border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
+              Jumlah kuantitas produk keluar
+            </div>
           </div>
 
-          {/* Kartu 3: Omzet QRIS & Transfer */}
-          <div className="rounded-xl bg-[#e0e5ec] p-3 shadow-neu-sm flex flex-col justify-between border border-white/60">
+          {/* Kartu 3: Neumorphism (Metode QRIS) */}
+          <div className="h-full flex flex-col justify-between rounded-xl bg-[#e0e5ec] p-3.5 sm:p-4 shadow-neu-sm border border-white/60">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#576071]">
-                Non-Tunai (QRIS &amp; Transfer)
-              </span>
-              <p className="mt-1 text-base sm:text-lg font-black text-[#2d3440]">
-                {currencyFormatter.format(summaryMetrics.qrisRevenue + summaryMetrics.transferRevenue)}
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">
+                  METODE QRIS
+                </span>
+                <span className="inline-flex items-center rounded-lg bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-200/60">
+                  QRIS
+                </span>
+              </div>
+              <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
+                {currencyFormatter.format(summaryMetrics.qrisRevenue)}
               </p>
             </div>
-            <div className="mt-1.5 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1 text-[10px] text-[#7a8394]">
-              <span>QRIS: {currencyFormatter.format(summaryMetrics.qrisRevenue)}</span>
-              <span>TF: {currencyFormatter.format(summaryMetrics.transferRevenue)}</span>
+            <div className="mt-2 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
+              <span>Porsi pendapatan</span>
+              <span className="font-bold text-[#2d3440]">{summaryMetrics.qrisPercent}%</span>
             </div>
           </div>
 
-          {/* Kartu 4: Omzet Tunai */}
-          <div className="rounded-xl bg-[#e0e5ec] p-3 shadow-neu-sm flex flex-col justify-between border border-white/60">
+          {/* Kartu 4: Neumorphism (Metode Transfer) */}
+          <div className="h-full flex flex-col justify-between rounded-xl bg-[#e0e5ec] p-3.5 sm:p-4 shadow-neu-sm border border-white/60">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#576071]">
-                Penjualan Tunai
-              </span>
-              <p className="mt-1 text-base sm:text-lg font-black text-[#2d3440]">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">
+                  METODE TRANSFER
+                </span>
+                <span className="inline-flex items-center rounded-lg bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200/60">
+                  Transfer
+                </span>
+              </div>
+              <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
+                {currencyFormatter.format(summaryMetrics.transferRevenue)}
+              </p>
+            </div>
+            <div className="mt-2 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
+              <span>Porsi pendapatan</span>
+              <span className="font-bold text-[#2d3440]">{summaryMetrics.transferPercent}%</span>
+            </div>
+          </div>
+
+          {/* Kartu 5: Neumorphism (Metode Tunai) */}
+          <div className="h-full flex flex-col justify-between rounded-xl bg-[#e0e5ec] p-3.5 sm:p-4 shadow-neu-sm border border-white/60">
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">
+                  METODE TUNAI
+                </span>
+                <span className="inline-flex items-center rounded-lg bg-[#e0e5ec] px-2 py-0.5 text-[10px] font-bold text-[#2d3440] shadow-neu-sm">
+                  Tunai
+                </span>
+              </div>
+              <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
                 {currencyFormatter.format(summaryMetrics.cashRevenue)}
               </p>
             </div>
-            <p className="mt-1.5 text-[10px] text-[#7a8394] border-t border-[#a3b1c6]/20 pt-1">
-              Porsi: {summaryMetrics.totalOmzet > 0 ? Math.round((summaryMetrics.cashRevenue / summaryMetrics.totalOmzet) * 100) : 0}%
-            </p>
+            <div className="mt-2 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
+              <span>Porsi pendapatan</span>
+              <span className="font-bold text-[#2d3440]">{summaryMetrics.cashPercent}%</span>
+            </div>
           </div>
         </div>
       </section>

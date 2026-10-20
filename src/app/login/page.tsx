@@ -86,10 +86,12 @@ export default function LoginPage() {
             safeNextPath.startsWith("/mitra") ||
             safeNextPath.startsWith("/penjualan") ||
             safeNextPath.startsWith("/riwayat") ||
+            safeNextPath.startsWith("/riwayat-admin") ||
             safeNextPath.startsWith("/produk") ||
             safeNextPath.startsWith("/alokasi") ||
             safeNextPath.startsWith("/katalog") ||
             safeNextPath.startsWith("/profil") ||
+            safeNextPath.startsWith("/profil-admin") ||
             safeNextPath.startsWith("/admin/") ||
             safeNextPath.startsWith("/api/products")),
       );
@@ -98,9 +100,11 @@ export default function LoginPage() {
           (safeNextPath === "/partner" ||
             safeNextPath.startsWith("/partner/") ||
             safeNextPath.startsWith("/riwayat") ||
+            safeNextPath.startsWith("/riwayat-mitra") ||
             safeNextPath.startsWith("/katalog") ||
             safeNextPath === "/dashboard-mitra" ||
             safeNextPath.startsWith("/dashboard-mitra/") ||
+            safeNextPath.startsWith("/profil-mitra") ||
             safeNextPath.startsWith("/store/") ||
             safeNextPath.startsWith("/api/partner/")),
       );

@@ -203,130 +203,133 @@ export default function SidebarNavigation() {
 
   return (
     <aside
-      className={`relative flex flex-col border-b border-[#a3b1c6]/30 bg-[#e0e5ec] text-[#2d3440] shadow-[4px_0_15px_rgba(163,177,198,0.35)] transition-all duration-300 ease-in-out lg:min-h-screen lg:shrink-0 lg:border-b-0 lg:border-r ${
+      className={`relative flex flex-col h-screen lg:sticky lg:top-0 border-b border-[#a3b1c6]/30 bg-[#e0e5ec] text-[#2d3440] shadow-[4px_0_15px_rgba(163,177,198,0.35)] transition-all duration-300 ease-in-out lg:shrink-0 lg:border-b-0 lg:border-r ${
         isSidebarOpen ? "w-full lg:w-64" : "w-full lg:w-20"
       }`}
     >
-      {/* ── Brand Header & Toggle Button ──────────────────────────────────── */}
-      <div
-        className={`flex items-center py-5 transition-all duration-300 ${
-          isSidebarOpen ? "justify-between px-5" : "flex-col justify-center gap-3 px-3"
-        }`}
-      >
-        {/* Logo & Nama Brand */}
-        <div className={`flex items-center gap-3 ${!isSidebarOpen ? "justify-center" : ""}`}>
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[#e0e5ec] p-1.5 shadow-neu-sm">
-            <Image
-              src="/logo-sarniya.png"
-              alt="Logo SarniyaSync"
-              width={30}
-              height={30}
-              className="h-full w-full object-contain"
-              priority
-            />
-          </div>
-          {isSidebarOpen && (
-            <div className="overflow-hidden whitespace-nowrap transition-opacity duration-200">
-              <span className="text-base font-black tracking-tight text-[#2d3440]">
-                SarniyaSync
-              </span>
-              <p className="text-[10px] font-medium text-[#7a8394]">
-                Ruang Operasional
-              </p>
+      {/* ── Area Menu (Scrollable secara mandiri) ─────────────────────────── */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col min-h-0">
+        {/* ── Brand Header & Toggle Button ──────────────────────────────────── */}
+        <div
+          className={`flex items-center py-5 transition-all duration-300 flex-shrink-0 ${
+            isSidebarOpen ? "justify-between px-5" : "flex-col justify-center gap-3 px-3"
+          }`}
+        >
+          {/* Logo & Nama Brand */}
+          <div className={`flex items-center gap-3 ${!isSidebarOpen ? "justify-center" : ""}`}>
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[#e0e5ec] p-1.5 shadow-neu-sm">
+              <Image
+                src="/logo-sarniya.png"
+                alt="Logo SarniyaSync"
+                width={30}
+                height={30}
+                className="h-full w-full object-contain"
+                priority
+              />
             </div>
-          )}
+            {isSidebarOpen && (
+              <div className="overflow-hidden whitespace-nowrap transition-opacity duration-200">
+                <span className="text-base font-black tracking-tight text-[#2d3440]">
+                  SarniyaSync
+                </span>
+                <p className="text-[10px] font-medium text-[#7a8394]">
+                  Ruang Operasional
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Tombol Toggle Neumorphism Timbul/Tenggelam (Terracotta Clay) */}
+          <button
+            type="button"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            aria-label={isSidebarOpen ? "Ciutkan Sidebar" : "Buka Sidebar"}
+            title={isSidebarOpen ? "Sembunyikan Menu" : "Buka Menu"}
+            className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-terracotta-clay text-white shadow-neu-sm transition-all duration-200 hover:brightness-110 active:shadow-neu-inset-sm active:scale-95"
+          >
+            {/* Ikon Menu Garis Tiga (Hamburger Menu) */}
+            <svg
+              className="size-4 shrink-0"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="4" y1="6" x2="20" y2="6" />
+              <line x1="4" y1="12" x2="20" y2="12" />
+              <line x1="4" y1="18" x2="20" y2="18" />
+            </svg>
+          </button>
         </div>
 
-        {/* Tombol Toggle Neumorphism Timbul/Tenggelam (Terracotta Clay) */}
-        <button
-          type="button"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          aria-label={isSidebarOpen ? "Ciutkan Sidebar" : "Buka Sidebar"}
-          title={isSidebarOpen ? "Sembunyikan Menu" : "Buka Menu"}
-          className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-terracotta-clay text-white shadow-neu-sm transition-all duration-200 hover:brightness-110 active:shadow-neu-inset-sm active:scale-95"
+        {/* ── Navigation List ───────────────────────────────────────────────── */}
+        <nav
+          aria-label="Navigasi utama"
+          className="flex gap-1.5 overflow-x-auto px-3 pb-3 lg:flex-col"
         >
-          {/* Ikon Menu Garis Tiga (Hamburger Menu) */}
-          <svg
-            className="size-4 shrink-0"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <line x1="4" y1="6" x2="20" y2="6" />
-            <line x1="4" y1="12" x2="20" y2="12" />
-            <line x1="4" y1="18" x2="20" y2="18" />
-          </svg>
-        </button>
+          {navigationItems.map((item) => {
+            const isPenjualanAlias =
+              (item.href === "/penjualan" || item.href === "/partner/transaksi") &&
+              (pathname.startsWith("/riwayat") || pathname.startsWith("/riwayat-admin") || pathname.startsWith("/riwayat-mitra"));
+            const isKatalogAlias =
+              (item.href === "/produk" || item.href === "/partner/katalog") &&
+              (pathname.startsWith("/katalog") || pathname.startsWith("/partner/katalog"));
+            const isProfilAlias =
+              (item.href === "/profil-admin" && pathname.startsWith("/profil-admin")) ||
+              (item.href === "/profil-mitra" && (pathname.startsWith("/profil-mitra") || pathname.startsWith("/partner/profil")));
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/" && pathname.startsWith(`${item.href}/`)) ||
+              isPenjualanAlias ||
+              isKatalogAlias ||
+              isProfilAlias;
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                title={!isSidebarOpen ? item.label : undefined}
+                className={`group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-2xl h-11 px-4 text-xs font-bold overflow-hidden transition-all duration-200 ${
+                  isActive
+                    ? "bg-terracotta-clay text-white shadow-neu-sm"
+                    : "text-[#576071] hover:bg-almond-cream/60 hover:text-terracotta-clay active:shadow-neu-inset-sm"
+                }`}
+              >
+                {/* Kontainer Ikon Menu: Lebar Tetap w-6 h-6 mr-3 Menjamin Posisi Terkunci */}
+                <span
+                  className={`flex size-6 shrink-0 items-center justify-center mr-3 transition-colors ${
+                    isActive ? "text-white" : "text-[#7a8394] group-hover:text-terracotta-clay"
+                  }`}
+                >
+                  {getNavIcon(item.label)}
+                </span>
+
+                {/* Teks Label: Dikontrol transisi/disembunyikan tanpa mengganggu padding utama tombol */}
+                <span
+                  className={`truncate whitespace-nowrap transition-all duration-200 ${
+                    isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+
+          {role === "mitra" && navigationItems.length === 1 && isSidebarOpen && (
+            <p className="px-3 py-2 text-[11px] font-medium text-[#7a8394]">
+              Belum ada toko yang ditugaskan.
+            </p>
+          )}
+        </nav>
       </div>
 
-      {/* ── Navigation List ───────────────────────────────────────────────── */}
-      <nav
-        aria-label="Navigasi utama"
-        className="flex gap-1.5 overflow-x-auto px-3 pb-3 lg:flex-col"
-      >
-        {navigationItems.map((item) => {
-          const isPenjualanAlias =
-            (item.href === "/penjualan" || item.href === "/partner/transaksi") &&
-            (pathname.startsWith("/riwayat") || pathname.startsWith("/riwayat-admin") || pathname.startsWith("/riwayat-mitra"));
-          const isKatalogAlias =
-            (item.href === "/produk" || item.href === "/partner/katalog") &&
-            (pathname.startsWith("/katalog") || pathname.startsWith("/partner/katalog"));
-          const isProfilAlias =
-            (item.href === "/profil-admin" && pathname.startsWith("/profil-admin")) ||
-            (item.href === "/profil-mitra" && (pathname.startsWith("/profil-mitra") || pathname.startsWith("/partner/profil")));
-          const isActive =
-            pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(`${item.href}/`)) ||
-            isPenjualanAlias ||
-            isKatalogAlias ||
-            isProfilAlias;
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={isActive ? "page" : undefined}
-              title={!isSidebarOpen ? item.label : undefined}
-              className={`group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-2xl h-11 px-4 text-xs font-bold overflow-hidden transition-all duration-200 ${
-                isActive
-                  ? "bg-terracotta-clay text-white shadow-neu-sm"
-                  : "text-[#576071] hover:bg-almond-cream/60 hover:text-terracotta-clay active:shadow-neu-inset-sm"
-              }`}
-            >
-              {/* Kontainer Ikon Menu: Lebar Tetap w-6 h-6 mr-3 Menjamin Posisi Terkunci */}
-              <span
-                className={`flex size-6 shrink-0 items-center justify-center mr-3 transition-colors ${
-                  isActive ? "text-white" : "text-[#7a8394] group-hover:text-terracotta-clay"
-                }`}
-              >
-                {getNavIcon(item.label)}
-              </span>
-
-              {/* Teks Label: Dikontrol transisi/disembunyikan tanpa mengganggu padding utama tombol */}
-              <span
-                className={`truncate whitespace-nowrap transition-all duration-200 ${
-                  isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"
-                }`}
-              >
-                {item.label}
-              </span>
-            </Link>
-          );
-        })}
-
-        {role === "mitra" && navigationItems.length === 1 && isSidebarOpen && (
-          <p className="px-3 py-2 text-[11px] font-medium text-[#7a8394]">
-            Belum ada toko yang ditugaskan.
-          </p>
-        )}
-      </nav>
-
-      {/* ── Footer & Logout Sesi ─────────────────────────────────────────── */}
+      {/* ── Footer & Logout Sesi (Terkunci di Paling Bawah) ─────────────── */}
       <div
-        className="mt-auto border-t border-[#a3b1c6]/30 px-3 py-4 transition-all duration-300"
+        className="flex-shrink-0 mt-auto border-t border-[#a3b1c6]/30 px-3 py-4 transition-all duration-300"
       >
         {isSidebarOpen && (
           <p className="text-[11px] font-medium text-[#7a8394] mb-2 truncate px-1">

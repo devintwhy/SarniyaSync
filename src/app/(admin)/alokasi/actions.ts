@@ -142,3 +142,172 @@ export async function allocatePartnerStock(input: AllocationInput): Promise<Allo
     return { error: error instanceof Error ? error.message : "Alokasi stok gagal." };
   }
 }
+
+// ── Bulk Stock Allocation (Alokasi Massal) ──────────────────────────────────
+export type BulkAllocationItem = {
+  productId: string;
+  quantity: number;
+};
+
+export type BulkAllocationInput = {
+  storeId: string;
+  items: BulkAllocationItem[];
+};
+
+export type BulkAllocationResult = {
+  error?: string;
+  success?: string;
+  allocatedCount?: number;
+};
+
+export async function bulkAllocatePartnerStock(
+  input: BulkAllocationInput,
+): Promise<BulkAllocationResult> {
+  try {
+    if (!uuidPattern.test(input.storeId)) {
+      return { error: "Pilih toko mitra tujuan yang valid." };
+    }
+
+    if (!Array.isArray(input.items) || input.items.length === 0) {
+      return { error: "Pilih setidaknya 1 produk untuk dialokasikan." };
+    }
+
+    // Validasi kuantitas setiap item
+    for (const item of input.items) {
+      if (!uuidPattern.test(item.productId)) {
+        return { error: "Data produk tidak valid." };
+      }
+      if (!Number.isSafeInteger(item.quantity) || item.quantity < 1) {
+        return { error: "Jumlah alokasi setiap produk minimal harus 1 unit." };
+      }
+    }
+
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+    if (authError || !user) return { error: "Sesi login diperlukan." };
+
+    const role = await getProfileRole(supabase, user.id);
+    if (role !== "admin" && role !== "pemilik") {
+      return { error: "Hanya Admin/Pemilik yang berwenang mengalokasikan stok." };
+    }
+
+    // 1. Verifikasi toko mitra aktif
+    const { data: store, error: storeError } = await supabase
+      .from("partner_stores")
+      .select("id, name")
+      .eq("id", input.storeId)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (storeError) throw storeError;
+    if (!store) return { error: "Toko mitra tidak ditemukan atau sedang nonaktif." };
+
+    // 2. Ambil semua produk terkait dari katalog gudang pusat
+    const productIds = input.items.map((i) => i.productId);
+    const { data: products, error: productsError } = await supabase
+      .from("products")
+      .select("id, name, sku, stock_quantity")
+      .in("id", productIds)
+      .eq("is_active", true);
+
+    if (productsError) throw productsError;
+    if (!products || products.length !== input.items.length) {
+      return { error: "Beberapa produk yang dipilih tidak ditemukan atau nonaktif di katalog." };
+    }
+
+    const productMap = new Map(products.map((p) => [p.id, p]));
+
+    // 3. Verifikasi ketersediaan stok pusat untuk masing-masing item
+    for (const item of input.items) {
+      const prod = productMap.get(item.productId);
+      if (!prod) {
+        return { error: "Produk tidak valid." };
+      }
+      if (prod.stock_quantity < item.quantity) {
+        return {
+          error: `Stok gudang pusat untuk "${prod.name}" (${prod.sku}) tidak cukup. Tersedia: ${prod.stock_quantity} unit, diminta: ${item.quantity} unit.`,
+        };
+      }
+    }
+
+    // 4. Kurangi stok gudang pusat untuk setiap produk
+    for (const item of input.items) {
+      const prod = productMap.get(item.productId)!;
+      const { error: deductError } = await supabase
+        .from("products")
+        .update({
+          stock_quantity: prod.stock_quantity - item.quantity,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", prod.id);
+
+      if (deductError) {
+        throw new Error(`Gagal memperbarui stok pusat untuk ${prod.name}: ${deductError.message}`);
+      }
+    }
+
+    // 5. Ambil data alokasi yang sudah ada di partner_store_inventory untuk toko ini
+    const { data: existingAllocations, error: readAllocError } = await supabase
+      .from("partner_store_inventory")
+      .select("id, product_id, stock_quantity")
+      .eq("partner_store_id", store.id)
+      .in("product_id", productIds);
+
+    if (readAllocError) throw readAllocError;
+
+    const existingMap = new Map(
+      (existingAllocations ?? []).map((alloc) => [alloc.product_id, alloc]),
+    );
+
+    // 6. Buat payload untuk Bulk Upsert ke partner_store_inventory
+    const now = new Date().toISOString();
+    const upsertPayload = input.items.map((item) => {
+      const existing = existingMap.get(item.productId);
+      if (existing) {
+        return {
+          id: existing.id,
+          partner_store_id: store.id,
+          product_id: item.productId,
+          stock_quantity: existing.stock_quantity + item.quantity,
+          updated_at: now,
+        };
+      }
+      return {
+        partner_store_id: store.id,
+        product_id: item.productId,
+        stock_quantity: item.quantity,
+        created_at: now,
+        updated_at: now,
+      };
+    });
+
+    // 7. Jalankan Bulk Upsert bawaan Supabase dalam 1 request
+    const { error: bulkUpsertError } = await supabase
+      .from("partner_store_inventory")
+      .upsert(upsertPayload);
+
+    if (bulkUpsertError) {
+      throw new Error(`Gagal melakukan bulk upsert stok mitra: ${bulkUpsertError.message}`);
+    }
+
+    // 8. Revalidasi path
+    revalidatePath("/alokasi");
+    revalidatePath("/inventory");
+    revalidatePath("/partner/stok");
+    revalidatePath("/partner");
+    revalidatePath("/");
+
+    return {
+      success: `Berhasil mengalokasikan ${input.items.length} produk ke toko ${store.name}.`,
+      allocatedCount: input.items.length,
+    };
+  } catch (error) {
+    console.error("Bulk allocation failed:", error);
+    return {
+      error: error instanceof Error ? error.message : "Alokasi massal stok gagal diproses.",
+    };
+  }
+}
