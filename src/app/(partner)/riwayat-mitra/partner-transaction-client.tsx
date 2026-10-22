@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import * as XLSX from "xlsx";
+import { Receipt } from "lucide-react";
 
 export type PartnerTransactionItem = {
   name: string;
@@ -58,7 +59,7 @@ function PaymentMethodBadge({ method }: { method: string | null | undefined }) {
 
   if (m === "qris") {
     return (
-      <span className="inline-flex items-center rounded-lg border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 shadow-neu-sm">
+      <span className="inline-flex items-center rounded-lg border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700">
         QRIS
       </span>
     );
@@ -66,14 +67,14 @@ function PaymentMethodBadge({ method }: { method: string | null | undefined }) {
 
   if (m === "transfer") {
     return (
-      <span className="inline-flex items-center rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 shadow-neu-sm">
+      <span className="inline-flex items-center rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
         Transfer
       </span>
     );
   }
 
   return (
-    <span className="inline-flex items-center rounded-lg bg-[#e0e5ec] px-2 py-0.5 text-[10px] font-bold text-[#2d3440] shadow-neu-sm border border-white/50">
+    <span className="inline-flex items-center rounded-lg bg-gray-100 border border-gray-200 px-2 py-0.5 text-[10px] font-bold text-gray-700">
       Tunai
     </span>
   );
@@ -185,6 +186,7 @@ export default function PartnerTransactionClient({
 
     setIsExporting(true);
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const excelRows: any[] = [];
 
       filteredTransactions.forEach((tx) => {
@@ -262,15 +264,12 @@ export default function PartnerTransactionClient({
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      {/* ── Toolbar: Date Picker, Filter Dropdown & Tombol Download Excel ── */}
-      <div className="rounded-2xl bg-[#e0e5ec] p-3 sm:p-4 shadow-neu-flat border border-white/40">
+      <div className="rounded-xl bg-white border border-gray-200 p-3 sm:p-4 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           
-          {/* Kolom Kiri: Search Input & Date Picker Neumorphism Inset */}
           <div className="flex flex-1 flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-            {/* Input Search */}
             <div className="relative flex-1 min-w-[200px]">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#7a8394]">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
@@ -286,27 +285,26 @@ export default function PartnerTransactionClient({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Cari no. struk, produk..."
-                className="h-9 w-full rounded-xl bg-[#e0e5ec] pl-9 pr-7 text-xs text-[#2d3440] shadow-neu-inset outline-none transition-all placeholder:text-[#8f98a8] focus:ring-2 focus:ring-terracotta-clay/30"
+                className="h-9 w-full rounded-lg bg-gray-50 border border-gray-200 pl-9 pr-7 text-xs text-gray-800 outline-none transition-all placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
               />
               {searchTerm && (
                 <button
                   type="button"
                   onClick={() => setSearchTerm("")}
-                  className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-xs text-[#7a8394] hover:text-[#2d3440]"
+                  className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-xs text-gray-400 hover:text-gray-700"
                 >
                   ✕
                 </button>
               )}
             </div>
 
-            {/* Input Date Picker Neumorphism Inset */}
             <div className="flex items-center gap-1.5">
               <div className="relative flex items-center">
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="h-9 rounded-xl bg-[#e0e5ec] px-3 text-xs font-semibold text-[#2d3440] shadow-neu-inset outline-none transition-all focus:ring-2 focus:ring-terracotta-clay/30"
+                  className="h-9 rounded-lg bg-gray-50 border border-gray-200 px-3 text-xs font-semibold text-gray-700 outline-none transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
                   title="Pilih tanggal transaksi"
                 />
                 {selectedDate && (
@@ -314,22 +312,21 @@ export default function PartnerTransactionClient({
                     type="button"
                     onClick={() => setSelectedDate("")}
                     title="Hapus filter tanggal"
-                    className="ml-1.5 flex size-7 items-center justify-center rounded-lg bg-[#e0e5ec] text-[11px] font-bold text-terracotta-clay shadow-neu-sm hover:brightness-105 active:scale-95"
+                    className="ml-1.5 flex size-7 items-center justify-center rounded-lg bg-gray-100 border border-gray-200 text-[11px] font-bold text-terracotta-clay hover:bg-gray-200 active:scale-95"
                   >
                     ✕
                   </button>
                 )}
               </div>
 
-              {/* Tombol Shortcut Preset Tanggal */}
               <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => setSelectedDate(todayStr)}
-                  className={`h-9 px-2.5 rounded-xl text-[11px] font-bold transition-all ${
+                  className={`h-9 px-2.5 rounded-lg text-[11px] font-semibold transition-all ${
                     selectedDate === todayStr
-                      ? "bg-terracotta-clay text-white shadow-neu-sm"
-                      : "bg-[#e0e5ec] text-[#576071] shadow-neu-sm hover:text-terracotta-clay active:shadow-neu-inset-sm"
+                      ? "bg-terracotta-clay text-white shadow-sm"
+                      : "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100"
                   }`}
                 >
                   Hari Ini
@@ -337,10 +334,10 @@ export default function PartnerTransactionClient({
                 <button
                   type="button"
                   onClick={() => setSelectedDate(yesterdayStr)}
-                  className={`h-9 px-2.5 rounded-xl text-[11px] font-bold transition-all ${
+                  className={`h-9 px-2.5 rounded-lg text-[11px] font-semibold transition-all ${
                     selectedDate === yesterdayStr
-                      ? "bg-terracotta-clay text-white shadow-neu-sm"
-                      : "bg-[#e0e5ec] text-[#576071] shadow-neu-sm hover:text-terracotta-clay active:shadow-neu-inset-sm"
+                      ? "bg-terracotta-clay text-white shadow-sm"
+                      : "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100"
                   }`}
                 >
                   Kemarin
@@ -349,7 +346,7 @@ export default function PartnerTransactionClient({
                   <button
                     type="button"
                     onClick={() => setSelectedDate("")}
-                    className="h-9 px-2.5 rounded-xl text-[11px] font-bold bg-[#e0e5ec] text-[#7a8394] shadow-neu-sm hover:text-[#2d3440] active:shadow-neu-inset-sm"
+                    className="h-9 px-2.5 rounded-lg text-[11px] font-semibold bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100"
                   >
                     Semua
                   </button>
@@ -358,13 +355,12 @@ export default function PartnerTransactionClient({
             </div>
           </div>
 
-          {/* Kolom Kanan: Filter Toko (jika > 1), Filter Pembayaran & Download Excel */}
           <div className="flex flex-wrap items-center gap-2">
             {stores.length > 1 && (
               <select
                 value={selectedStore}
                 onChange={(e) => setSelectedStore(e.target.value)}
-                className="h-9 rounded-xl bg-[#e0e5ec] px-3 text-xs font-semibold text-[#2d3440] shadow-neu-sm outline-none transition-all focus:ring-2 focus:ring-terracotta-clay/30"
+                className="h-9 rounded-lg bg-gray-50 border border-gray-200 px-3 text-xs font-semibold text-gray-700 outline-none transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
               >
                 <option value="all">Semua Toko Saya</option>
                 {stores.map((s) => (
@@ -375,11 +371,10 @@ export default function PartnerTransactionClient({
               </select>
             )}
 
-            {/* Filter Metode Pembayaran */}
             <select
               value={selectedPayment}
               onChange={(e) => setSelectedPayment(e.target.value)}
-              className="h-9 rounded-xl bg-[#e0e5ec] px-3 text-xs font-semibold text-[#2d3440] shadow-neu-sm outline-none transition-all focus:ring-2 focus:ring-terracotta-clay/30"
+              className="h-9 rounded-lg bg-gray-50 border border-gray-200 px-3 text-xs font-semibold text-gray-700 outline-none transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
             >
               <option value="all">Semua Metode</option>
               <option value="cash">Tunai</option>
@@ -387,12 +382,11 @@ export default function PartnerTransactionClient({
               <option value="qris">QRIS</option>
             </select>
 
-            {/* Tombol Download Excel Neumorphism Timbul (Dusty Rose / Terracotta Clay) */}
             <button
               type="button"
               onClick={handleExportExcel}
               disabled={isExporting || filteredTransactions.length === 0}
-              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-dusty-rose to-terracotta-clay px-3.5 text-xs font-bold text-white shadow-neu-sm transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-terracotta-clay px-3.5 text-xs font-bold text-white shadow-sm transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               title="Unduh data transaksi toko Anda dalam format file Excel (.xlsx)"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -407,35 +401,31 @@ export default function PartnerTransactionClient({
         </div>
 
         {errorMessage && (
-          <p className="mt-2.5 rounded-xl border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs text-rose-800">
+          <p className="mt-2.5 rounded-lg border border-rose-300 bg-rose-50 px-3 py-1.5 text-xs text-rose-800">
             {errorMessage}
           </p>
         )}
       </div>
 
-      {/* ── Ringkasan Terfilter (Grid 5 Kolom Bergaya Dashboard) ──────────── */}
-      <section aria-label="Ringkasan Penjualan Mitra Terfilter" className="rounded-2xl bg-[#e0e5ec] p-3.5 sm:p-4 shadow-neu-flat border border-white/40">
-        {/* Header Bergaya Dashboard */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-[#a3b1c6]/20">
+      <section aria-label="Ringkasan Penjualan Mitra Terfilter" className="rounded-xl bg-white border border-gray-200 p-3.5 sm:p-4 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-almond-cream text-terracotta-clay shadow-neu-sm">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-orange-50 border border-orange-100 text-terracotta-clay">
               Periode Filter
             </span>
-            <span className="text-xs text-[#7b877f]">
+            <span className="text-xs text-gray-500">
               {selectedDate
                 ? new Intl.DateTimeFormat("id-ID", { dateStyle: "full" }).format(new Date(selectedDate))
                 : "Seluruh Riwayat Transaksi Toko"}
             </span>
           </div>
-          <div className="text-xs text-[#68756e]">
-            Total: <span className="font-bold text-[#2d3440]">{numberFormatter.format(filteredTransactions.length)} transaksi</span>
+          <div className="text-xs text-gray-500">
+            Total: <span className="font-bold text-gray-800">{numberFormatter.format(filteredTransactions.length)} transaksi</span>
           </div>
         </div>
 
-        {/* Grid 5 Kartu (Tinggi Sejajar) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-4">
-          {/* Kartu 1: Total Pendapatan (Solid Color Terracotta/Cokelat Sarniya) */}
-          <div className="h-full flex flex-col justify-between rounded-xl bg-terracotta-clay p-3.5 sm:p-4 text-white shadow-neu-sm">
+          <div className="h-full flex flex-col justify-between rounded-xl bg-terracotta-clay p-3.5 sm:p-4 text-white shadow-sm">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-white/90">
@@ -454,118 +444,113 @@ export default function PartnerTransactionClient({
             </div>
           </div>
 
-          {/* Kartu 2: Neumorphism (Total Unit Terjual) */}
-          <div className="h-full flex flex-col justify-between rounded-xl bg-[#e0e5ec] p-3.5 sm:p-4 shadow-neu-sm border border-white/60">
+          <div className="h-full flex flex-col justify-between rounded-xl bg-white p-3.5 sm:p-4 border border-gray-200 shadow-sm">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
                   TOTAL UNIT TERJUAL
                 </span>
-                <span className="inline-flex items-center rounded-lg bg-[#d7dde6] px-2 py-0.5 text-[10px] font-bold text-[#576071]">
+                <span className="inline-flex items-center rounded-lg bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600">
                   Unit
                 </span>
               </div>
-              <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
+              <p className="mt-2 text-lg sm:text-xl font-black text-gray-800">
                 {numberFormatter.format(summaryMetrics.totalItems)} pcs
               </p>
             </div>
-            <div className="mt-2 border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
+            <div className="mt-2 border-t border-gray-100 pt-1.5 text-[11px] text-gray-400">
               Jumlah kuantitas produk keluar
             </div>
           </div>
 
-          {/* Kartu 3: Neumorphism (Metode QRIS) */}
-          <div className="h-full flex flex-col justify-between rounded-xl bg-[#e0e5ec] p-3.5 sm:p-4 shadow-neu-sm border border-white/60">
+          <div className="h-full flex flex-col justify-between rounded-xl bg-white p-3.5 sm:p-4 border border-gray-200 shadow-sm">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
                   METODE QRIS
                 </span>
                 <span className="inline-flex items-center rounded-lg bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-200/60">
                   QRIS
                 </span>
               </div>
-              <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
+              <p className="mt-2 text-lg sm:text-xl font-black text-gray-800">
                 {currencyFormatter.format(summaryMetrics.qrisRevenue)}
               </p>
             </div>
-            <div className="mt-2 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
+            <div className="mt-2 flex items-center justify-between border-t border-gray-100 pt-1.5 text-[11px] text-gray-500">
               <span>Porsi pendapatan</span>
-              <span className="font-bold text-[#2d3440]">{summaryMetrics.qrisPercent}%</span>
+              <span className="font-bold text-gray-800">{summaryMetrics.qrisPercent}%</span>
             </div>
           </div>
 
-          {/* Kartu 4: Neumorphism (Metode Transfer) */}
-          <div className="h-full flex flex-col justify-between rounded-xl bg-[#e0e5ec] p-3.5 sm:p-4 shadow-neu-sm border border-white/60">
+          <div className="h-full flex flex-col justify-between rounded-xl bg-white p-3.5 sm:p-4 border border-gray-200 shadow-sm">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
                   METODE TRANSFER
                 </span>
                 <span className="inline-flex items-center rounded-lg bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200/60">
                   Transfer
                 </span>
               </div>
-              <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
+              <p className="mt-2 text-lg sm:text-xl font-black text-gray-800">
                 {currencyFormatter.format(summaryMetrics.transferRevenue)}
               </p>
             </div>
-            <div className="mt-2 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
+            <div className="mt-2 flex items-center justify-between border-t border-gray-100 pt-1.5 text-[11px] text-gray-500">
               <span>Porsi pendapatan</span>
-              <span className="font-bold text-[#2d3440]">{summaryMetrics.transferPercent}%</span>
+              <span className="font-bold text-gray-800">{summaryMetrics.transferPercent}%</span>
             </div>
           </div>
 
-          {/* Kartu 5: Neumorphism (Metode Tunai) */}
-          <div className="h-full flex flex-col justify-between rounded-xl bg-[#e0e5ec] p-3.5 sm:p-4 shadow-neu-sm border border-white/60">
+          <div className="h-full flex flex-col justify-between rounded-xl bg-white p-3.5 sm:p-4 border border-gray-200 shadow-sm">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">
                   METODE TUNAI
                 </span>
-                <span className="inline-flex items-center rounded-lg bg-[#e0e5ec] px-2 py-0.5 text-[10px] font-bold text-[#2d3440] shadow-neu-sm">
+                <span className="inline-flex items-center rounded-lg bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-700">
                   Tunai
                 </span>
               </div>
-              <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
+              <p className="mt-2 text-lg sm:text-xl font-black text-gray-800">
                 {currencyFormatter.format(summaryMetrics.cashRevenue)}
               </p>
             </div>
-            <div className="mt-2 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
+            <div className="mt-2 flex items-center justify-between border-t border-gray-100 pt-1.5 text-[11px] text-gray-500">
               <span>Porsi pendapatan</span>
-              <span className="font-bold text-[#2d3440]">{summaryMetrics.cashPercent}%</span>
+              <span className="font-bold text-gray-800">{summaryMetrics.cashPercent}%</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Tabel Riwayat Transaksi Toko ─────────────────────────────────── */}
-      <section aria-label="Tabel Riwayat Transaksi Toko" className="overflow-hidden rounded-2xl bg-[#e0e5ec] shadow-neu-flat border border-white/40">
-        <div className="border-b border-[#a3b1c6]/20 px-4 py-3 flex items-center justify-between">
+      <section aria-label="Tabel Riwayat Transaksi Toko" className="overflow-hidden rounded-xl bg-white shadow-sm border border-gray-200">
+        <div className="border-b border-gray-100 px-4 py-3 flex items-center justify-between">
           <div>
-            <h2 className="text-sm sm:text-base font-black text-[#2d3440]">
+            <h2 className="text-sm sm:text-base font-black text-gray-900">
               Riwayat Transaksi Kasir Toko
             </h2>
-            <p className="text-[11px] text-[#7a8394]">
+            <p className="text-[11px] text-gray-500">
               Daftar struk penjualan yang telah selesai di gerai Anda.
             </p>
           </div>
-          <span className="inline-flex items-center rounded-full bg-almond-cream px-2.5 py-0.5 text-[10px] font-bold text-terracotta-clay shadow-neu-sm">
+          <span className="inline-flex items-center rounded-full bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 text-[10px] font-bold text-terracotta-clay">
             {filteredTransactions.length} Struk
           </span>
         </div>
 
-        <div className="overflow-x-auto p-1.5 sm:p-2">
+        <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar p-1.5 sm:p-2">
           {filteredTransactions.length === 0 ? (
-            <div className="py-12 text-center text-xs text-[#7a8394]">
-              <span className="text-3xl block mb-2">🧾</span>
-              <p className="font-bold text-[#2d3440]">Belum ada transaksi pada filter ini.</p>
+            <div className="py-12 text-center text-xs text-gray-500">
+              <Receipt className="mx-auto h-10 w-10 text-gray-400 mb-2" />
+              <p className="font-bold text-gray-900">Belum ada transaksi pada filter ini.</p>
               <p className="mt-0.5">Silakan pilih tanggal lain atau buat transaksi baru dari Kasir.</p>
               {selectedDate && (
                 <button
                   type="button"
                   onClick={() => setSelectedDate("")}
-                  className="mt-3 inline-flex items-center rounded-xl bg-almond-cream px-3 py-1 text-xs font-bold text-terracotta-clay shadow-neu-sm hover:brightness-105"
+                  className="mt-3 inline-flex items-center rounded-lg bg-orange-50 border border-orange-200/60 px-3 py-1 text-xs font-bold text-terracotta-clay hover:opacity-90"
                 >
                   Tampilkan Semua Tanggal
                 </button>
@@ -573,7 +558,7 @@ export default function PartnerTransactionClient({
             </div>
           ) : (
             <table className="w-full min-w-[750px] text-left text-xs">
-              <thead className="bg-[#e0e5ec] text-[11px] font-bold uppercase tracking-wider text-[#576071] border-b border-[#a3b1c6]/20">
+              <thead className="sticky top-0 z-10 bg-gray-50 text-[11px] font-bold uppercase tracking-wider text-gray-600 border-b border-gray-200 shadow-sm">
                 <tr>
                   <th scope="col" className="px-3 py-2.5">No. Struk</th>
                   <th scope="col" className="px-3 py-2.5">Waktu Transaksi</th>
@@ -586,29 +571,24 @@ export default function PartnerTransactionClient({
               <tbody className="divide-y divide-[#a3b1c6]/15">
                 {filteredTransactions.map((tx) => (
                   <tr key={tx.id} className="align-top hover:bg-almond-cream/25 transition-colors">
-                    {/* No. Struk */}
                     <td className="px-3 py-2 font-mono text-xs font-bold text-[#2d3440]">
                       {tx.transactionNumber}
                     </td>
 
-                    {/* Tanggal & Waktu */}
                     <td className="whitespace-nowrap px-3 py-2 text-[11px] text-[#7a8394]">
                       {dateFormatter.format(new Date(tx.soldAt))}
                     </td>
 
-                    {/* Nama Toko (jika lebih dari 1) */}
                     {stores.length > 1 && (
                       <td className="px-3 py-2 font-semibold text-[#2d3440]">
                         {tx.storeName}
                       </td>
                     )}
 
-                    {/* Metode Pembayaran */}
                     <td className="whitespace-nowrap px-3 py-2">
                       <PaymentMethodBadge method={tx.paymentMethod} />
                     </td>
 
-                    {/* Item Belanja */}
                     <td className="px-3 py-2 max-w-[320px]">
                       {tx.items.length > 0 ? (
                         <ul className="space-y-1">
@@ -621,8 +601,8 @@ export default function PartnerTransactionClient({
                                 <span className="text-[10px] text-[#7a8394]">
                                   @{currencyFormatter.format(item.unitPrice)}
                                 </span>
-                                <span className="inline-flex items-center rounded-md bg-almond-cream px-1.5 py-0.2 text-[10px] font-bold text-terracotta-clay shadow-neu-sm">
-                                  ×{item.quantity}
+                                <span className="inline-flex items-center rounded-md bg-orange-50 border border-orange-200/60 px-1.5 py-0.5 text-[10px] font-bold text-terracotta-clay">
+                                  x{item.quantity}
                                 </span>
                               </div>
                             </li>
@@ -633,7 +613,6 @@ export default function PartnerTransactionClient({
                       )}
                     </td>
 
-                    {/* Grand Total */}
                     <td className="whitespace-nowrap px-3 py-2 text-right font-black text-terracotta-clay text-xs sm:text-sm">
                       {currencyFormatter.format(Number(tx.total || 0))}
                     </td>

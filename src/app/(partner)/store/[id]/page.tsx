@@ -105,9 +105,9 @@ export default async function StoreReportPage({ params }: StorePageProps) {
         ) : transactions.length === 0 ? (
           <p className="px-6 py-12 text-center text-sm text-[#6d7687]">Belum ada transaksi untuk toko ini.</p>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-[#f0f2f5] text-xs uppercase tracking-wider text-[#6d7687] font-bold">
+              <thead className="sticky top-0 z-10 bg-[#f0f2f5] backdrop-blur-md text-xs uppercase tracking-wider text-[#6d7687] font-bold shadow-sm">
                 <tr>
                   <th scope="col" className="px-6 py-3.5">Nomor</th>
                   <th scope="col" className="px-6 py-3.5">Waktu</th>

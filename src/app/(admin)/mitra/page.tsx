@@ -32,13 +32,13 @@ export default async function PartnerManagementPage() {
   return (
     <div className="w-full px-2 py-3 sm:px-4 sm:py-4">
       <header className="mb-4">
-        <span className="inline-block rounded-full bg-almond-cream px-3 py-0.5 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
+        <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-3 py-0.5 text-[11px] font-bold text-terracotta-clay">
           Area Pemilik / Administrator
         </span>
-        <h1 className="mt-1.5 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
+        <h1 className="mt-1.5 text-xl sm:text-2xl font-black tracking-tight text-gray-900">
           Manajemen Mitra
         </h1>
-        <p className="mt-0.5 text-xs text-[#6d7687]">
+        <p className="mt-0.5 text-xs text-gray-500">
           Kelola status operasional toko mitra (Aktif, Pending, atau Nonaktif) secara langsung dengan kendali terpadu.
         </p>
       </header>
@@ -46,18 +46,18 @@ export default async function PartnerManagementPage() {
       {errorMessage ? (
         <div
           role="alert"
-          className="rounded-2xl border border-rose-300 bg-rose-50/95 p-3.5 text-xs font-semibold text-rose-800 shadow-neu-sm"
+          className="rounded-xl border border-rose-300 bg-rose-50/95 p-3.5 text-xs font-semibold text-rose-800"
         >
           Data mitra gagal dimuat: {errorMessage}
         </div>
       ) : (
         <section
           aria-label="Daftar mitra"
-          className="overflow-hidden rounded-2xl bg-[#e0e5ec] shadow-neu-flat"
+          className="overflow-hidden rounded-xl bg-white border border-gray-200 shadow-sm"
         >
-          <div className="border-b border-[#a3b1c6]/25 px-4 py-3 sm:px-5">
-            <h2 className="text-base font-black text-[#2d3440]">Daftar Toko Mitra</h2>
-            <p className="mt-0.5 text-xs font-medium text-[#7a8394]">
+          <div className="border-b border-gray-100 px-4 py-3 sm:px-5">
+            <h2 className="text-base font-black text-gray-900">Daftar Toko Mitra</h2>
+            <p className="mt-0.5 text-xs font-medium text-gray-500">
               {stores?.length ?? 0} toko mitra terdaftar dalam ekosistem SarniyaSync
             </p>
           </div>
@@ -67,6 +67,7 @@ export default async function PartnerManagementPage() {
               Belum ada toko mitra yang terdaftar.
             </p>
           ) : (
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             <MitraTableClient stores={stores as any} />
           )}
         </section>

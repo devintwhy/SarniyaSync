@@ -4,12 +4,12 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { getProfileRole } from "@/utils/supabase/auth";
 
-// ── Tipe data item keranjang yang dikirim dari client ─────────────────────────
+// Tipe data item keranjang transaksi POS
 export type CartItemInput = {
   productId: string;
   productName: string;
-  allocationId: string; // id baris partner_store_inventory
-  price: number;        // selling_price saat ditambahkan ke keranjang
+  allocationId: string; // ID baris partner_store_inventory
+  price: number;        // Harga jual produk saat transaksi
   quantity: number;
 };
 
@@ -32,7 +32,7 @@ export async function recordCartTransaction(
   input: CartTransactionInput,
 ): Promise<CartTransactionResult> {
   try {
-    // ── Validasi input dasar ───────────────────────────────────────────────
+    // Validasi parameter transaksi
     if (!uuidPattern.test(input.partnerStoreId))
       return { error: "Toko tidak valid." };
     if (!VALID_PAYMENT.has(input.paymentMethod))
@@ -49,7 +49,7 @@ export async function recordCartTransaction(
         return { error: `Jumlah tidak valid untuk produk: ${item.productName}.` };
     }
 
-    // ── Auth & Role ────────────────────────────────────────────────────────
+    // Verifikasi otentikasi dan otorisasi peran mitra
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },
@@ -61,7 +61,7 @@ export async function recordCartTransaction(
     if ((await getProfileRole(supabase, user.id)) !== "mitra")
       return { error: "Hanya akun Mitra yang dapat mencatat penjualan." };
 
-    // ── Verifikasi kepemilikan toko & status ────────────────────────────────
+    // Verifikasi kepemilikan dan status gerai mitra
     const { data: store, error: storeError } = await supabase
       .from("partner_stores")
       .select("id, status, is_active")
@@ -76,7 +76,7 @@ export async function recordCartTransaction(
     if (store.status === "nonaktif" || !store.is_active)
       return { error: "Toko Mitra Anda sedang dinonaktifkan." };
 
-    // ── Ambil data produk (harga resmi dari server) ────────────────────────
+    // Ambil harga resmi dari database untuk mencegah manipulasi harga dari client
     const productIds = input.items.map((i) => i.productId);
     const { data: products, error: productsError } = await supabase
       .from("products")
@@ -87,7 +87,7 @@ export async function recordCartTransaction(
     if (productsError) throw productsError;
     const productsById = new Map(products?.map((p) => [p.id, p]) ?? []);
 
-    // ── Ambil data alokasi stok & verifikasi ketersediaan ─────────────────
+    // Verifikasi ketersediaan stok fisik di gerai mitra
     const allocationIds = input.items.map((i) => i.allocationId);
     const { data: allocations, error: allocError } = await supabase
       .from("partner_store_inventory")
@@ -98,7 +98,7 @@ export async function recordCartTransaction(
     if (allocError) throw allocError;
     const allocsById = new Map(allocations?.map((a) => [a.id, a]) ?? []);
 
-    // ── Hitung ulang total di sisi server (security) ───────────────────────
+    // Rekalkulasi subtotal di server untuk keamanan transaksi
     let serverSubtotal = 0;
     const lineItems: Array<{
       product_id: string;
@@ -136,7 +136,7 @@ export async function recordCartTransaction(
       });
     }
 
-    // ── INSERT sales_transaction ───────────────────────────────────────────
+    // Simpan transaksi penjualan ke tabel sales_transactions
     const { data: transaction, error: insertError } = await supabase
       .from("sales_transactions")
       .insert({
@@ -160,7 +160,7 @@ export async function recordCartTransaction(
       return { error: "Transaksi gagal disimpan." };
     }
 
-    // ── Loop kurangi stok partner_store_inventory per item ─────────────────
+    // Kurangi stok fisik gerai mitra per item
     for (const item of input.items) {
       const alloc = allocsById.get(item.allocationId)!;
       const { error: updateError } = await supabase

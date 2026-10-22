@@ -19,8 +19,7 @@ export async function receiveStockTransfer(transferId: string): Promise<ReceiveR
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return { error: "Sesi login diperlukan." };
 
-    // Panggil RPC atomik yang memvalidasi kepemilikan, mengubah status,
-    // dan melakukan UPSERT ke partner_store_inventory dalam satu transaksi DB.
+    // Panggil RPC atomik yang memvalidasi kepemilikan, mengubah status, dan melakukan UPSERT ke partner_store_inventory dalam satu transaksi DB.
     const { data, error } = await supabase.rpc("receive_stock_transfer", {
       p_transfer_id: transferId,
     });
@@ -33,6 +32,7 @@ export async function receiveStockTransfer(transferId: string): Promise<ReceiveR
       return { error: error.message };
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!data || !(data as any).success) {
       return { error: "Penerimaan gagal diproses oleh server." };
     }

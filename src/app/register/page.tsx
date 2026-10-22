@@ -16,11 +16,7 @@ export default function RegisterPage() {
 
   return (
     <main className="relative flex h-screen min-h-screen w-screen overflow-hidden bg-[#e0e5ec]">
-      {/* =========================================================================
-          SISI KIRI (50% Layar di Desktop): Area Form Pendaftaran Luas & Lapang
-         ========================================================================= */}
       <div className="flex h-full w-full lg:w-[50%] flex-col justify-between overflow-y-auto px-8 py-10 sm:px-14 lg:px-16 xl:px-24">
-        {/* Header Branding Kiri */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
@@ -55,7 +51,6 @@ export default function RegisterPage() {
           </Link>
         </div>
 
-        {/* Form Pendaftaran Utama */}
         <div className="my-auto py-8 max-w-xl">
           <div className="mb-8">
             <span className="inline-block rounded-full bg-[#C89F91]/15 px-3.5 py-1 text-xs font-bold text-[#a46e5f]">
@@ -72,26 +67,20 @@ export default function RegisterPage() {
           <RegisterForm />
         </div>
 
-        {/* Footer Sisi Kiri */}
         <footer className="text-xs text-[#8f98a8]">
           &copy; {new Date().getFullYear()} SarniyaSync POS System. Seluruh hak cipta dilindungi.
         </footer>
       </div>
 
-      {/* =========================================================================
-          SISI KANAN (50% Layar di Desktop): Panel Visual Asimetris Senada Login
-         ========================================================================= */}
       <aside
         aria-label="Panel Visual Asimetris Sarniya"
         className="pointer-events-auto relative hidden h-full w-[50%] flex-col items-center justify-center p-12 lg:p-16 xl:p-20 text-center text-white bg-gradient-to-br from-[#D8A899] via-[#C89F91] to-[#B08072] shadow-2xl lg:flex z-30 rounded-l-[160px] xl:rounded-l-[220px] rounded-r-none"
       >
-        {/* Ornamen Lingkaran Ambient Latar Panel */}
         <div className="pointer-events-none absolute -top-24 -right-24 size-96 rounded-full bg-white/15 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -left-24 size-96 rounded-full bg-black/15 blur-3xl" />
         <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[500px] rounded-full bg-white/5 blur-2xl" />
 
         <div className="relative z-10 flex flex-col items-center max-w-md">
-          {/* Logo Sarniya Ukuran Besar */}
           <div className="mb-8 flex size-28 items-center justify-center rounded-3xl bg-white/20 p-4 shadow-2xl backdrop-blur-md border border-white/30">
             <Image
               alt="Sarniya Logo"

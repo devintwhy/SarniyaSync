@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useId, useRef } from "react";
+import { useState, useTransition, useId } from "react";
 import { recordCartTransaction, type CartItemInput } from "../cart-actions";
 import ThermalReceipt, { type ReceiptData } from "@/components/receipt";
 
@@ -223,7 +223,6 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
   // =========================================================================
   return (
     <div className="divide-y divide-[#edf0ec]">
-      {/* ── Bagian 1: Pilih Toko ─────────────────────────────────────────── */}
       <div className="p-5">
         <label
           htmlFor={`${uid}-store`}
@@ -246,13 +245,11 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
         </select>
       </div>
 
-      {/* ── Bagian 2: Form Tambah Item ───────────────────────────────────── */}
       <div className="bg-[#fafbf9] p-5">
         <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#557b64]">
           Tambah Item ke Keranjang
         </p>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-          {/* Dropdown Produk */}
           <div className="min-w-0 flex-1">
             <label
               htmlFor={`${uid}-product`}
@@ -300,7 +297,6 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
             )}
           </div>
 
-          {/* Input Jumlah */}
           <div className="sm:w-28">
             <label
               htmlFor={`${uid}-qty`}
@@ -322,7 +318,6 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
             />
           </div>
 
-          {/* Tombol Tambah */}
           <button
             type="button"
             id={`${uid}-add-btn`}
@@ -349,7 +344,6 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
         </div>
       </div>
 
-      {/* ── Bagian 3: Tabel Keranjang ────────────────────────────────────── */}
       <div>
         <div className="border-b border-slate-100 px-6 py-3.5">
           <p className="text-xs font-bold uppercase tracking-wide text-[#9d5c4c]">
@@ -369,9 +363,9 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar">
             <table className="w-full min-w-[560px] text-left text-sm">
-              <thead className="bg-[#f7f9f6] text-xs uppercase tracking-wide text-[#68756e]">
+              <thead className="sticky top-0 z-10 bg-[#f7f9f6] backdrop-blur-md text-xs uppercase tracking-wide text-[#68756e] shadow-sm">
                 <tr>
                   <th scope="col" className="px-5 py-3 font-medium">
                     Produk
@@ -393,17 +387,14 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
               <tbody className="divide-y divide-[#edf0ec]">
                 {cart.map((row) => (
                   <tr key={row.rowId} className="transition-colors hover:bg-[#fafbf9]">
-                    {/* Nama Produk */}
                     <td className="px-5 py-3.5 font-medium text-[#2d3440]">
                       {row.productName}
                     </td>
 
-                    {/* Harga Satuan */}
                     <td className="whitespace-nowrap px-5 py-3.5 text-right tabular-nums text-[#576071]">
                       {idr.format(row.price)}
                     </td>
 
-                    {/* Input Jumlah inline */}
                     <td className="px-5 py-3.5 text-center">
                       <input
                         type="number"
@@ -419,12 +410,10 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                       />
                     </td>
 
-                    {/* Subtotal */}
                     <td className="whitespace-nowrap px-5 py-3.5 text-right tabular-nums font-semibold text-[#2d3440]">
                       {idr.format(row.subtotal)}
                     </td>
 
-                    {/* Hapus */}
                     <td className="px-5 py-3.5">
                       <button
                         type="button"
@@ -457,7 +446,6 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
           </div>
         )}
 
-        {/* ── Ringkasan Total ──────────────────────────────────────────── */}
         {cart.length > 0 && (
           <div className="border-t border-[#edf0ec] bg-[#f7f9f6] px-5 py-4">
             <div className="flex items-center justify-between">
@@ -475,10 +463,8 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
         )}
       </div>
 
-      {/* ── Bagian 4: Metode Pembayaran & Submit ─────────────────────────── */}
       <div className="p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          {/* Metode Pembayaran */}
           <div className="sm:w-56">
             <label
               htmlFor={`${uid}-payment`}
@@ -499,7 +485,6 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
             </select>
           </div>
 
-          {/* Tombol Proses */}
           <button
             type="button"
             id={`${uid}-submit-btn`}
@@ -561,7 +546,6 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
           </button>
         </div>
 
-        {/* Pesan Error */}
         {errorMessage && (
           <p
             role="alert"
@@ -572,7 +556,6 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
         )}
       </div>
 
-      {/* ── 5. Modal Keberhasilan & Struk ──────────────────────────────────── */}
       {successMessage && lastReceipt && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#2d3440]/50 backdrop-blur-sm print:hidden">
           <div className="mx-4 w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
@@ -613,7 +596,6 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
         </div>
       )}
 
-      {/* Komponen Struk Kasir (Khusus Print) */}
       <ThermalReceipt data={lastReceipt} />
     </div>
   );

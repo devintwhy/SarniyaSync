@@ -23,8 +23,8 @@ const config: Config = {
         "sarniya-taupe": "#cc9787ff",
         "sarniya-rose": "#cc8c7dff",
         "sarniya-clay": "#9d5c4cff",
-        // Neumorphism canvas background
-        "neu-bg": "#e0e5ec",
+        // Enterprise canvas background
+        "neu-bg": "#f9fafb",
       },
       backgroundImage: {
         "sarniya-gradient":
@@ -33,14 +33,10 @@ const config: Config = {
           "linear-gradient(to right, #cc8c7d, #c09485, #9d5c4c)",
       },
       boxShadow: {
-        "neu-flat":
-          "8px 8px 18px rgba(163, 177, 198, 0.6), -8px -8px 18px rgba(255, 255, 255, 0.9)",
-        "neu-sm":
-          "4px 4px 10px rgba(163, 177, 198, 0.5), -4px -4px 10px rgba(255, 255, 255, 0.8)",
-        "neu-inset":
-          "inset 6px 6px 12px rgba(163, 177, 198, 0.7), inset -6px -6px 12px rgba(255, 255, 255, 0.85)",
-        "neu-inset-sm":
-          "inset 3px 3px 6px rgba(163, 177, 198, 0.6), inset -3px -3px 6px rgba(255, 255, 255, 0.8)",
+        "neu-flat": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+        "neu-sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "neu-inset": "none",
+        "neu-inset-sm": "none",
       },
       borderRadius: {
         "3xl": "1.5rem",

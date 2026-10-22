@@ -64,7 +64,6 @@ export default function TransactionsTableClient({ rows }: TransactionsTableClien
 
   return (
     <div>
-      {/* ── Search Bar & Filter Toolbar ──────────────────────────────────── */}
       <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between px-4 py-2.5 border-b border-slate-100 bg-[#f0f2f5]/40">
         <div className="relative flex-1 max-w-md">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#7a8394]">
@@ -117,10 +116,9 @@ export default function TransactionsTableClient({ rows }: TransactionsTableClien
         </div>
       </div>
 
-      {/* ── Tabel Riwayat ────────────────────────────────────────────────── */}
-      <div className="overflow-x-auto">
+      <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar">
         <table className="w-full min-w-[650px] text-left text-xs sm:text-sm">
-          <thead className="bg-[#f0f2f5] text-[11px] uppercase tracking-wider text-[#6d7687] font-bold">
+          <thead className="sticky top-0 z-10 bg-[#f0f2f5] backdrop-blur-md text-[11px] uppercase tracking-wider text-[#6d7687] font-bold shadow-sm">
             <tr>
               <th scope="col" className="px-3.5 py-2.5">Produk &amp; No. Struk</th>
               <th scope="col" className="px-3.5 py-2.5 text-right">Jml</th>

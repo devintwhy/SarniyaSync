@@ -94,11 +94,6 @@ export async function POST(request: Request) {
       typeof product.sku === "string" && product.sku.trim()
         ? product.sku.trim()
         : `HJ-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
-    console.log("CEK ENV:", process.env.NEXT_PUBLIC_SUPABASE_URL);
-    console.log(
-      "CEK KEY:",
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "ADA" : "KOSONG",
-    );
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase
       .from("products")

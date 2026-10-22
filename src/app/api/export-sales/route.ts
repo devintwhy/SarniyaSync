@@ -25,6 +25,7 @@ export async function GET() {
         items,
         partner_stores ( name )
       `)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .order("sold_at", { ascending: false }) as any);
 
     if (error) {
@@ -73,6 +74,7 @@ export async function GET() {
 
       // Jika ada multi-items, pecah per item barang
       for (const item of tx.items) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const record = item as any;
         const productName = record?.name || "Produk";
         const qty = Number(record?.quantity || 0);

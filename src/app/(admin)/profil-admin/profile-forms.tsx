@@ -198,7 +198,6 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
 
   return (
     <div className="space-y-3.5 sm:space-y-4">
-      {/* ── Info Identitas ──────────────────────────────────────────────── */}
       <div className="flex items-center gap-3.5 rounded-xl border border-[#e1e7e0] bg-white p-3.5 sm:p-4 shadow-sm">
         <Avatar name={displayedName} />
         <div>
@@ -210,7 +209,6 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
         </div>
       </div>
 
-      {/* ── Form 1: Ubah Nama Profil ─────────────────────────────────────── */}
       <section className="overflow-hidden rounded-xl border border-[#e1e7e0] bg-white shadow-sm">
         <div className="border-b border-[#edf0ec] px-4 py-2.5">
           <h2 className="text-sm sm:text-base font-bold text-[#9d5c4c]">Ubah Profil</h2>
@@ -237,7 +235,6 @@ export default function ProfileForms({ initialName, email, role }: ProfileFormPr
         </form>
       </section>
 
-      {/* ── Form 2: Ubah Password ────────────────────────────────────────── */}
       <section className="overflow-hidden rounded-xl border border-[#e1e7e0] bg-white shadow-sm">
         <div className="border-b border-[#edf0ec] px-4 py-2.5">
           <h2 className="text-sm sm:text-base font-bold text-[#9d5c4c]">Ubah Password</h2>

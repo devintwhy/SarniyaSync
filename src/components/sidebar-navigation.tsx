@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/utils/supabase/client";
 import { AppRole, getProfileRole } from "@/utils/supabase/auth";
+import { useSidebar } from "@/context/sidebar-context";
 
 type NavigationItem = { label: string; href: string };
 
@@ -48,6 +49,16 @@ function getNavIcon(label: string) {
         <polyline points="21 16 21 21 16 21" />
         <line x1="15" y1="15" x2="21" y2="21" />
         <line x1="4" y1="4" x2="9" y2="9" />
+      </svg>
+    );
+  }
+  if (l.includes("pengiriman") || l.includes("logistik")) {
+    return (
+      <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="3" width="15" height="13" rx="1" />
+        <path d="M16 8h4l3 3v5h-7V8z" />
+        <circle cx="5.5" cy="18.5" r="2.5" />
+        <circle cx="18.5" cy="18.5" r="2.5" />
       </svg>
     );
   }
@@ -108,8 +119,8 @@ export default function SidebarNavigation() {
   const [navigationItems, setNavigationItems] = useState<NavigationItem[]>([]);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // ── State Collapsible Sidebar (Default Terbuka w-64) ───────────────────────
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // ── State Collapsible Sidebar (Shared via SidebarContext) ──────────────────
+  const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
 
   useEffect(() => {
     if (
@@ -167,6 +178,7 @@ export default function SidebarNavigation() {
           { label: "Katalog Produk", href: "/produk" },
           { label: "Kelola Stok Keseluruhan", href: "/inventory" },
           { label: "Alokasi Stok", href: "/alokasi" },
+          { label: "Status Pengiriman", href: "/pengiriman" },
           { label: "Manajemen Mitra", href: "/mitra" },
           { label: "Laporan Penjualan", href: "/penjualan" },
           { label: "Pengaturan Akun", href: "/profil-admin" },
@@ -203,21 +215,18 @@ export default function SidebarNavigation() {
 
   return (
     <aside
-      className={`relative flex flex-col h-screen lg:sticky lg:top-0 border-b border-[#a3b1c6]/30 bg-[#e0e5ec] text-[#2d3440] shadow-[4px_0_15px_rgba(163,177,198,0.35)] transition-all duration-300 ease-in-out lg:shrink-0 lg:border-b-0 lg:border-r ${
+      className={`relative flex flex-col h-screen lg:sticky lg:top-0 border-b border-gray-200 bg-white text-gray-800 shadow-sm transition-all duration-300 ease-in-out lg:shrink-0 lg:border-b-0 lg:border-r ${
         isSidebarOpen ? "w-full lg:w-64" : "w-full lg:w-20"
       }`}
     >
-      {/* ── Area Menu (Scrollable secara mandiri) ─────────────────────────── */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col min-h-0">
-        {/* ── Brand Header & Toggle Button ──────────────────────────────────── */}
         <div
           className={`flex items-center py-5 transition-all duration-300 flex-shrink-0 ${
             isSidebarOpen ? "justify-between px-5" : "flex-col justify-center gap-3 px-3"
           }`}
         >
-          {/* Logo & Nama Brand */}
           <div className={`flex items-center gap-3 ${!isSidebarOpen ? "justify-center" : ""}`}>
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[#e0e5ec] p-1.5 shadow-neu-sm">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gray-50 border border-gray-200 p-1.5 shadow-sm">
               <Image
                 src="/logo-sarniya.png"
                 alt="Logo SarniyaSync"
@@ -229,25 +238,23 @@ export default function SidebarNavigation() {
             </div>
             {isSidebarOpen && (
               <div className="overflow-hidden whitespace-nowrap transition-opacity duration-200">
-                <span className="text-base font-black tracking-tight text-[#2d3440]">
+                <span className="text-base font-black tracking-tight text-gray-900">
                   SarniyaSync
                 </span>
-                <p className="text-[10px] font-medium text-[#7a8394]">
+                <p className="text-[10px] font-medium text-gray-500">
                   Ruang Operasional
                 </p>
               </div>
             )}
           </div>
 
-          {/* Tombol Toggle Neumorphism Timbul/Tenggelam (Terracotta Clay) */}
           <button
             type="button"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             aria-label={isSidebarOpen ? "Ciutkan Sidebar" : "Buka Sidebar"}
             title={isSidebarOpen ? "Sembunyikan Menu" : "Buka Menu"}
-            className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-terracotta-clay text-white shadow-neu-sm transition-all duration-200 hover:brightness-110 active:shadow-neu-inset-sm active:scale-95"
+            className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-terracotta-clay text-white shadow-sm transition-all duration-200 hover:opacity-90 active:scale-95"
           >
-            {/* Ikon Menu Garis Tiga (Hamburger Menu) */}
             <svg
               className="size-4 shrink-0"
               viewBox="0 0 24 24"
@@ -264,7 +271,6 @@ export default function SidebarNavigation() {
           </button>
         </div>
 
-        {/* ── Navigation List ───────────────────────────────────────────────── */}
         <nav
           aria-label="Navigasi utama"
           className="flex gap-1.5 overflow-x-auto px-3 pb-3 lg:flex-col"
@@ -292,22 +298,20 @@ export default function SidebarNavigation() {
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 title={!isSidebarOpen ? item.label : undefined}
-                className={`group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-2xl h-11 px-4 text-xs font-bold overflow-hidden transition-all duration-200 ${
+                className={`group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-xl h-10 px-3.5 text-xs font-semibold overflow-hidden transition-all duration-200 ${
                   isActive
-                    ? "bg-terracotta-clay text-white shadow-neu-sm"
-                    : "text-[#576071] hover:bg-almond-cream/60 hover:text-terracotta-clay active:shadow-neu-inset-sm"
+                    ? "bg-terracotta-clay text-white shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                 }`}
               >
-                {/* Kontainer Ikon Menu: Lebar Tetap w-6 h-6 mr-3 Menjamin Posisi Terkunci */}
                 <span
                   className={`flex size-6 shrink-0 items-center justify-center mr-3 transition-colors ${
-                    isActive ? "text-white" : "text-[#7a8394] group-hover:text-terracotta-clay"
+                    isActive ? "text-white" : "text-gray-400 group-hover:text-terracotta-clay"
                   }`}
                 >
                   {getNavIcon(item.label)}
                 </span>
 
-                {/* Teks Label: Dikontrol transisi/disembunyikan tanpa mengganggu padding utama tombol */}
                 <span
                   className={`truncate whitespace-nowrap transition-all duration-200 ${
                     isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"
@@ -320,19 +324,18 @@ export default function SidebarNavigation() {
           })}
 
           {role === "mitra" && navigationItems.length === 1 && isSidebarOpen && (
-            <p className="px-3 py-2 text-[11px] font-medium text-[#7a8394]">
+            <p className="px-3 py-2 text-[11px] font-medium text-gray-500">
               Belum ada toko yang ditugaskan.
             </p>
           )}
         </nav>
       </div>
 
-      {/* ── Footer & Logout Sesi (Terkunci di Paling Bawah) ─────────────── */}
       <div
-        className="flex-shrink-0 mt-auto border-t border-[#a3b1c6]/30 px-3 py-4 transition-all duration-300"
+        className="flex-shrink-0 mt-auto border-t border-gray-200 px-3 py-4 transition-all duration-300"
       >
         {isSidebarOpen && (
-          <p className="text-[11px] font-medium text-[#7a8394] mb-2 truncate px-1">
+          <p className="text-[11px] font-medium text-gray-500 mb-2 truncate px-1">
             Rantai pasok, lebih terhubung.
           </p>
         )}
@@ -342,9 +345,8 @@ export default function SidebarNavigation() {
           onClick={() => void handleLogout()}
           disabled={isLoggingOut}
           title={!isSidebarOpen ? "Keluar Sesi" : undefined}
-          className="group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-2xl h-11 px-4 text-xs font-bold uppercase tracking-wider text-terracotta-clay bg-[#e0e5ec] shadow-neu-sm transition-all duration-200 hover:bg-almond-cream/50 active:shadow-neu-inset-sm disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden"
+          className="group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-xl h-10 px-3.5 text-xs font-semibold uppercase tracking-wider text-terracotta-clay bg-gray-50 border border-gray-200 shadow-sm transition-all duration-200 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden"
         >
-          {/* Kontainer Ikon Logout Lebar Tetap w-6 h-6 mr-3 */}
           <span className="flex size-6 shrink-0 items-center justify-center mr-3 transition-colors">
             <svg
               className="size-4 shrink-0"
@@ -361,7 +363,6 @@ export default function SidebarNavigation() {
             </svg>
           </span>
 
-          {/* Elemen Teks Logout */}
           <span
             className={`truncate transition-all duration-200 ${
               isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"

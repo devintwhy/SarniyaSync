@@ -57,7 +57,6 @@ export default async function PartnerStatusPage() {
         className="w-full max-w-xl rounded-[32px] bg-[#e0e5ec] p-8 sm:p-12 text-center transition-all duration-300"
         style={neuCardRaised}
       >
-        {/* Wadah Logo Timbul Neumorphic */}
         <div
           className="mx-auto mb-6 flex size-24 items-center justify-center rounded-3xl bg-[#e0e5ec] p-3"
           style={neuLogoRaised}

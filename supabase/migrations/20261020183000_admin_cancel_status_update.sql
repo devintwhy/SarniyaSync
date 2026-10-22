@@ -1,6 +1,7 @@
--- Migration: Allow admins and owners to update sales_transactions (for cancellation/status update)
 grant update on table public.sales_transactions to authenticated;
 
+-- Kebijakan RLS transaksi penjualan: Membatasi izin pembaruan status (seperti pembatalan transaksi)
+-- secara eksklusif hanya untuk pengguna dengan hak akses administratif (admin/pemilik).
 drop policy if exists "Admins update sales transactions" on public.sales_transactions;
 create policy "Admins update sales transactions"
 on public.sales_transactions

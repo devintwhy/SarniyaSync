@@ -140,7 +140,6 @@ export default function SessionWatchdog({
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#9d5c4c]/60 backdrop-blur-sm"
     >
       <div className="mx-4 w-full max-w-sm rounded-2xl border border-[#e1e7e0] bg-white p-6 shadow-2xl shadow-[#9d5c4c]/30">
-        {/* Ikon peringatan */}
         <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-[#fff9ef]">
           <svg
             width="24"
@@ -169,7 +168,6 @@ export default function SessionWatchdog({
           Tidak ada aktivitas terdeteksi. Anda akan otomatis keluar dalam:
         </p>
 
-        {/* Countdown */}
         <p
           aria-live="assertive"
           aria-atomic="true"
@@ -179,7 +177,6 @@ export default function SessionWatchdog({
           <span className="ml-1 text-xl font-normal text-[#68756e]">dtk</span>
         </p>
 
-        {/* Tombol aksi */}
         <div className="flex flex-col gap-3">
           <button
             type="button"

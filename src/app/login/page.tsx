@@ -143,11 +143,7 @@ export default function LoginPage() {
 
   return (
     <main className="relative flex h-screen min-h-screen w-screen overflow-hidden bg-[#e0e5ec]">
-      {/* =========================================================================
-          SISI KIRI (48% - 50% Layar): Area Form Sign In yang Luas & Lapang
-         ========================================================================= */}
       <div className="flex h-full w-full lg:w-[48%] flex-col justify-between overflow-y-auto px-8 py-10 sm:px-14 lg:px-16 xl:px-24">
-        {/* Header Branding Kiri */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
@@ -173,7 +169,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Toggle Khusus Mobile (< lg) */}
           <button
             type="button"
             onClick={() => setIsRightPanelActive(!isRightPanelActive)}
@@ -184,7 +179,6 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* Form Area Utama */}
         <div className="my-auto py-8">
           <div className="mb-8">
             <span
@@ -201,7 +195,6 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6 max-w-lg">
-            {/* Input Email */}
             <div>
               <label
                 htmlFor="email"
@@ -221,7 +214,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Input Password */}
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <label
@@ -244,7 +236,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Status Pesan */}
             {successMessage && (
               <div className="rounded-2xl border border-emerald-400/40 bg-emerald-50/90 p-4 text-xs sm:text-sm font-medium text-emerald-800 shadow-sm">
                 {successMessage}
@@ -257,7 +248,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Tombol Submit Besar Timbul */}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -268,7 +258,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Navigasi alternatif di mobile */}
           <div className="mt-8 text-xs sm:text-sm text-[#6d7687] lg:hidden">
             Belum memiliki toko Mitra?{" "}
             <Link
@@ -280,16 +269,11 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Footer Sisi Kiri */}
         <footer className="text-xs text-[#8f98a8]">
           &copy; {new Date().getFullYear()} SarniyaSync POS System. Seluruh hak cipta dilindungi.
         </footer>
       </div>
 
-      {/* =========================================================================
-          SISI KANAN (52% Layar di Desktop): Area Sign Up / Informasi Alternatif
-          (Terletak di bawah Panel Geser saat tertutup)
-         ========================================================================= */}
       <div className="hidden lg:flex h-full w-[52%] flex-col justify-between overflow-y-auto px-16 xl:px-24 py-12">
         <div className="flex justify-end">
           <span
@@ -354,10 +338,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* =========================================================================
-          PANEL VISUAL ASIMETRIS RAKSASA (Sliding Overlay Panel)
-          Desktop: Memenuhi 52% layar dengan kurva lengkungan sweeping dramatis
-         ========================================================================= */}
       <aside
         aria-label="Panel Visual Asimetris Sarniya"
         className={`pointer-events-auto absolute top-0 hidden h-full w-[52%] flex-col items-center justify-center p-12 lg:p-16 xl:p-20 text-center text-white bg-gradient-to-br from-[#D8A899] via-[#C89F91] to-[#B08072] shadow-2xl transition-all duration-700 ease-in-out lg:flex z-30 ${
@@ -366,13 +346,11 @@ export default function LoginPage() {
             : "left-[48%] translate-x-0 rounded-l-[160px] xl:rounded-l-[220px] rounded-r-none"
         }`}
       >
-        {/* Ornamen Lingkaran Ambient Latar Panel */}
         <div className="pointer-events-none absolute -top-24 -right-24 size-96 rounded-full bg-white/15 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -left-24 size-96 rounded-full bg-black/15 blur-3xl" />
         <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[500px] rounded-full bg-white/5 blur-2xl" />
 
         <div className="relative z-10 flex flex-col items-center max-w-md">
-          {/* Logo Sarniya Ukuran Besar */}
           <div className="mb-8 flex size-28 items-center justify-center rounded-3xl bg-white/20 p-4 shadow-2xl backdrop-blur-md border border-white/30">
             <Image
               alt="Sarniya Logo"
@@ -386,7 +364,6 @@ export default function LoginPage() {
 
           {!isRightPanelActive ? (
             <>
-              {/* Tampilan Default: Mengajak Pengunjung Mendaftar */}
               <h2 className="text-4xl sm:text-5xl xl:text-6xl font-black tracking-tight drop-shadow-sm">
                 Welcome Back!
               </h2>
@@ -409,7 +386,6 @@ export default function LoginPage() {
             </>
           ) : (
             <>
-              {/* Tampilan Aktif: Mengajak Kembali ke Sign In */}
               <h2 className="text-4xl sm:text-5xl xl:text-6xl font-black tracking-tight drop-shadow-sm">
                 Halo, Rekan Mitra!
               </h2>

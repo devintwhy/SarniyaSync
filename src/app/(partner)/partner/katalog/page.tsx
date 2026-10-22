@@ -19,7 +19,7 @@ export default async function PartnerKatalogPage() {
 
   if (!user) redirect("/login");
 
-  // 1. Ambil daftar toko milik Mitra yang sedang login (filter eksplisit: owner_id = user.id)
+  // 1. Ambil daftar gerai milik mitra yang sedang login
   const { data: stores, error: storesError } = await supabase
     .from("partner_stores")
     .select("id, name, is_active, status")
@@ -27,8 +27,41 @@ export default async function PartnerKatalogPage() {
 
   const storeIds = (stores ?? []).map((store) => store.id);
   const storeNames = new Map((stores ?? []).map((store) => [store.id, store.name]));
+  let errorMessage = storesError?.message ?? "";
 
-  // 2. Ambil inventaris stok toko mitra dari partner_store_inventory
+  // 2. Tarik seluruh master produk aktif
+  type MasterProduct = {
+    id: string;
+    sku: string;
+    name: string;
+    category: string | null;
+    selling_price: number;
+    image_url: string | null;
+    is_active: boolean;
+  };
+  const masterProducts: MasterProduct[] = [];
+
+  if (!errorMessage) {
+    for (let offset = 0; ; offset += PAGE_SIZE) {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, sku, name, category, selling_price, image_url, is_active")
+        .eq("is_active", true)
+        .order("name", { ascending: true })
+        .range(offset, offset + PAGE_SIZE - 1);
+
+      if (error) {
+        errorMessage = error.message;
+        break;
+      }
+
+      const page = data ?? [];
+      masterProducts.push(...page);
+      if (page.length < PAGE_SIZE) break;
+    }
+  }
+
+  // 3. Tarik inventaris fisik gerai mitra
   type InventoryRow = {
     id: string;
     partner_store_id: string;
@@ -37,7 +70,6 @@ export default async function PartnerKatalogPage() {
   };
 
   const inventoryRows: InventoryRow[] = [];
-  let errorMessage = storesError?.message ?? "";
 
   if (storeIds.length > 0 && !errorMessage) {
     for (let offset = 0; ; offset += PAGE_SIZE) {
@@ -45,7 +77,6 @@ export default async function PartnerKatalogPage() {
         .from("partner_store_inventory")
         .select("id, partner_store_id, product_id, stock_quantity")
         .in("partner_store_id", storeIds)
-        .order("created_at", { ascending: true })
         .range(offset, offset + PAGE_SIZE - 1);
 
       if (error) {
@@ -59,66 +90,47 @@ export default async function PartnerKatalogPage() {
     }
   }
 
-  // 3. Ambil rincian produk (foto, nama, harga jual, kategori)
-  const allocatedProductIds = Array.from(
-    new Set(inventoryRows.map((row) => row.product_id))
-  );
-
-  const productsById = new Map<
-    string,
-    {
-      id: string;
-      sku: string;
-      name: string;
-      category: string;
-      selling_price: number;
-      image_url: string | null;
-      is_active: boolean;
-    }
-  >();
-
-  for (
-    let offset = 0;
-    offset < allocatedProductIds.length && !errorMessage;
-    offset += PAGE_SIZE
-  ) {
-    const { data, error } = await supabase
-      .from("products")
-      .select("id, sku, name, category, selling_price, image_url, is_active")
-      .in("id", allocatedProductIds.slice(offset, offset + PAGE_SIZE));
-
-    if (error) {
-      errorMessage = error.message;
-      break;
-    }
-
-    for (const product of data ?? []) {
-      productsById.set(product.id, product);
-    }
+  // 4. LEFT JOIN master produk dengan inventaris gerai mitra
+  const inventoryMap = new Map<string, InventoryRow>();
+  for (const row of inventoryRows) {
+    inventoryMap.set(`${row.partner_store_id}_${row.product_id}`, row);
   }
 
-  // 4. Bentuk data produk katalog mitra dengan stok aktual milik mitra
-  const partnerCatalogProducts: PartnerCatalogProduct[] = inventoryRows.flatMap(
-    (allocation) => {
-      const product = productsById.get(allocation.product_id);
-      if (!product) return [];
+  let partnerCatalogProducts: PartnerCatalogProduct[] = [];
 
-      return [
-        {
-          id: `${product.id}-${allocation.id}`,
+  if ((stores ?? []).length > 0) {
+    partnerCatalogProducts = (stores ?? []).flatMap((store) =>
+      masterProducts.map((product) => {
+        const allocation = inventoryMap.get(`${store.id}_${product.id}`);
+        const stock = allocation ? (allocation.stock_quantity ?? 0) : 0;
+
+        return {
+          id: `${product.id}-${allocation?.id ?? store.id}`,
           name: product.name,
           sku: product.sku,
           category: product.category || "Hijab",
           selling_price: product.selling_price,
-          stock_quantity: allocation.stock_quantity,
+          stock_quantity: Math.max(0, stock),
           image_url: product.image_url ?? null,
           is_active: product.is_active,
-          store_id: allocation.partner_store_id,
-          store_name: storeNames.get(allocation.partner_store_id) || undefined,
-        },
-      ];
-    }
-  );
+          store_id: store.id,
+          store_name: storeNames.get(store.id) || undefined,
+        };
+      })
+    );
+  } else {
+    // Fallback: Tampilkan master produk dengan stok 0 jika mitra belum memiliki gerai
+    partnerCatalogProducts = masterProducts.map((product) => ({
+      id: product.id,
+      name: product.name,
+      sku: product.sku,
+      category: product.category || "Hijab",
+      selling_price: product.selling_price,
+      stock_quantity: 0,
+      image_url: product.image_url ?? null,
+      is_active: product.is_active,
+    }));
+  }
 
   const storeOptions = (stores ?? []).map((s) => ({
     id: s.id,
@@ -127,9 +139,8 @@ export default async function PartnerKatalogPage() {
 
   return (
     <div className="w-full px-2 py-3 sm:px-4 sm:py-4">
-      {/* ── Header Katalog Mitra ─────────────────────────────────────────── */}
       <header className="mb-4">
-        <span className="inline-block rounded-full bg-almond-cream px-3 py-0.5 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
+        <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-3 py-0.5 text-[11px] font-bold text-terracotta-clay">
           Portal Mitra
         </span>
         <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
@@ -140,7 +151,6 @@ export default async function PartnerKatalogPage() {
         </p>
       </header>
 
-      {/* ── Grid Katalog Visual (Read-Only) ─────────────────────────────── */}
       <PartnerCatalogClient
         products={partnerCatalogProducts}
         stores={storeOptions}

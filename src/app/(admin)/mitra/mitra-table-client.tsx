@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { MessageSquare, X, Send, AlertCircle, Check } from "lucide-react";
+import { MessageSquare, X, Send, AlertCircle, Check, Loader2 } from "lucide-react";
 import { updateMitraStatus, type MitraStatus } from "./actions";
 
 export type StoreItem = {
@@ -101,6 +101,7 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
       } else {
         alert(`Gagal mengubah status: ${res.error}`);
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       alert(`Terjadi kesalahan: ${err.message || "Gagal memperbarui status"}`);
     } finally {
@@ -147,6 +148,7 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
           setModalFeedback(null);
         }, 800);
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setModalFeedback({ type: "error", text: err.message || "Gagal memperbarui pesan" });
     } finally {
@@ -156,10 +158,9 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
 
   return (
     <div className="space-y-3">
-      {/* ── Search Bar & Filter Toolbar ──────────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-b border-[#a3b1c6]/20 bg-[#e0e5ec]">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-b border-gray-100 bg-white">
         <div className="relative flex-1 max-w-sm">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#7a8394]">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
               <path
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
@@ -175,17 +176,13 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Cari nama toko, pemilik, kota, no telepon..."
-            style={{
-              boxShadow:
-                "inset 3px 3px 6px rgba(163, 177, 198, 0.65), inset -3px -3px 6px rgba(255, 255, 255, 0.85)",
-            }}
-            className="w-full h-9 rounded-xl border-none bg-[#e0e5ec] py-1.5 pl-9 pr-8 text-xs font-medium text-[#2d3440] outline-none transition-all placeholder:text-[#8f98a8] focus:ring-1 focus:ring-dusty-rose/50"
+            className="w-full h-9 rounded-lg border border-gray-200 bg-gray-50 py-1.5 pl-9 pr-8 text-xs font-medium text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
           />
           {searchTerm && (
             <button
               type="button"
               onClick={() => setSearchTerm("")}
-              className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-xs font-bold text-[#7a8394] hover:text-terracotta-clay"
+              className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-xs font-bold text-gray-400 hover:text-terracotta-clay"
             >
               ✕
             </button>
@@ -193,36 +190,35 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <label htmlFor="filter-status" className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">
+          <label htmlFor="filter-status" className="text-[11px] font-bold uppercase tracking-wider text-gray-600">
             Status:
           </label>
           <select
             id="filter-status"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="h-9 rounded-xl border-none bg-[#e0e5ec] px-3 text-xs font-bold text-[#2d3440] shadow-neu-sm outline-none transition-all focus:ring-1 focus:ring-dusty-rose/40 cursor-pointer"
+            className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-xs font-semibold text-gray-900 outline-none transition-all focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay cursor-pointer"
           >
             <option value="all">Semua Status ({storesList.length})</option>
             <option value="aktif">Aktif</option>
             <option value="pending">Pending</option>
             <option value="nonaktif">Nonaktif</option>
           </select>
-          <span className="rounded-full bg-almond-cream px-2.5 py-0.5 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
+          <span className="rounded-full bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 text-[11px] font-bold text-terracotta-clay">
             {filteredStores.length} dari {storesList.length} toko
           </span>
         </div>
       </div>
 
-      {/* ── Tabel Toko Mitra (Sleek & Compact) ────────────────────────────── */}
       {filteredStores.length === 0 ? (
-        <div className="px-4 py-10 text-center text-xs font-medium text-[#7a8394]">
+        <div className="px-4 py-10 text-center text-xs font-medium text-gray-500">
           Tidak ada toko mitra yang cocok dengan pencarian{" "}
-          {searchTerm ? <span className="font-bold text-terracotta-clay">"{searchTerm}"</span> : ""}.
+          {searchTerm ? <span className="font-bold text-terracotta-clay">&quot;{searchTerm}&quot;</span> : ""}.
         </div>
       ) : (
-        <div className="overflow-x-auto px-1 pb-2">
+        <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar px-1 pb-2">
           <table className="w-full min-w-[700px] text-left text-xs">
-            <thead className="border-b border-[#a3b1c6]/25 text-[11px] font-bold uppercase tracking-wider text-[#576071]">
+            <thead className="sticky top-0 z-10 bg-gray-50 border-b border-gray-200 text-[11px] font-bold uppercase tracking-wider text-gray-600 shadow-sm">
               <tr>
                 <th scope="col" className="px-4 py-2.5 font-black">Nama Toko</th>
                 <th scope="col" className="px-4 py-2.5 font-black">Pemilik</th>
@@ -231,7 +227,7 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                 <th scope="col" className="px-4 py-2.5 font-black">STATUS &amp; AKSI</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#a3b1c6]/20">
+            <tbody className="divide-y divide-gray-100">
               {filteredStores.map((store) => {
                 const currentStatus = (store.status || (store.is_active ? "aktif" : "pending")) as MitraStatus;
 
@@ -253,17 +249,15 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                       {store.city || store.address || "—"}
                     </td>
                     
-                    {/* Kolom Terakhir: STATUS & AKSI (Compact Horizontal Flexbox) */}
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
-                        {/* Dropdown Status Compact */}
                         <div className="relative inline-flex items-center">
                           <select
                             value={currentStatus}
                             disabled={isRowUpdating}
                             onChange={(e) => handleStatusChange(store.id, e.target.value as MitraStatus)}
                             aria-label={`Ubah status untuk toko ${store.name}`}
-                            className={`cursor-pointer rounded-xl border px-2.5 py-1 text-xs font-bold shadow-neu-sm outline-none transition-all focus:ring-1 focus:ring-dusty-rose/40 disabled:cursor-wait disabled:opacity-60 ${
+                            className={`cursor-pointer rounded-xl border px-2.5 py-1 text-xs font-bold shadow-sm outline-none transition-all focus:ring-1 focus:ring-dusty-rose/40 disabled:cursor-wait disabled:opacity-60 ${
                               statusStyles[currentStatus] || statusStyles.pending
                             }`}
                           >
@@ -278,13 +272,10 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                             </option>
                           </select>
                           {isRowUpdating && (
-                            <span className="pointer-events-none absolute right-2 text-[10px] text-terracotta-clay animate-spin font-bold">
-                              ⏳
-                            </span>
+                            <Loader2 className="pointer-events-none absolute right-2 h-3 w-3 text-terracotta-clay animate-spin" />
                           )}
                         </div>
 
-                        {/* Tombol Ikon Pesan (Neumorphism Compact) */}
                         <button
                           type="button"
                           onClick={() => handleOpenMessageModal(store)}
@@ -294,7 +285,7 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                               : "Kirim pesan peringatan / catatan mitra"
                           }
                           aria-label={`Kirim pesan untuk toko ${store.name}`}
-                          className="relative inline-flex h-8 w-8 items-center justify-center rounded-xl bg-[#e0e5ec] text-[#576071] shadow-neu-sm border border-white/60 transition-all hover:text-terracotta-clay hover:shadow-neu-flat active:scale-95"
+                          className="relative inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-600 border border-gray-200 transition-all hover:text-terracotta-clay hover:bg-gray-100 shadow-sm active:scale-95"
                         >
                           <MessageSquare className="h-4 w-4" />
                           {store.status_message && (
@@ -314,38 +305,36 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
         </div>
       )}
 
-      {/* ── Modal Pop-up Kirim Pesan Mitra (Backdrop Blur & Neumorphism) ── */}
       {isModalOpen && selectedMitra && (
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-headline"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-all animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm transition-all animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget && !isSaving) {
               setIsModalOpen(false);
             }
           }}
         >
-          <div className="relative w-full max-w-lg rounded-2xl bg-[#e0e5ec] p-5 sm:p-6 shadow-neu-flat border border-white/60 space-y-4">
-            {/* Header Modal */}
-            <div className="flex items-start justify-between pb-3 border-b border-[#a3b1c6]/25">
+          <div className="relative w-full max-w-lg rounded-xl bg-white p-5 sm:p-6 shadow-xl border border-gray-200 space-y-4">
+            <div className="flex items-start justify-between pb-3 border-b border-gray-100">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-almond-cream px-2.5 py-0.5 text-[10px] font-bold text-terracotta-clay shadow-neu-sm">
+                  <span className="rounded-full bg-orange-50 border border-orange-100 px-2.5 py-0.5 text-[10px] font-bold text-terracotta-clay">
                     Pesan Toko Mitra
                   </span>
-                  <span className="text-[11px] font-semibold text-[#7a8394]">
+                  <span className="text-[11px] font-semibold text-gray-500">
                     {selectedMitra.city || "SarniyaSync"}
                   </span>
                 </div>
                 <h3
                   id="modal-headline"
-                  className="mt-1 text-base sm:text-lg font-black text-[#2d3440]"
+                  className="mt-1 text-base sm:text-lg font-black text-gray-800"
                 >
                   Kirim Pesan ke {selectedMitra.name}
                 </h3>
-                <p className="mt-0.5 text-xs text-[#6d7687]">
+                <p className="mt-0.5 text-xs text-gray-500">
                   Pesan peringatan, peninjauan, atau instruksi resmi untuk mitra ini.
                 </p>
               </div>
@@ -354,17 +343,16 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                 type="button"
                 onClick={() => !isSaving && setIsModalOpen(false)}
                 aria-label="Tutup modal"
-                className="rounded-xl p-1.5 text-[#7a8394] transition-colors hover:bg-black/5 hover:text-[#2d3440]"
+                className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Body Modal: Textarea Luas */}
             <div className="space-y-2">
               <label
                 htmlFor="mitra-message"
-                className="block text-xs font-bold uppercase tracking-wider text-[#576071]"
+                className="block text-xs font-bold uppercase tracking-wider text-gray-600"
               >
                 Isi Pesan / Instruksi Khusus:
               </label>
@@ -374,13 +362,9 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                 value={messageInput}
                 onChange={(e) => setMessageInput(e.target.value)}
                 placeholder="Tuliskan pesan peringatan, peninjauan, atau instruksi untuk mitra ini (misal: 'Harap segera lakukan verifikasi dokumen outlet' atau 'Akun sedang dalam tahap peninjauan tim verifikasi'). Kosongkan jika ingin menghapus pesan."
-                style={{
-                  boxShadow:
-                    "inset 3px 3px 6px rgba(163, 177, 198, 0.65), inset -3px -3px 6px rgba(255, 255, 255, 0.85)",
-                }}
-                className="w-full rounded-xl border-none bg-[#e0e5ec] p-3 text-xs sm:text-sm font-medium text-[#2d3440] placeholder:text-[#8f98a8] outline-none transition-all focus:ring-1 focus:ring-dusty-rose/50"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs sm:text-sm font-medium text-gray-800 placeholder:text-gray-400 outline-none transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
               />
-              <div className="flex items-center justify-between text-[11px] text-[#7a8394]">
+              <div className="flex items-center justify-between text-[11px] text-gray-500">
                 <span>
                   {selectedMitra.status_message ? "Catatan: Mitra ini memiliki pesan aktif sebelumnya" : "Belum ada pesan tersimpan"}
                 </span>
@@ -388,11 +372,10 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
               </div>
             </div>
 
-            {/* Feedback Alert bila ada */}
             {modalFeedback && (
               <div
                 role={modalFeedback.type === "error" ? "alert" : "status"}
-                className={`flex items-center gap-2 rounded-xl p-2.5 text-xs font-bold ${
+                className={`flex items-center gap-2 rounded-lg p-2.5 text-xs font-bold ${
                   modalFeedback.type === "error"
                     ? "bg-rose-50 text-rose-700 border border-rose-200"
                     : "bg-emerald-50 text-emerald-700 border border-emerald-200"
@@ -407,13 +390,12 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
               </div>
             )}
 
-            {/* Footer Modal: Tombol Batal & Simpan Pesan */}
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#a3b1c6]/25">
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
                 disabled={isSaving}
-                className="rounded-xl bg-[#e0e5ec] px-4 py-2 text-xs font-bold text-[#576071] shadow-neu-sm border border-white/60 transition-all hover:text-[#2d3440] active:scale-95 disabled:opacity-50"
+                className="rounded-lg bg-gray-100 border border-gray-200 px-4 py-2 text-xs font-semibold text-gray-700 transition-all hover:bg-gray-200 active:scale-95 disabled:opacity-50"
               >
                 Batal
               </button>
@@ -421,11 +403,11 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                 type="button"
                 onClick={handleSaveMessage}
                 disabled={isSaving}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-terracotta-clay px-4 py-2 text-xs font-bold text-white shadow-neu-sm transition-all hover:brightness-105 active:scale-95 disabled:cursor-wait disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-terracotta-clay px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:opacity-90 active:scale-95 disabled:cursor-wait disabled:opacity-50"
               >
                 {isSaving ? (
                   <>
-                    <span className="animate-spin text-sm">⏳</span>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
                     <span>Menyimpan...</span>
                   </>
                 ) : (

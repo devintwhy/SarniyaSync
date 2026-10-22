@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 
@@ -344,7 +344,6 @@ export default function PartnerProfilePage() {
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-3 sm:space-y-4">
-      {/* ── Header Halaman ──────────────────────────────────────────────── */}
       <header>
         <div className="flex items-center gap-1.5">
           <span className="inline-flex items-center rounded-full bg-[#f7e4d4] px-2.5 py-0.5 text-xs font-bold text-[#9d5c4c]">
@@ -360,7 +359,6 @@ export default function PartnerProfilePage() {
         </p>
       </header>
 
-      {/* ── Ringkasan Akun ──────────────────────────────────────────────── */}
       <section
         aria-label="Informasi Akun"
         className="rounded-xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-sm shadow-[#2d3440]/5"
@@ -400,7 +398,6 @@ export default function PartnerProfilePage() {
         </div>
       </section>
 
-      {/* ── Form 1: Ubah Data Profil & Toko Mitra ────────────────────────── */}
       <section
         aria-label="Pembaruan Data Profil dan Toko"
         className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5"
@@ -522,7 +519,6 @@ export default function PartnerProfilePage() {
         </form>
       </section>
 
-      {/* ── Form 2: Ubah Password Akun ───────────────────────────────────── */}
       <section
         aria-label="Keamanan dan Ubah Password"
         className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5"

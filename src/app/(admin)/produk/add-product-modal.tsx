@@ -47,7 +47,6 @@ export default function AddProductModal({ action }: AddProductModalProps) {
 
   return (
     <>
-      {/* ── Tombol Tambah ───────────────────────────────────────────────────── */}
       <button
         type="button"
         id="btn-tambah-produk"
@@ -72,8 +71,6 @@ export default function AddProductModal({ action }: AddProductModalProps) {
         Tambah Produk
       </button>
 
-      {/* ── Dialog Modal ────────────────────────────────────────────────────── */}
-      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
       <dialog
         ref={dialogRef}
         id="modal-tambah-produk"
@@ -86,7 +83,6 @@ export default function AddProductModal({ action }: AddProductModalProps) {
         className="m-auto max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-2xl border border-[#e1e7e0] bg-white p-0 shadow-2xl shadow-[#9d5c4c]/20 backdrop:bg-[#9d5c4c]/40 backdrop:backdrop-blur-sm open:flex open:flex-col"
         style={{ maxWidth: "38rem" }}
       >
-        {/* Header Modal */}
         <div className="flex items-center justify-between border-b border-[#edf0ec] px-6 py-5">
           <div>
             <h2
@@ -111,14 +107,12 @@ export default function AddProductModal({ action }: AddProductModalProps) {
           </button>
         </div>
 
-        {/* Form */}
         <form
           ref={formRef}
           onSubmit={handleSubmit}
           id="form-tambah-produk"
           className="flex flex-col gap-5 px-6 py-6"
         >
-          {/* Nama Produk */}
           <div>
             <label
               htmlFor="produk-name"
@@ -138,7 +132,6 @@ export default function AddProductModal({ action }: AddProductModalProps) {
             />
           </div>
 
-          {/* Deskripsi */}
           <div>
             <label
               htmlFor="produk-description"
@@ -157,7 +150,6 @@ export default function AddProductModal({ action }: AddProductModalProps) {
             />
           </div>
 
-          {/* Kategori + Warna */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label
@@ -200,7 +192,6 @@ export default function AddProductModal({ action }: AddProductModalProps) {
             </div>
           </div>
 
-          {/* Ukuran */}
           <div>
             <label
               htmlFor="produk-size"
@@ -219,7 +210,6 @@ export default function AddProductModal({ action }: AddProductModalProps) {
             />
           </div>
 
-          {/* Harga Modal + Harga Jual */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label
@@ -261,7 +251,6 @@ export default function AddProductModal({ action }: AddProductModalProps) {
             </div>
           </div>
 
-          {/* Stok Awal */}
           <div>
             <label
               htmlFor="produk-stock"
@@ -282,7 +271,6 @@ export default function AddProductModal({ action }: AddProductModalProps) {
             />
           </div>
 
-          {/* Pesan error / sukses */}
           {errorMessage && (
             <p
               role="alert"
@@ -300,7 +288,6 @@ export default function AddProductModal({ action }: AddProductModalProps) {
             </p>
           )}
 
-          {/* Footer Aksi */}
           <div className="flex flex-col-reverse gap-3 border-t border-[#edf0ec] pt-5 sm:flex-row sm:justify-end">
             <button
               type="button"

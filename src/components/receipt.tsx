@@ -46,13 +46,11 @@ const ThermalReceipt = forwardRef<HTMLDivElement, ReceiptProps>(({ data }, ref) 
       id="printable-receipt"
       className="hidden print:block"
     >
-      {/* Header Struk */}
       <div className="text-center mb-2">
         <h1 className="font-bold text-sm tracking-wide uppercase mb-0.5">{data.storeName}</h1>
         <p className="text-[10px] text-gray-700">SarniyaSync POS System</p>
       </div>
 
-      {/* Info Transaksi */}
       <div className="border-t border-b border-black border-dashed py-1.5 my-1.5 text-[10px]">
         <div className="flex justify-between">
           <span>Tgl:</span>
@@ -68,7 +66,6 @@ const ThermalReceipt = forwardRef<HTMLDivElement, ReceiptProps>(({ data }, ref) 
         </div>
       </div>
 
-      {/* Daftar Item Belanja */}
       <table className="w-full text-left my-2 border-collapse">
         <tbody>
           {data.items.map((item, i) => (
@@ -89,13 +86,11 @@ const ThermalReceipt = forwardRef<HTMLDivElement, ReceiptProps>(({ data }, ref) 
         </tbody>
       </table>
 
-      {/* Total Belanja */}
       <div className="border-t border-black border-dashed pt-1.5 mt-2 flex justify-between font-bold text-[12px]">
         <span>TOTAL:</span>
         <span>{currencyFormatter.format(data.grandTotal)}</span>
       </div>
 
-      {/* Informasi Tunai & Kembalian (Khusus Tunai) */}
       {isCash && data.cashReceived !== undefined && (
         <div className="border-t border-gray-300 border-dotted pt-1 mt-1 text-[10px] space-y-0.5">
           <div className="flex justify-between">
@@ -109,7 +104,6 @@ const ThermalReceipt = forwardRef<HTMLDivElement, ReceiptProps>(({ data }, ref) 
         </div>
       )}
 
-      {/* Footer Struk Thermal */}
       <div className="text-center text-[9px] mt-4 pt-2 border-t border-gray-400 border-dashed space-y-0.5">
         <p className="font-semibold">Terima Kasih Telah Berbelanja</p>
         <p>Barang yang dibeli tidak dapat ditukar</p>

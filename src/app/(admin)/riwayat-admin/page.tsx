@@ -78,6 +78,7 @@ export default async function AdminRiwayatPage() {
       break;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const page = (data ?? []) as any[];
     rawTransactions.push(...page);
     if (page.length < PAGE_SIZE) break;
@@ -110,10 +111,9 @@ export default async function AdminRiwayatPage() {
 
   return (
     <div className="w-full px-2 py-3 sm:px-4 sm:py-4">
-      {/* Header Halaman */}
       <header className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
         <div>
-          <span className="inline-block rounded-full bg-almond-cream px-3 py-0.5 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
+          <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-3 py-0.5 text-[11px] font-bold text-terracotta-clay">
             Area Pemilik / Administrator
           </span>
           <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
@@ -125,7 +125,6 @@ export default async function AdminRiwayatPage() {
         </div>
       </header>
 
-      {/* Komponen Client Interaktif */}
       <AdminTransactionClient
         initialTransactions={transactions}
         stores={storeOptions}

@@ -110,9 +110,9 @@ export default async function PartnerStockPage() {
             <h2 className="text-base font-bold text-[#2d3440]">Produk Toko</h2>
             <p className="mt-0.5 text-xs text-[#7a8394]">{inventory.length} alokasi produk</p>
           </div>
-          <div className="overflow-x-auto">
+          <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar">
             <table className="w-full min-w-[700px] text-left text-xs sm:text-sm">
-              <thead className="bg-[#f0f2f5] text-[11px] uppercase tracking-wider text-[#6d7687] font-bold">
+              <thead className="sticky top-0 z-10 bg-[#f0f2f5] backdrop-blur-md text-[11px] uppercase tracking-wider text-[#6d7687] font-bold shadow-sm">
                 <tr>
                   <th scope="col" className="px-3.5 py-2.5">Toko</th>
                   <th scope="col" className="px-3.5 py-2.5">SKU</th>

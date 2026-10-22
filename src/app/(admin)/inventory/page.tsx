@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Pencil, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Trash2 } from "lucide-react";
 
 type Product = Record<string, unknown>;
 
@@ -273,9 +273,9 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                 Belum ada produk di inventaris.
               </div>
             )}
-          <div className="overflow-x-auto">
+          <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar">
             <table className="w-full min-w-[700px] text-left text-xs sm:text-sm">
-              <thead className="bg-[#f7f9f6] text-[11px] uppercase tracking-wider text-[#68756e]">
+              <thead className="sticky top-0 z-10 bg-[#f7f9f6] backdrop-blur-md text-[11px] uppercase tracking-wider text-[#68756e] shadow-sm">
                 <tr>
                   <th scope="col" className="px-3.5 py-2.5 font-bold">SKU</th>
                   <th scope="col" className="px-3.5 py-2.5 font-bold">Nama produk</th>
@@ -340,7 +340,6 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                       </td>
                       <td className="whitespace-nowrap px-3.5 py-2">
                         <div className="flex items-center gap-1">
-                          {/* Tombol Edit (Ikon) */}
                           <Link
                             href={`/inventory/edit/${encodeURIComponent(getText(product, ["id"], ""))}`}
                             aria-label={`Edit ${productName}`}
@@ -349,7 +348,6 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                           >
                             <Pencil size={14} strokeWidth={2} />
                           </Link>
-                          {/* Tombol Hapus (Ikon) */}
                           <button
                             type="button"
                             onClick={() => void handleDelete(product)}
@@ -359,7 +357,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                             className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#ead5cf] bg-[#fff5f1] text-[#c0665a] transition-all hover:border-[#c0665a]/60 hover:bg-[#fdecea] hover:text-[#9b4936] active:scale-95 disabled:cursor-wait disabled:opacity-40"
                           >
                             {deletingId === getText(product, ["id"], "") ? (
-                              <span className="text-[10px] animate-pulse">⏳</span>
+                              <Loader2 size={14} className="animate-spin text-[#c0665a]" />
                             ) : (
                               <Trash2 size={14} strokeWidth={2} />
                             )}

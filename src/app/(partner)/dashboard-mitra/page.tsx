@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Store, CheckCircle2 } from "lucide-react";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import PartnerDashboardCharts from "@/components/partner-dashboard-charts";
 
@@ -71,8 +72,8 @@ export default async function PartnerDashboardPage() {
     return (
       <div className="w-full px-5 py-12 sm:px-8">
         <div className="rounded-2xl border border-[#d2ddd6] bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#f4f8f5] text-2xl">
-            🏪
+          <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#f4f8f5]">
+            <Store className="size-7 text-[#9d5c4c]" />
           </div>
           <h1 className="mt-4 text-xl font-bold text-[#9d5c4c]">Belum Ada Toko Aktif</h1>
           <p className="mt-2 text-sm text-[#68756e]">
@@ -110,7 +111,7 @@ export default async function PartnerDashboardPage() {
   let monthlyItemsSold = 0;
   let monthlyTransactionCount = 0;
 
-  const salesByDate: Record<string, number> = {};
+  const salesByDate: Record<string, { date: string; timestamp: number; total: number }> = {};
   const salesByProduct: Record<string, number> = {};
 
   // 2. Query Transaksi 30 Hari Terakhir KHUSUS Toko Mitra
@@ -127,6 +128,7 @@ export default async function PartnerDashboardPage() {
     `)
     .in("partner_store_id", activeStoreIds)
     .gte("sold_at", thirtyDaysAgo)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .order("sold_at", { ascending: true }) as any);
 
   if (transactions) {
@@ -151,8 +153,16 @@ export default async function PartnerDashboardPage() {
       }
 
       // Grafik Tren 30 Hari Terakhir
+      const dateKey = `${txDate.getFullYear()}-${String(txDate.getMonth() + 1).padStart(2, "0")}-${String(txDate.getDate()).padStart(2, "0")}`;
       const dateString = txDate.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
-      salesByDate[dateString] = (salesByDate[dateString] || 0) + total;
+      if (!salesByDate[dateKey]) {
+        salesByDate[dateKey] = {
+          date: dateString,
+          timestamp: new Date(txDate.getFullYear(), txDate.getMonth(), txDate.getDate()).getTime(),
+          total: 0,
+        };
+      }
+      salesByDate[dateKey].total += total;
 
       // Metrik & Produk Terlaris Bulan Berjalan
       if (isThisMonth) {
@@ -161,6 +171,7 @@ export default async function PartnerDashboardPage() {
 
         if (Array.isArray(tx.items)) {
           for (const item of tx.items) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const record = item as any;
             if (record && typeof record === "object" && record.quantity && record.name) {
               const qty = Number(record.quantity);
@@ -173,11 +184,10 @@ export default async function PartnerDashboardPage() {
     }
   }
 
-  // Data Array untuk Grafik Harian
-  const dailySales = Object.entries(salesByDate).map(([date, total]) => ({
-    date,
-    total,
-  }));
+  // Data Array untuk Grafik Harian (diurutkan kronologis terlama ke terbaru)
+  const dailySales = Object.values(salesByDate)
+    .sort((a, b) => a.timestamp - b.timestamp)
+    .map(({ date, total }) => ({ date, total }));
 
   // Top 5 Produk Terlaris di Toko Saya
   const bestSellers = Object.entries(salesByProduct)
@@ -196,10 +206,12 @@ export default async function PartnerDashboardPage() {
     `)
     .in("partner_store_id", activeStoreIds)
     .lte("stock_quantity", 5)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .order("stock_quantity", { ascending: true }) as any);
 
   const lowStockItems: LowStockItem[] = [];
   if (lowStockData) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     lowStockData.forEach((inv: any) => {
       const product = Array.isArray(inv.products) ? inv.products[0] : inv.products;
       const store = Array.isArray(inv.partner_stores) ? inv.partner_stores[0] : inv.partner_stores;
@@ -230,8 +242,10 @@ export default async function PartnerDashboardPage() {
     `)
     .in("partner_store_id", activeStoreIds)
     .order("sold_at", { ascending: false })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .limit(5) as any);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recentTransactions: RecentTransaction[] = (recentData ?? []).map((tx: any) => {
     const store = Array.isArray(tx.partner_stores) ? tx.partner_stores[0] : tx.partner_stores;
     return {
@@ -269,7 +283,6 @@ export default async function PartnerDashboardPage() {
 
   return (
     <div className="w-full space-y-3 sm:space-y-4">
-      {/* ── Header Dasbor Mitra ─────────────────────────────────────────── */}
       <header className="flex flex-col justify-between gap-2.5 sm:flex-row sm:items-end">
         <div>
           <div className="flex items-center gap-1.5">
@@ -300,7 +313,6 @@ export default async function PartnerDashboardPage() {
         </div>
       </header>
 
-      {/* ── 1. Pendapatan Hari Ini & Rincian Pembayaran (Live Banner) ────── */}
       <section aria-label="Ringkasan Pendapatan Hari Ini">
         <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-sm shadow-[#2d3440]/5">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 pb-3 border-b border-slate-100">
@@ -321,7 +333,6 @@ export default async function PartnerDashboardPage() {
           </div>
 
           <div className="mt-3.5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Kartu Utama: Total Pendapatan Hari Ini (Rose Gold Gradient) */}
             <div className="rounded-xl bg-gradient-to-br from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] p-3.5 sm:p-4 text-white shadow-md flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
@@ -339,7 +350,6 @@ export default async function PartnerDashboardPage() {
               <p className="mt-2 text-[11px] font-medium text-white/80">Total omzet kas masuk toko hari ini</p>
             </div>
 
-            {/* Rincian Metode: QRIS */}
             <div className="rounded-xl border border-slate-200/80 bg-[#f0f2f5]/40 p-3 sm:p-3.5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
@@ -360,7 +370,6 @@ export default async function PartnerDashboardPage() {
               </div>
             </div>
 
-            {/* Rincian Metode: Transfer */}
             <div className="rounded-xl border border-slate-200/80 bg-[#f0f2f5]/40 p-3 sm:p-3.5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
@@ -381,7 +390,6 @@ export default async function PartnerDashboardPage() {
               </div>
             </div>
 
-            {/* Rincian Metode: Tunai */}
             <div className="rounded-xl border border-slate-200/80 bg-[#f0f2f5]/40 p-3 sm:p-3.5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
@@ -405,7 +413,6 @@ export default async function PartnerDashboardPage() {
         </div>
       </section>
 
-      {/* ── 2. Top Metrics Toko Mitra Bulan Ini ──────────────────────────── */}
       <section aria-label="Statistik Utama Mitra" className="grid gap-3 md:grid-cols-3">
         {metrics.map((metric) => (
           <article
@@ -421,14 +428,11 @@ export default async function PartnerDashboardPage() {
         ))}
       </section>
 
-      {/* ── 3. Grafik Tren 30 Hari & Produk Terlaris Toko Saya ───────────── */}
       <div>
         <PartnerDashboardCharts dailySales={dailySales} bestSellers={bestSellers} />
       </div>
 
-      {/* ── 4. Tabel Peringatan Stok Menipis & 5 Transaksi Terbaru ─────────── */}
       <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
-        {/* Peringatan Stok Menipis Toko Mitra */}
         <section
           aria-label="Peringatan stok menipis toko saya"
           className="overflow-hidden rounded-xl border border-amber-200 bg-white shadow-sm flex flex-col"
@@ -443,16 +447,16 @@ export default async function PartnerDashboardPage() {
             </span>
           </div>
 
-          <div className="flex-1 overflow-x-auto">
-            {lowStockItems.length === 0 ? (
-              <div className="px-4 py-8 text-center">
-                <span className="text-2xl">✅</span>
-                <p className="mt-1.5 text-xs sm:text-sm font-bold text-emerald-700">Semua stok toko Anda dalam kondisi aman!</p>
-                <p className="text-[11px] text-[#7a8394]">Tidak ada produk dengan sisa stok &le; 5 unit.</p>
-              </div>
-            ) : (
+          {lowStockItems.length === 0 ? (
+            <div className="px-4 py-8 text-center">
+              <CheckCircle2 className="size-8 mx-auto text-emerald-600 mb-1" />
+              <p className="mt-1.5 text-xs sm:text-sm font-bold text-emerald-700">Semua stok toko Anda dalam kondisi aman!</p>
+              <p className="text-[11px] text-[#7a8394]">Tidak ada produk dengan sisa stok &le; 5 unit.</p>
+            </div>
+          ) : (
+            <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar flex-1">
               <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="bg-amber-50/30 text-[11px] uppercase text-amber-900 font-bold">
+                <thead className="sticky top-0 z-10 bg-[#fdf8f0] backdrop-blur-md text-[11px] uppercase text-amber-900 font-bold shadow-sm">
                   <tr>
                     <th scope="col" className="px-3.5 py-2.5">Produk</th>
                     <th scope="col" className="px-3.5 py-2.5">Kategori</th>
@@ -486,11 +490,10 @@ export default async function PartnerDashboardPage() {
                   ))}
                 </tbody>
               </table>
-            )}
-          </div>
+            </div>
+          )}
         </section>
 
-        {/* 5 Penjualan Terbaru Toko Mitra */}
         <section
           aria-label="Transaksi terbaru toko saya"
           className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5 flex flex-col"
@@ -505,14 +508,14 @@ export default async function PartnerDashboardPage() {
             </Link>
           </div>
 
-          <div className="flex-1 overflow-x-auto">
-            {recentTransactions.length === 0 ? (
-              <div className="px-4 py-8 text-center text-xs sm:text-sm text-[#6d7687]">
-                Belum ada transaksi penjualan yang tercatat.
-              </div>
-            ) : (
+          {recentTransactions.length === 0 ? (
+            <div className="px-4 py-8 text-center text-xs sm:text-sm text-[#6d7687]">
+              Belum ada transaksi penjualan yang tercatat.
+            </div>
+          ) : (
+            <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar flex-1">
               <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="bg-[#f0f2f5] text-[11px] uppercase tracking-wider text-[#6d7687] font-bold">
+                <thead className="sticky top-0 z-10 bg-[#f0f2f5] backdrop-blur-md text-[11px] uppercase tracking-wider text-[#6d7687] font-bold shadow-sm">
                   <tr>
                     <th scope="col" className="px-3.5 py-2.5">Tanggal</th>
                     <th scope="col" className="px-3.5 py-2.5">No. Struk</th>
@@ -538,8 +541,8 @@ export default async function PartnerDashboardPage() {
                   ))}
                 </tbody>
               </table>
-            )}
-          </div>
+            </div>
+          )}
         </section>
       </div>
     </div>

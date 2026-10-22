@@ -44,7 +44,6 @@ export default function RegisterForm() {
         </div>
       )}
 
-      {/* Seksi 1: Akun Login */}
       <div className="space-y-5">
         <div className="flex items-center gap-2.5 border-b border-[#cbd3df]/50 pb-2.5">
           <span className="flex size-6 items-center justify-center rounded-full bg-[#C89F91] text-xs font-bold text-white shadow-sm">
@@ -98,7 +97,6 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      {/* Seksi 2: Data Pemilik & Toko */}
       <div className="space-y-5 pt-2">
         <div className="flex items-center gap-2.5 border-b border-[#cbd3df]/50 pb-2.5">
           <span className="flex size-6 items-center justify-center rounded-full bg-[#C89F91] text-xs font-bold text-white shadow-sm">
@@ -184,7 +182,6 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      {/* Tombol Submit Besar Timbul */}
       <div className="pt-2">
         <SubmitButton />
       </div>

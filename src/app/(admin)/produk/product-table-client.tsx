@@ -2,6 +2,8 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
+import { Tag, Package } from "lucide-react";
+import { useSidebar } from "@/context/sidebar-context";
 
 type Product = {
   id: string;
@@ -29,6 +31,7 @@ function formatRupiah(value: number) {
 }
 
 export default function ProductTableClient({ products: initialProducts, errorMessage }: ProductTableClientProps) {
+  const { isSidebarOpen } = useSidebar();
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -65,11 +68,10 @@ export default function ProductTableClient({ products: initialProducts, errorMes
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      {/* ── Toolbar: Search & Filter Kategori ───────────────────────────────── */}
-      <div className="rounded-2xl bg-[#e0e5ec] p-3 sm:p-3.5 shadow-neu-flat">
+      <div className="rounded-xl bg-white border border-gray-200 shadow-sm p-3 sm:p-3.5">
         <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1 max-w-md">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#7a8394]">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
@@ -85,13 +87,13 @@ export default function ProductTableClient({ products: initialProducts, errorMes
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Cari nama produk, SKU, atau kategori..."
-              className="h-9 w-full rounded-xl bg-[#e0e5ec] pl-9 pr-8 text-xs sm:text-sm text-[#2d3440] shadow-neu-inset outline-none transition-all placeholder:text-[#8f98a8] focus:ring-2 focus:ring-terracotta-clay/30"
+              className="h-9 w-full rounded-lg bg-gray-50 border border-gray-200 pl-9 pr-8 text-xs sm:text-sm text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
             />
             {searchTerm && (
               <button
                 type="button"
                 onClick={() => setSearchTerm("")}
-                className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-xs text-[#7a8394] hover:text-[#2d3440]"
+                className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-xs text-gray-400 hover:text-gray-600"
               >
                 ✕
               </button>
@@ -99,14 +101,14 @@ export default function ProductTableClient({ products: initialProducts, errorMes
           </div>
 
           <div className="flex items-center gap-2">
-            <label htmlFor="filter-cat" className="text-xs font-bold text-[#576071]">
+            <label htmlFor="filter-cat" className="text-xs font-bold text-gray-600">
               Kategori:
             </label>
             <select
               id="filter-cat"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="h-9 rounded-xl bg-[#e0e5ec] px-3 text-xs font-semibold text-[#2d3440] shadow-neu-sm outline-none transition-all focus:ring-2 focus:ring-terracotta-clay/30"
+              className="h-9 rounded-lg bg-gray-50 border border-gray-200 px-3 text-xs font-semibold text-gray-900 outline-none transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
             >
               <option value="all">Semua Kategori</option>
               {categories.map((cat) => (
@@ -128,32 +130,30 @@ export default function ProductTableClient({ products: initialProducts, errorMes
         )}
       </div>
 
-      {/* ── Grid Kartu Produk — Etalase Read-Only (4-5 Kolom Desktop) ──────── */}
       {filteredProducts.length === 0 ? (
-        <div className="rounded-2xl bg-[#e0e5ec] p-8 text-center shadow-neu-flat">
-          <span className="text-3xl block">🏷️</span>
-          <p className="mt-2 text-sm font-bold text-[#2d3440]">
+        <div className="rounded-xl bg-white border border-gray-200 p-8 text-center shadow-sm">
+          <Tag className="mx-auto h-9 w-9 text-gray-400 mb-2" />
+          <p className="mt-2 text-sm font-bold text-gray-900">
             {searchTerm
               ? `Tidak ditemukan produk dengan kata kunci "${searchTerm}"`
               : "Belum ada produk di katalog"}
           </p>
-          <p className="text-xs text-[#7a8394] mt-0.5">
+          <p className="text-xs text-gray-500 mt-0.5">
             Tambahkan produk melalui halaman &apos;Kelola Stok&apos;.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+        <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 ${isSidebarOpen ? 'xl:grid-cols-5' : 'xl:grid-cols-6'} gap-3 sm:gap-4 transition-all duration-300`}>
           {filteredProducts.map((product) => {
             const isLowStock = product.stock_quantity <= 5;
 
             return (
               <article
                 key={product.id}
-                className="group relative flex flex-col justify-between rounded-2xl bg-[#e0e5ec] p-3 shadow-neu-flat transition-all duration-200 hover:-translate-y-0.5 hover:shadow-neu-sm border border-white/40"
+                className="group relative flex flex-col justify-between rounded-xl bg-white p-3 shadow-sm hover:shadow-md border border-gray-200 transition-all duration-200 hover:-translate-y-0.5"
               >
-                {/* Foto Produk & Badges */}
                 <div>
-                  <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-almond-cream/40 shadow-neu-inset flex items-center justify-center border border-[#a3b1c6]/25">
+                  <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-50 flex items-center justify-center border border-gray-100">
                     {product.image_url ? (
                       <Image
                         src={product.image_url}
@@ -164,17 +164,16 @@ export default function ProductTableClient({ products: initialProducts, errorMes
                       />
                     ) : (
                       <div className="flex flex-col items-center justify-center p-2 text-center">
-                        <span className="text-2xl mb-1">🧕</span>
+                        <Package className="size-6 mb-1 text-terracotta-clay/70" />
                         <span className="text-[10px] font-bold uppercase tracking-wider text-terracotta-clay/80">
                           {product.category || "Hijab"}
                         </span>
                       </div>
                     )}
 
-                    {/* Badge Sisa Stok */}
                     <div className="absolute bottom-2 right-2">
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-md backdrop-blur-sm ${
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm backdrop-blur-sm ${
                           isLowStock
                             ? "bg-rose-600/95 text-white"
                             : "bg-terracotta-clay/90 text-white"
@@ -185,7 +184,6 @@ export default function ProductTableClient({ products: initialProducts, errorMes
                       </span>
                     </div>
 
-                    {/* Badge Status Aktif/Nonaktif */}
                     <div className="absolute top-2 left-2">
                       <span
                         className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold backdrop-blur-sm ${
@@ -200,36 +198,34 @@ export default function ProductTableClient({ products: initialProducts, errorMes
                     </div>
                   </div>
 
-                  {/* Kategori & Nama Produk */}
                   <div className="mt-2.5">
-                    <span className="inline-block rounded-full bg-almond-cream px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-terracotta-clay shadow-neu-sm">
+                    <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-terracotta-clay">
                       {product.category || "Hijab"}
                     </span>
                     <h3
-                      className="mt-1 text-xs sm:text-sm font-bold text-[#2d3440] line-clamp-2 leading-tight min-h-[2rem]"
+                      className="mt-1 text-xs sm:text-sm font-bold text-gray-900 line-clamp-2 leading-tight min-h-[2rem]"
                       title={product.name}
                     >
                       {product.name}
                     </h3>
-                    <p className="text-[10px] font-mono text-[#7a8394] mt-0.5 truncate">
+                    <p className="text-[10px] font-mono text-gray-400 mt-0.5 truncate">
                       {product.sku}
                     </p>
                   </div>
                 </div>
 
-                {/* Harga (Read-Only — Tanpa Tombol Aksi) */}
-                <div className="mt-2.5 pt-2 border-t border-[#a3b1c6]/20">
+                <div className="mt-2.5 pt-2 border-t border-gray-100">
                   <div className="flex items-baseline justify-between gap-1">
                     <div>
-                      <span className="text-[10px] text-[#7a8394] block">Harga Jual</span>
+                      <span className="text-[10px] text-gray-400 block">Harga Jual</span>
                       <p className="text-xs sm:text-sm font-black text-terracotta-clay">
                         {formatRupiah(product.selling_price)}
                       </p>
                     </div>
                     {product.cost_price > 0 && (
                       <div className="text-right">
-                        <span className="text-[9px] text-[#7a8394] block">Modal</span>
-                        <p className="text-[10px] font-semibold text-[#576071]">
+                        <span className="text-[9px] text-gray-400 block">Modal</span>
+                        <p className="text-[10px] font-semibold text-gray-500">
                           {formatRupiah(product.cost_price)}
                         </p>
                       </div>

@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { bulkAllocatePartnerStock } from "./actions";
+import { Package, ShoppingCart, Store, ClipboardList, AlertCircle, CheckCircle } from "lucide-react";
 
 export type StoreOption = {
   id: string;
@@ -23,6 +24,10 @@ export type ExistingAllocation = {
   partner_store_id: string;
   product_id: string;
   stock_quantity: number;
+  // Data toko di-join langsung dari query (tanpa filter is_active)
+  store_name: string | null;
+  store_city: string | null;
+  store_is_active: boolean | null;
 };
 
 type BulkAllocationClientProps = {
@@ -40,7 +45,6 @@ export default function BulkAllocationClient({
 }: BulkAllocationClientProps) {
   const router = useRouter();
 
-  // ── State Management ────────────────────────────────────────────────────────
   const [selectedProducts, setSelectedProducts] = useState<Array<{ product: WarehouseProduct; quantity: number }>>([]);
   const [selectedStoreId, setSelectedStoreId] = useState<string>(stores[0]?.id ?? "");
   const [searchQuery, setSearchQuery] = useState("");
@@ -49,9 +53,13 @@ export default function BulkAllocationClient({
   const [successMessage, setSuccessMessage] = useState("");
   const [filterAllocationStoreId, setFilterAllocationStoreId] = useState<string>("all");
 
-  // Map stores & products for quick lookup
-  const storesById = useMemo(() => new Map(stores.map((s) => [s.id, s])), [stores]);
+  // Map products for quick lookup
   const productsById = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
+
+  // Ambil nama toko mitra
+  function formatStoreName(alloc: ExistingAllocation): string {
+    return alloc.store_name?.trim() || "Toko tidak diketahui";
+  }
 
   // Set ID produk terpilih untuk pencarian instan
   const selectedProductIds = useMemo(
@@ -82,7 +90,7 @@ export default function BulkAllocationClient({
     return filteredProducts.every((p) => selectedProductIds.has(p.id));
   }, [filteredProducts, selectedProductIds]);
 
-  // ── Handlers ───────────────────────────────────────────────────────────────
+  // Event Handlers
   const handleSelectProduct = (product: WarehouseProduct) => {
     setSelectedProducts((prev) => {
       // Jika sudah ada, hapus (toggle off)
@@ -169,8 +177,7 @@ export default function BulkAllocationClient({
       return;
     }
 
-    // ── Lapis 2: Pre-flight Check (Validasi Stok sebelum Submit) ────────────
-    // Cegah submit jika ada item yang melebihi stok gudang pusat
+    // Validasi kuantitas sebelum submit: cegah melebihi stok gudang pusat
     const overStockItems = selectedProducts.filter(
       (item) => item.quantity > item.product.stock_quantity
     );
@@ -178,11 +185,11 @@ export default function BulkAllocationClient({
     if (overStockItems.length > 0) {
       const firstViolation = overStockItems[0];
       setErrorMessage(
-        `⚠️ Gagal: Alokasi "${firstViolation.product.name}" (${firstViolation.quantity} pcs) ` +
+        `Gagal: Alokasi "${firstViolation.product.name}" (${firstViolation.quantity} pcs) ` +
         `melebihi stok gudang tersedia (${firstViolation.product.stock_quantity} pcs). ` +
         `Kurangi jumlahnya dan coba lagi.`
       );
-      return; // Hentikan eksekusi — jangan sentuh Supabase
+      return;
     }
 
     setIsSubmitting(true);
@@ -224,36 +231,32 @@ export default function BulkAllocationClient({
 
   return (
     <div className="space-y-6">
-      {/* ── Main Two-Column Layout (Warehouse Table + Allocation Cart) ────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        {/* ── Left Column: Warehouse Inventory Table (Multi-Select) ──────── */}
         <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-3">
-          <div className="rounded-2xl bg-[#e0e5ec] p-4 shadow-neu-flat border border-white/40">
-            {/* Header: Title & Search Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#a3b1c6]/20">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
               <div>
-                <h2 className="text-base font-black text-[#2d3440] flex items-center gap-2">
-                  <span className="flex size-6 items-center justify-center rounded-lg bg-terracotta-clay text-white text-xs shadow-neu-sm">
-                    📦
+                <h2 className="text-base font-black text-gray-900 flex items-center gap-2">
+                  <span className="flex size-6 items-center justify-center rounded-lg bg-terracotta-clay text-white shadow-sm">
+                    <Package size={13} />
                   </span>
                   Stok Gudang Pusat
                 </h2>
-                <p className="text-[11px] text-[#7a8394] mt-0.5">
+                <p className="text-[11px] text-gray-500 mt-0.5">
                   Centang produk yang ingin dialokasikan ke toko mitra.
                 </p>
               </div>
 
-              {/* Search Box with Neumorphism Inset */}
               <div className="relative w-full sm:w-64">
                 <input
                   type="text"
                   placeholder="Cari SKU / nama produk..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-9 rounded-xl bg-[#e0e5ec] shadow-neu-inset-sm px-3.5 pl-8 text-xs font-semibold text-[#2d3440] placeholder:text-[#7a8394] outline-none transition-all focus:ring-1 focus:ring-terracotta-clay/40"
+                  className="w-full h-9 rounded-lg bg-gray-50 border border-gray-200 px-3.5 pl-8 text-xs font-semibold text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
                 />
                 <svg
-                  className="size-3.5 text-[#7a8394] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
+                  className="size-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -267,26 +270,23 @@ export default function BulkAllocationClient({
               </div>
             </div>
 
-            {/* Selection Status Bar */}
             <div className="flex items-center justify-between py-2.5 px-1 text-xs">
-              <span className="text-[11px] font-semibold text-[#7a8394]">
-                Menampilkan <strong className="text-[#2d3440]">{filteredProducts.length}</strong> produk
+              <span className="text-[11px] font-semibold text-gray-500">
+                Menampilkan <strong className="text-gray-900">{filteredProducts.length}</strong> produk
                 tersedia di gudang pusat
               </span>
 
               {selectedProducts.length > 0 && (
-                <span className="text-[11px] font-bold text-terracotta-clay bg-almond-cream px-2.5 py-0.5 rounded-full shadow-neu-sm">
+                <span className="text-[11px] font-bold text-terracotta-clay bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 rounded-full">
                   {selectedProducts.length} produk terpilih ({totalUnits} unit)
                 </span>
               )}
             </div>
 
-            {/* Warehouse Products Table */}
-            <div className="overflow-x-auto rounded-xl border border-[#a3b1c6]/20 bg-[#e0e5ec]">
+            <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar rounded-xl border border-gray-200 bg-white">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#d7dde6] text-[11px] font-bold uppercase tracking-wider text-[#576071] border-b border-[#a3b1c6]/20">
+                <thead className="sticky top-0 z-10 bg-gray-50 text-[11px] font-bold uppercase tracking-wider text-gray-600 border-b border-gray-200 shadow-sm">
                   <tr>
-                    {/* Checkbox 'Pilih Semua' */}
                     <th scope="col" className="w-10 px-3 py-2.5 text-center">
                       <label className="inline-flex items-center cursor-pointer">
                         <input
@@ -299,8 +299,8 @@ export default function BulkAllocationClient({
                         <span
                           className={`size-4.5 rounded-md flex items-center justify-center transition-all ${
                             isAllSelected
-                              ? "bg-terracotta-clay text-white shadow-neu-sm"
-                              : "bg-[#e0e5ec] shadow-neu-inset-sm border border-[#a3b1c6]/30 text-transparent"
+                              ? "bg-terracotta-clay text-white shadow-sm"
+                              : "bg-white border border-gray-300 text-transparent"
                           }`}
                         >
                           <svg
@@ -348,7 +348,6 @@ export default function BulkAllocationClient({
                               : "hover:bg-almond-cream/15"
                           }`}
                         >
-                          {/* Row Checkbox with Neumorphic Style */}
                           <td
                             className="px-3 py-2.5 text-center"
                             onClick={(e) => e.stopPropagation()}
@@ -364,8 +363,8 @@ export default function BulkAllocationClient({
                               <span
                                 className={`size-4.5 rounded-md flex items-center justify-center transition-all ${
                                   isSelected
-                                    ? "bg-terracotta-clay text-white shadow-neu-sm"
-                                    : "bg-[#e0e5ec] shadow-neu-inset-sm border border-[#a3b1c6]/30 text-transparent hover:border-terracotta-clay/40"
+                                    ? "bg-terracotta-clay text-white"
+                                    : "bg-white border border-gray-300 text-transparent hover:border-terracotta-clay/60"
                                 }`}
                               >
                                 <svg
@@ -383,7 +382,6 @@ export default function BulkAllocationClient({
                             </label>
                           </td>
 
-                          {/* Product Info */}
                           <td className="px-3 py-2.5 min-w-0">
                             <p className="font-bold text-[#2d3440] truncate max-w-[200px] sm:max-w-xs" title={product.name}>
                               {product.name}
@@ -393,27 +391,24 @@ export default function BulkAllocationClient({
                             </span>
                           </td>
 
-                          {/* Category */}
                           <td className="px-3 py-2.5 hidden sm:table-cell whitespace-nowrap">
                             <span className="inline-block rounded-md bg-[#d7dde6] px-2 py-0.5 text-[10px] font-semibold text-[#576071]">
                               {product.category || "Umum"}
                             </span>
                           </td>
 
-                          {/* Stock Quantity */}
                           <td className="px-3 py-2.5 text-right whitespace-nowrap">
                             <span
-                              className={`inline-flex min-w-[2.5rem] justify-center rounded-lg px-2 py-0.5 text-xs font-black shadow-neu-sm ${
+                              className={`inline-flex min-w-[2.5rem] justify-center rounded-lg px-2 py-0.5 text-xs font-black border ${
                                 product.stock_quantity <= 5
-                                  ? "bg-rose-100 text-rose-800"
-                                  : "bg-almond-cream text-terracotta-clay"
+                                  ? "bg-rose-50 border-rose-200/60 text-rose-800"
+                                  : "bg-orange-50 border-orange-200/60 text-terracotta-clay"
                               }`}
                             >
                               {numberFormatter.format(product.stock_quantity)} pcs
                             </span>
                           </td>
 
-                          {/* Quick Toggle Action Button */}
                           <td
                             className="px-3 py-2.5 text-center"
                             onClick={(e) => e.stopPropagation()}
@@ -423,8 +418,8 @@ export default function BulkAllocationClient({
                               onClick={() => handleSelectProduct(product)}
                               className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${
                                 isSelected
-                                  ? "bg-terracotta-clay text-white shadow-neu-sm active:shadow-neu-inset-sm"
-                                  : "bg-[#e0e5ec] text-[#576071] shadow-neu-sm hover:text-terracotta-clay active:shadow-neu-inset-sm"
+                                  ? "bg-terracotta-clay text-white hover:opacity-90 active:scale-95"
+                                  : "bg-gray-100 border border-gray-200 text-gray-600 hover:text-terracotta-clay hover:border-terracotta-clay/30 active:scale-95"
                               }`}
                             >
                               {isSelected ? `${currentQty} pcs` : "+ Pilih"}
@@ -440,18 +435,16 @@ export default function BulkAllocationClient({
           </div>
         </div>
 
-        {/* ── Right Column: Panel Keranjang Alokasi (Sticky Sidebar) ─────── */}
         <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-4">
-          <div className="rounded-2xl bg-[#e0e5ec] p-4 shadow-neu-flat border border-white/40 flex flex-col gap-3.5">
-            {/* Header Keranjang Alokasi */}
-            <div className="flex items-center justify-between pb-3 border-b border-[#a3b1c6]/20">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 flex flex-col gap-3.5">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
               <div className="flex items-center gap-2">
-                <span className="flex size-7 items-center justify-center rounded-xl bg-terracotta-clay text-white shadow-neu-sm text-sm">
-                  🛒
+                <span className="flex size-7 items-center justify-center rounded-lg bg-terracotta-clay text-white shadow-sm text-sm">
+                  <ShoppingCart size={15} />
                 </span>
                 <div>
-                  <h3 className="text-sm font-black text-[#2d3440]">Keranjang Alokasi</h3>
-                  <p className="text-[10px] text-[#7a8394]">Alokasi massal ke gerai mitra</p>
+                  <h3 className="text-sm font-black text-gray-900">Keranjang Alokasi</h3>
+                  <p className="text-[10px] text-gray-500">Alokasi massal ke gerai mitra</p>
                 </div>
               </div>
 
@@ -466,11 +459,10 @@ export default function BulkAllocationClient({
               )}
             </div>
 
-            {/* Dropdown Pemilihan Toko Mitra Tujuan */}
             <div>
               <label
                 htmlFor="target-mitra-store"
-                className="block text-[11px] font-black uppercase tracking-wider text-[#576071] mb-1.5"
+                className="block text-[11px] font-bold uppercase tracking-wider text-gray-600 mb-1.5"
               >
                 Pilih Toko Mitra Tujuan
               </label>
@@ -480,7 +472,7 @@ export default function BulkAllocationClient({
                   value={selectedStoreId}
                   onChange={(e) => setSelectedStoreId(e.target.value)}
                   disabled={stores.length === 0}
-                  className="w-full h-10 rounded-xl bg-[#e0e5ec] shadow-neu-inset-sm px-3 text-xs font-bold text-[#2d3440] outline-none transition-all focus:ring-1 focus:ring-terracotta-clay/40 disabled:opacity-50"
+                  className="w-full h-10 rounded-lg bg-gray-50 border border-gray-200 px-3 text-xs font-semibold text-gray-900 outline-none transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay disabled:opacity-50"
                 >
                   {stores.length ? (
                     stores.map((s) => (
@@ -495,10 +487,11 @@ export default function BulkAllocationClient({
               </div>
             </div>
 
-            {/* State: Keranjang Kosong vs Berisi Produk */}
             {selectedProducts.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-[#a3b1c6]/40 p-6 text-center flex flex-col items-center justify-center gap-2">
-                <span className="text-3xl opacity-60">📋</span>
+              <div className="rounded-xl border border-dashed border-gray-200 p-6 text-center flex flex-col items-center justify-center gap-2">
+                <div className="flex size-10 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+                  <ClipboardList size={20} />
+                </div>
                 <p className="text-xs font-bold text-[#576071]">Belum Ada Produk Dipilih</p>
                 <p className="text-[11px] text-[#7a8394] max-w-[220px]">
                   Beri tanda centang pada checkbox produk di tabel sebelah kiri untuk menambahkannya ke keranjang ini.
@@ -506,7 +499,6 @@ export default function BulkAllocationClient({
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                {/* Scrollable list of selected products with quantity inputs */}
                 <div className="max-h-[320px] overflow-y-auto space-y-2 pr-1">
                   {selectedProducts.map(({ product: prod, quantity: qty }) => {
                     const maxStock = prod.stock_quantity;
@@ -514,7 +506,7 @@ export default function BulkAllocationClient({
                     return (
                       <div
                         key={prod.id}
-                        className="rounded-xl bg-[#e0e5ec] p-2.5 shadow-neu-sm border border-white/60 flex flex-col gap-2"
+                        className="rounded-xl bg-gray-50 p-2.5 border border-gray-200 flex flex-col gap-2"
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
@@ -522,11 +514,10 @@ export default function BulkAllocationClient({
                               {prod.name}
                             </p>
                             <p className="text-[10px] text-[#7a8394] font-mono">
-                              {prod.sku} · Gudang: <span className="font-bold text-terracotta-clay">{maxStock} pcs</span>
+                              {prod.sku} | Gudang: <span className="font-bold text-terracotta-clay">{maxStock} pcs</span>
                             </p>
                           </div>
 
-                          {/* Delete Item Button */}
                           <button
                             type="button"
                             onClick={() => handleRemoveFromCart(prod.id)}
@@ -548,55 +539,51 @@ export default function BulkAllocationClient({
                           </button>
                         </div>
 
-                        {/* Quantity Controls (Stepper + Number Input) */}
                         <div className="flex items-center justify-between pt-1 border-t border-[#a3b1c6]/15">
                           <span className="text-[11px] font-semibold text-[#576071]">
                             Jumlah Alokasi:
                           </span>
 
                           <div className="flex items-center gap-1.5">
-                            {/* Decrease Button: Turun per 10, minimal 1 */}
                             <button
                               type="button"
                               onClick={() => handleUpdateQuantity(prod.id, "decrease")}
                               disabled={qty <= 1}
                               title="Kurangi 10 unit (min. 1)"
-                              className="size-7 rounded-lg bg-[#e0e5ec] shadow-neu-sm flex items-center justify-center text-xs font-black text-[#2d3440] hover:text-terracotta-clay active:shadow-neu-inset-sm disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                              className="size-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-xs font-black text-gray-700 hover:text-terracotta-clay hover:border-terracotta-clay/30 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                             >
                               -
                             </button>
 
-                            {/* Direct Number Input with Inset Neumorphism */}
                             <input
                               type="number"
                               min="1"
                               max={maxStock}
                               value={qty}
                               onChange={(e) => handleDirectQuantityChange(prod.id, Number(e.target.value))}
-                              className={`w-16 h-7 rounded-lg bg-[#e0e5ec] shadow-neu-inset-sm text-center text-xs font-black outline-none focus:ring-1 transition-all ${
+                              className={`w-16 h-7 rounded-lg bg-gray-50 border text-center text-xs font-black outline-none focus:ring-2 transition-all ${
                                 qty >= maxStock
-                                  ? "text-rose-600 focus:ring-rose-400"
-                                  : "text-[#2d3440] focus:ring-terracotta-clay"
+                                  ? "border-rose-300 text-rose-600 focus:ring-rose-400/20"
+                                  : "border-gray-200 text-gray-800 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
                               }`}
                             />
 
-                            {/* Increase Button: Naik per 10, dibatasi maxStock */}
                             <button
                               type="button"
                               onClick={() => handleUpdateQuantity(prod.id, "increase")}
                               disabled={qty >= maxStock}
                               title={qty >= maxStock ? `Maksimal ${maxStock} pcs (batas stok gudang)` : "Tambah 10 unit"}
-                              className="size-7 rounded-lg bg-[#e0e5ec] shadow-neu-sm flex items-center justify-center text-xs font-black text-[#2d3440] hover:text-terracotta-clay active:shadow-neu-inset-sm disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                              className="size-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-xs font-black text-gray-700 hover:text-terracotta-clay hover:border-terracotta-clay/30 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                             >
                               +
                             </button>
                           </div>
                         </div>
 
-                        {/* Peringatan visual jika qty menyentuh batas stok gudang */}
                         {qty >= maxStock && (
-                          <p className="text-[10px] font-bold text-rose-600 bg-rose-50 rounded-lg px-2 py-1 border border-rose-200/60">
-                            ⚠️ Batas maksimal stok gudang tercapai ({maxStock} pcs)
+                          <p className="text-[10px] font-bold text-rose-600 bg-rose-50 rounded-lg px-2 py-1 border border-rose-200/60 flex items-center gap-1">
+                            <AlertCircle size={11} className="shrink-0" />
+                            Batas maksimal stok gudang tercapai ({maxStock} pcs)
                           </p>
                         )}
                       </div>
@@ -604,8 +591,7 @@ export default function BulkAllocationClient({
                   })}
                 </div>
 
-                {/* Summary Box */}
-                <div className="rounded-xl bg-almond-cream/60 p-3 shadow-neu-inset-sm space-y-1.5 text-xs">
+                <div className="rounded-xl bg-orange-50 border border-orange-200/60 p-3 space-y-1.5 text-xs">
                   <div className="flex items-center justify-between text-[#576071]">
                     <span>Total Jenis Produk:</span>
                     <strong className="text-[#2d3440]">{selectedProducts.length} macam</strong>
@@ -620,31 +606,31 @@ export default function BulkAllocationClient({
               </div>
             )}
 
-            {/* Error & Success Feedback */}
             {errorMessage && (
-              <p
+              <div
                 role="alert"
-                className="rounded-xl border border-rose-300 bg-rose-50/90 p-2.5 text-xs font-semibold text-rose-800"
+                className="rounded-xl border border-rose-300 bg-rose-50/90 p-2.5 text-xs font-semibold text-rose-800 flex items-start gap-2"
               >
-                {errorMessage}
-              </p>
+                <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                <span>{errorMessage}</span>
+              </div>
             )}
 
             {successMessage && (
-              <p
+              <div
                 role="status"
-                className="rounded-xl border border-emerald-300 bg-emerald-50/90 p-2.5 text-xs font-semibold text-emerald-800"
+                className="rounded-xl border border-emerald-300 bg-emerald-50/90 p-2.5 text-xs font-semibold text-emerald-800 flex items-start gap-2"
               >
-                {successMessage}
-              </p>
+                <CheckCircle size={14} className="shrink-0 mt-0.5" />
+                <span>{successMessage}</span>
+              </div>
             )}
 
-            {/* Main Action Button (Bulk Upsert Trigger) */}
             <button
               type="button"
               onClick={handleBulkAllocationSubmit}
               disabled={isSubmitting || selectedProducts.length === 0 || !selectedStoreId}
-              className="w-full h-11 rounded-2xl bg-gradient-to-r from-terracotta-clay to-[#804233] text-white text-xs font-black uppercase tracking-wider shadow-neu-sm transition-all duration-200 hover:brightness-110 active:shadow-neu-inset-sm active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full h-11 rounded-2xl bg-gradient-to-r from-terracotta-clay to-[#804233] text-white text-xs font-black uppercase tracking-wider shadow-sm transition-all duration-200 hover:brightness-110 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -664,35 +650,33 @@ export default function BulkAllocationClient({
         </div>
       </div>
 
-      {/* ── Bottom Section: Existing Stock at Partner Stores ─────────────── */}
       <section
         aria-label="Daftar alokasi stok"
-        className="rounded-2xl bg-[#e0e5ec] shadow-neu-flat border border-white/40 p-4"
+        className="bg-white border border-gray-200 rounded-xl shadow-sm p-4"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#a3b1c6]/20">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
           <div>
-            <h2 className="text-base font-black text-[#2d3440] flex items-center gap-2">
-              <span className="flex size-6 items-center justify-center rounded-lg bg-terracotta-clay text-white text-xs shadow-neu-sm">
-                🏬
+            <h2 className="text-base font-black text-gray-900 flex items-center gap-2">
+              <span className="flex size-6 items-center justify-center rounded-lg bg-terracotta-clay text-white shadow-sm">
+                <Store size={13} />
               </span>
               Stok Aktif di Toko Mitra
             </h2>
-            <p className="text-[11px] text-[#7a8394] mt-0.5">
+            <p className="text-[11px] text-gray-500 mt-0.5">
               Daftar stok yang telah dialokasikan dan tersedia di gerai mitra.
             </p>
           </div>
 
-          {/* Filter Toko Mitra Dropdown */}
           <div className="w-full sm:w-60">
             <select
               value={filterAllocationStoreId}
               onChange={(e) => setFilterAllocationStoreId(e.target.value)}
-              className="w-full h-8 rounded-xl bg-[#e0e5ec] shadow-neu-inset-sm px-3 text-xs font-bold text-[#2d3440] outline-none"
+              className="w-full h-8 rounded-lg bg-gray-50 border border-gray-200 px-3 text-xs font-semibold text-gray-900 outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
             >
               <option value="all">Semua Toko Mitra ({allocations.length} alokasi)</option>
               {stores.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.name}
+                  {s.name}{s.city ? ` (${s.city})` : ""}
                 </option>
               ))}
             </select>
@@ -700,13 +684,13 @@ export default function BulkAllocationClient({
         </div>
 
         {displayedAllocations.length === 0 ? (
-          <p className="py-8 text-center text-xs text-[#7a8394]">
+          <p className="py-8 text-center text-xs text-gray-500">
             Belum ada data stok yang dialokasikan untuk pilihan ini.
           </p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-[#a3b1c6]/20 bg-[#e0e5ec] mt-3">
+          <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar rounded-xl border border-gray-200 bg-white mt-3">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#d7dde6] text-[11px] font-bold uppercase tracking-wider text-[#576071] border-b border-[#a3b1c6]/20">
+              <thead className="sticky top-0 z-10 bg-gray-50 text-[11px] font-bold uppercase tracking-wider text-gray-600 border-b border-gray-200 shadow-sm">
                 <tr>
                   <th scope="col" className="px-3.5 py-2.5">Toko Mitra</th>
                   <th scope="col" className="px-3.5 py-2.5">SKU</th>
@@ -714,27 +698,33 @@ export default function BulkAllocationClient({
                   <th scope="col" className="px-3.5 py-2.5 text-right">Stok di Mitra</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#a3b1c6]/15">
+              <tbody className="divide-y divide-gray-100">
                 {displayedAllocations.map((alloc) => {
-                  const store = storesById.get(alloc.partner_store_id);
                   const prod = productsById.get(alloc.product_id);
 
                   return (
-                    <tr key={alloc.id} className="hover:bg-almond-cream/20 transition-colors">
-                      <td className="px-3.5 py-2 font-medium text-[#576071]">
-                        {store ? store.name : "Toko tidak diketahui"}
-                        {store?.city && (
-                          <span className="text-[10px] text-[#7a8394] ml-1">· {store.city}</span>
+                    <tr key={alloc.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-3.5 py-2 font-medium text-gray-600">
+                        <span
+                          className={alloc.store_is_active === false ? "text-gray-400" : undefined}
+                          title={formatStoreName(alloc)}
+                        >
+                          {formatStoreName(alloc)}
+                        </span>
+                        {alloc.store_is_active === false && (
+                          <span className="ml-1.5 inline-block rounded-md bg-gray-100 border border-gray-200 px-1.5 py-0.5 text-[10px] font-bold text-gray-400 align-middle">
+                            NONAKTIF
+                          </span>
                         )}
                       </td>
-                      <td className="px-3.5 py-2 font-mono text-[11px] text-[#7a8394]">
+                      <td className="px-3.5 py-2 font-mono text-[11px] text-gray-500">
                         {prod?.sku || "-"}
                       </td>
-                      <td className="px-3.5 py-2 font-bold text-[#2d3440]">
+                      <td className="px-3.5 py-2 font-bold text-gray-800">
                         {prod?.name || "Produk tidak ditemukan"}
                       </td>
                       <td className="px-3.5 py-2 text-right whitespace-nowrap">
-                        <span className="inline-block rounded-md bg-almond-cream px-2 py-0.5 text-xs font-black text-terracotta-clay shadow-neu-sm">
+                        <span className="inline-block rounded-md bg-orange-50 border border-orange-200/60 px-2 py-0.5 text-xs font-bold text-terracotta-clay">
                           {numberFormatter.format(alloc.stock_quantity)} pcs
                         </span>
                       </td>
@@ -749,3 +739,4 @@ export default function BulkAllocationClient({
     </div>
   );
 }
+

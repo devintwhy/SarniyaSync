@@ -18,8 +18,8 @@ html {
 }
 
 body {
-  color: #2d3440;
-  background: #e0e5ec;
+  color: #1f2937;
+  background: #f9fafb;
   font-family: var(--font-geist-sans), sans-serif;
   min-height: 100vh;
   line-height: 1.45;
@@ -51,33 +51,57 @@ h3 {
     text-wrap: balance;
   }
   
-  /* Neumorphism Shadow Utilities */
+  /* Clean Flat Card & Button Utilities */
   .neu-flat {
-    box-shadow: 8px 8px 18px rgba(163, 177, 198, 0.6), -8px -8px 18px rgba(255, 255, 255, 0.9);
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   }
   
   .neu-sm {
-    box-shadow: 4px 4px 10px rgba(163, 177, 198, 0.5), -4px -4px 10px rgba(255, 255, 255, 0.8);
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   }
   
   .neu-inset {
-    box-shadow: inset 6px 6px 12px rgba(163, 177, 198, 0.7), inset -6px -6px 12px rgba(255, 255, 255, 0.85);
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    box-shadow: none;
   }
 
   .neu-inset-sm {
-    box-shadow: inset 3px 3px 6px rgba(163, 177, 198, 0.6), inset -3px -3px 6px rgba(255, 255, 255, 0.8);
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    box-shadow: none;
   }
 
   .neu-button {
-    box-shadow: 8px 8px 18px rgba(163, 177, 198, 0.6), -8px -8px 18px rgba(255, 255, 255, 0.9);
-    transition: all 0.25s ease-in-out;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    transition: all 0.2s ease-in-out;
   }
   .neu-button:hover {
-    filter: brightness(1.05);
+    opacity: 0.92;
   }
   .neu-button:active {
     transform: scale(0.98);
-    box-shadow: inset 4px 4px 8px rgba(163, 177, 198, 0.7), inset -4px -4px 8px rgba(255, 255, 255, 0.85);
+  }
+
+  /* Custom Scrollbar Utility */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(163, 177, 198, 0.15);
+    border-radius: 9999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(163, 177, 198, 0.45);
+    border-radius: 9999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #cc9787;
   }
 }
 

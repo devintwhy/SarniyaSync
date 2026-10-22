@@ -41,7 +41,6 @@ export default function PartnerDashboardCharts({
 
   return (
     <div className="grid gap-8 lg:grid-cols-3">
-      {/* ── 1. Grafik Tren Penjualan Harian Toko Mitra (30 Hari Terakhir) ── */}
       <section
         aria-label="Grafik tren penjualan harian"
         className="col-span-1 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5 lg:col-span-2 flex flex-col"
@@ -82,6 +81,7 @@ export default function PartnerDashboardCharts({
                     border: "1px solid #e2e8f0",
                     boxShadow: "0 8px 16px -4px rgba(45, 52, 64, 0.1)",
                   }}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   formatter={(value: any) => [currencyFormatter.format(Number(value)), "Pendapatan"]}
                   labelStyle={{ color: "#2d3440", fontWeight: "bold", marginBottom: "4px" }}
                 />
@@ -92,7 +92,6 @@ export default function PartnerDashboardCharts({
         </div>
       </section>
 
-      {/* ── 2. Produk Terlaris di Toko Saya (Top 5 Best Sellers) ───────────── */}
       <section
         aria-label="Produk terlaris toko saya"
         className="col-span-1 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5 flex flex-col"

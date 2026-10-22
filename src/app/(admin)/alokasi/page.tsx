@@ -60,19 +60,24 @@ export default async function StockAllocationPage() {
     if (page.length < PAGE_SIZE) break;
   }
 
-  // 3. Ambil data inventaris yang sudah dialokasikan di toko mitra
+  // 3. Ambil data inventaris + join info toko mitra (tanpa filter is_active) agar toko yang sudah dinonaktifkan tetap muncul dengan datanya.
   const allocations: Array<{
     id: string;
     partner_store_id: string;
     product_id: string;
     stock_quantity: number;
+    store_name: string | null;
+    store_city: string | null;
+    store_is_active: boolean | null;
   }> = [];
   let allocationError = "";
 
   for (let offset = 0; ; offset += PAGE_SIZE) {
     const { data, error } = await supabase
       .from("partner_store_inventory")
-      .select("id, partner_store_id, product_id, stock_quantity")
+      .select(
+        "id, partner_store_id, product_id, stock_quantity, partner_stores(name, city, is_active)"
+      )
       .order("updated_at", { ascending: false })
       .range(offset, offset + PAGE_SIZE - 1);
 
@@ -81,7 +86,21 @@ export default async function StockAllocationPage() {
       break;
     }
 
-    const page = data ?? [];
+    const page = (data ?? []).map((row) => {
+      const storeJoin = Array.isArray(row.partner_stores)
+        ? row.partner_stores[0]
+        : row.partner_stores;
+      return {
+        id: row.id,
+        partner_store_id: row.partner_store_id,
+        product_id: row.product_id,
+        stock_quantity: row.stock_quantity,
+        store_name: storeJoin?.name ?? null,
+        store_city: storeJoin?.city ?? null,
+        store_is_active: storeJoin?.is_active ?? null,
+      };
+    });
+
     allocations.push(...page);
     if (page.length < PAGE_SIZE) break;
   }
@@ -90,10 +109,9 @@ export default async function StockAllocationPage() {
 
   return (
     <div className="w-full space-y-4">
-      {/* ── Page Header ─────────────────────────────────────────────────── */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <span className="inline-block rounded-full bg-almond-cream px-2.5 py-0.5 text-xs font-black text-terracotta-clay shadow-neu-sm">
+          <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 text-xs font-black text-terracotta-clay">
             Gudang Pusat & Logistik
           </span>
           <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
@@ -105,26 +123,24 @@ export default async function StockAllocationPage() {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <span className="rounded-xl bg-[#e0e5ec] shadow-neu-sm px-3 py-1.5 text-xs font-bold text-[#576071] border border-white/60">
+          <span className="rounded-xl bg-white border border-gray-200 shadow-sm px-3 py-1.5 text-xs font-bold text-gray-600">
             {products.length} Produk Tersedia
           </span>
-          <span className="rounded-xl bg-[#e0e5ec] shadow-neu-sm px-3 py-1.5 text-xs font-bold text-terracotta-clay border border-white/60">
+          <span className="rounded-xl bg-orange-50 border border-orange-200/60 px-3 py-1.5 text-xs font-bold text-terracotta-clay">
             {stores.length} Toko Mitra Aktif
           </span>
         </div>
       </header>
 
-      {/* ── Load Error Banner ────────────────────────────────────────────── */}
       {loadError && (
         <div
           role="alert"
-          className="rounded-2xl border border-rose-300 bg-rose-50/90 p-3 text-xs font-semibold text-rose-800 shadow-neu-sm"
+          className="rounded-2xl border border-rose-300 bg-rose-50 p-3 text-xs font-semibold text-rose-800"
         >
           Sebagian data gagal dimuat: {loadError}
         </div>
       )}
 
-      {/* ── Bulk Allocation Interactive Component ────────────────────────── */}
       <BulkAllocationClient
         stores={stores.map((s) => ({
           id: s.id,
@@ -138,7 +154,15 @@ export default async function StockAllocationPage() {
           category: p.category,
           stock_quantity: p.stock_quantity,
         }))}
-        allocations={allocations}
+        allocations={allocations.map((a) => ({
+          id: a.id,
+          partner_store_id: a.partner_store_id,
+          product_id: a.product_id,
+          stock_quantity: a.stock_quantity,
+          store_name: a.store_name,
+          store_city: a.store_city,
+          store_is_active: a.store_is_active,
+        }))}
       />
     </div>
   );

@@ -24,6 +24,7 @@ export async function GET() {
         payment_method,
         partner_stores ( name )
       `)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .order("sold_at", { ascending: false }) as any);
 
     if (error) {

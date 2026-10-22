@@ -36,18 +36,16 @@ export default function DashboardCharts({
   topPartners,
 }: DashboardChartsProps) {
   return (
-    /* ── Baris Tengah (Sandingkan 2 Kolom Sejajar) ────────────────────────── */
     <div className="grid grid-cols-1 lg:grid-cols-8 gap-4 items-stretch">
-      {/* ── Kolom Kiri: Grafik Tren Penjualan — 5/8 layar (≈62.5%) ──────── */}
       <section
         aria-label="Grafik Tren Penjualan"
-        className="lg:col-span-5 rounded-2xl bg-[#e0e5ec] shadow-neu-flat overflow-hidden flex flex-col justify-between h-full border border-white/40"
+        className="lg:col-span-5 rounded-xl bg-white shadow-sm overflow-hidden flex flex-col justify-between h-full border border-gray-200"
       >
-        <div className="border-b border-[#a3b1c6]/20 px-4 py-3 sm:px-5 flex flex-col gap-0.5">
-          <h2 className="text-sm sm:text-base font-black text-[#2d3440]">
+        <div className="border-b border-gray-100 px-4 py-3 sm:px-5 flex flex-col gap-0.5">
+          <h2 className="text-sm sm:text-base font-black text-gray-900">
             Grafik Tren Penjualan (30 Hari Terakhir)
           </h2>
-          <p className="text-xs text-[#7a8394]">
+          <p className="text-xs text-gray-500">
             Akumulasi pendapatan harian dari seluruh transaksi gerai mitra.
           </p>
         </div>
@@ -58,36 +56,37 @@ export default function DashboardCharts({
               data={dailySales}
               margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#cfd6e0" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
               <XAxis
                 dataKey="date"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 11, fill: "#7a8394" }}
+                tick={{ fontSize: 11, fill: "#9ca3af" }}
                 dy={6}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 11, fill: "#7a8394" }}
+                tick={{ fontSize: 11, fill: "#9ca3af" }}
                 tickFormatter={(value) => `Rp ${value >= 1000000 ? `${(value / 1000000).toFixed(1)}M` : `${value / 1000}K`}`}
               />
               <Tooltip
-                cursor={{ fill: "rgba(204, 151, 135, 0.15)" }}
+                cursor={{ fill: "rgba(204, 151, 135, 0.08)" }}
                 contentStyle={{
-                  backgroundColor: "#e0e5ec",
-                  borderRadius: "12px",
-                  border: "1px solid rgba(255,255,255,0.7)",
-                  boxShadow: "6px 6px 12px rgba(163, 177, 198, 0.6), -6px -6px 12px rgba(255, 255, 255, 0.9)",
+                  backgroundColor: "#ffffff",
+                  borderRadius: "8px",
+                  border: "1px solid #e5e7eb",
+                  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
                   fontSize: "12px",
                 }}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 formatter={(value: any) => [currencyFormatter.format(Number(value)), "Pendapatan"]}
-                labelStyle={{ color: "#2d3440", fontWeight: "bold", marginBottom: "3px" }}
+                labelStyle={{ color: "#111827", fontWeight: "bold", marginBottom: "3px" }}
               />
               <Bar
                 dataKey="total"
                 fill="#cc9787"
-                radius={[5, 5, 0, 0]}
+                radius={[4, 4, 0, 0]}
                 maxBarSize={40}
               />
             </BarChart>
@@ -95,28 +94,27 @@ export default function DashboardCharts({
         </div>
       </section>
 
-      {/* ── Kolom Kanan: Leaderboard Mitra Terbaik — 3/8 layar (≈37.5%) ──── */}
       <section
         aria-label="Leaderboard Mitra Terbaik"
-        className="lg:col-span-3 rounded-2xl bg-[#e0e5ec] shadow-neu-flat overflow-hidden flex flex-col justify-between h-full border border-white/40"
+        className="lg:col-span-3 rounded-xl bg-white shadow-sm overflow-hidden flex flex-col justify-between h-full border border-gray-200"
       >
-        <div className="border-b border-[#a3b1c6]/20 px-4 py-3 sm:px-5 flex flex-col gap-0.5">
+        <div className="border-b border-gray-100 px-4 py-3 sm:px-5 flex flex-col gap-0.5">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm sm:text-base font-black text-[#2d3440]">
+            <h2 className="text-sm sm:text-base font-black text-gray-900">
               Leaderboard Mitra Terbaik
             </h2>
-            <span className="inline-flex items-center rounded-full bg-almond-cream px-2 py-0.5 text-[10px] font-bold text-terracotta-clay shadow-neu-sm">
+            <span className="inline-flex items-center rounded-full bg-orange-50 border border-orange-200/60 px-2 py-0.5 text-[10px] font-bold text-terracotta-clay">
               Bulan Ini
             </span>
           </div>
-          <p className="text-xs text-[#7a8394]">
+          <p className="text-xs text-gray-500">
             Top 5 gerai mitra dengan akumulasi omzet tertinggi.
           </p>
         </div>
 
         <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-around">
           {topPartners.length === 0 ? (
-            <p className="text-center text-xs text-[#6d7687] py-8">
+            <p className="text-center text-xs text-gray-500 py-8">
               Belum ada data penjualan mitra bulan ini.
             </p>
           ) : (
@@ -130,15 +128,15 @@ export default function DashboardCharts({
                     <div className="mb-1.5 flex items-center justify-between">
                       <div className="flex items-center gap-2 min-w-0">
                         <span
-                          className={`flex size-5.5 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold shadow-neu-sm ${
+                          className={`flex size-5.5 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold ${
                             index === 0
-                              ? "bg-gradient-to-r from-terracotta-clay to-dusty-rose text-white"
-                              : "bg-almond-cream text-terracotta-clay"
+                              ? "bg-terracotta-clay text-white"
+                              : "bg-gray-100 text-gray-700"
                           }`}
                         >
                           {index + 1}
                         </span>
-                        <span className="text-xs sm:text-[13px] font-bold text-[#2d3440] truncate">
+                        <span className="text-xs sm:text-[13px] font-bold text-gray-800 truncate">
                           {partner.storeName}
                         </span>
                       </div>
@@ -147,10 +145,9 @@ export default function DashboardCharts({
                       </span>
                     </div>
 
-                    {/* Progress Bar Neumorphic */}
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-[#d1d9e6] shadow-neu-inset-sm">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-almond-silk via-rosy-taupe to-terracotta-clay transition-all duration-700 ease-out"
+                        className="h-full rounded-full bg-gradient-to-r from-terracotta-clay to-rosy-taupe transition-all duration-700 ease-out"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>

@@ -8,7 +8,7 @@ export const metadata = {
   description: "Kelola seluruh produk katalog SarniyaSync — tambah, lihat harga modal, harga jual, dan stok pusat.",
 };
 
-// ── Server Action ──────────────────────────────────────────────────────────────
+// Server action untuk menambah produk baru ke master produk pusat
 async function addProductAction(formData: FormData): Promise<{ error?: string }> {
   "use server";
 
@@ -21,7 +21,7 @@ async function addProductAction(formData: FormData): Promise<{ error?: string }>
   const sellingPriceRaw = formData.get("selling_price");
   const stockRaw = formData.get("stock_quantity");
 
-  // ── Validasi dasar ─────────────────────────────────────────────────────────
+  // Validasi input produk
   if (!name) return { error: "Nama produk wajib diisi." };
   if (!category) return { error: "Kategori wajib dipilih." };
 
@@ -36,7 +36,6 @@ async function addProductAction(formData: FormData): Promise<{ error?: string }>
   if (!Number.isFinite(stock_quantity) || stock_quantity < 0)
     return { error: "Stok awal tidak boleh minus atau kosong." };
 
-  // ── Insert ke Supabase ─────────────────────────────────────────────────────
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.from("products").insert({
     name,
@@ -56,17 +55,6 @@ async function addProductAction(formData: FormData): Promise<{ error?: string }>
   return {};
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
-function formatRupiah(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-// ── Page ───────────────────────────────────────────────────────────────────────
 export default async function ProdukPage() {
   const supabase = await createSupabaseServerClient();
   const { data: products, error } = await supabase
@@ -76,25 +64,23 @@ export default async function ProdukPage() {
 
   return (
     <div className="w-full space-y-3 sm:space-y-4">
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="inline-block rounded-full bg-almond-cream px-2.5 py-0.5 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
+          <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 text-[11px] font-bold text-terracotta-clay">
             Area Pemilik / Administrator
           </span>
-          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
+          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-gray-900">
             Katalog Produk
           </h1>
-          <p className="mt-0.5 text-xs text-[#6d7687]">
+          <p className="mt-0.5 text-xs text-gray-500">
             Katalog visual produk pusat dengan stok, harga jual, dan aksi kelola.
           </p>
         </div>
 
-        {/* Tombol + Modal Tambah Produk (Client Component) */}
         <AddProductModal action={addProductAction} />
       </header>
 
-      {/* ── Grid Kartu Produk (Client Component) ─────────────────────────── */}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       <ProductTableClient products={(products ?? []) as any} errorMessage={error?.message} />
     </div>
   );

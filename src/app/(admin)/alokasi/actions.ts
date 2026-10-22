@@ -143,7 +143,7 @@ export async function allocatePartnerStock(input: AllocationInput): Promise<Allo
   }
 }
 
-// ── Bulk Stock Allocation (Alokasi Massal) ──────────────────────────────────
+// Alokasi stok massal (Bulk Stock Allocation)
 export type BulkAllocationItem = {
   productId: string;
   quantity: number;
@@ -267,6 +267,15 @@ export async function bulkAllocatePartnerStock(
       .insert(transferPayload);
 
     if (transferError) {
+      // Log detail error agar bisa debug di server console
+      console.error("[bulkAllocate] stock_transfers INSERT error:", {
+        code: transferError.code,
+        message: transferError.message,
+        details: transferError.details,
+        hint: transferError.hint,
+        payload: transferPayload,
+      });
+
       // Rollback: kembalikan stok gudang pusat yang sudah dikurangi
       for (const item of input.items) {
         const prod = productMap.get(item.productId)!;
@@ -278,7 +287,7 @@ export async function bulkAllocatePartnerStock(
           })
           .eq("id", prod.id);
       }
-      throw new Error(`Gagal membuat catatan pengiriman: ${transferError.message}`);
+      throw new Error(`Gagal membuat catatan pengiriman: [${transferError.code}] ${transferError.message}${transferError.hint ? ` — Hint: ${transferError.hint}` : ""}`);
     }
 
     // 6. Revalidasi path

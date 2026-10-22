@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import PartnerNavigation from "@/components/partner-navigation";
+import { SidebarProvider } from "@/context/sidebar-context";
 import { getProfileRole } from "@/utils/supabase/auth";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 
@@ -19,14 +20,14 @@ export default async function PartnerLayout({
   if ((await getProfileRole(supabase, user.id)) !== "mitra") redirect("/");
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-[#e0e5ec] text-[#2d3440] lg:flex-row">
-      {/* Sidebar Mitra Component */}
-      <PartnerNavigation />
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full flex-col bg-[#F9FAFB] text-[#2d3440] lg:flex-row">
+        <PartnerNavigation />
 
-      {/* Main Content Wrapper: Otomatis melebar mengisi ruang kosong saat Sidebar disembunyikan */}
-      <main className="flex-1 w-full min-w-0 transition-all duration-300 overflow-y-auto bg-[#e0e5ec] p-3 sm:p-4 lg:p-5">
-        {children}
-      </main>
-    </div>
+        <main className="flex-1 w-full min-w-0 transition-all duration-300 overflow-y-auto bg-[#F9FAFB] p-3 sm:p-4 lg:p-5">
+          {children}
+        </main>
+      </div>
+    </SidebarProvider>
   );
 }

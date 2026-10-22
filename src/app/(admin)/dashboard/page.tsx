@@ -36,26 +36,28 @@ export default async function AdminDashboardPage() {
   const supabase = await createSupabaseServerClient();
   const loadError = "";
 
-  // 0. Metrik Hari Ini & Metode Pembayaran (Baru)
+  // Metrik harian dan rincian metode pembayaran
   let todayRevenue = 0;
   let todayTransactionCount = 0;
   let todayQris = 0;
   let todayTransfer = 0;
   let todayTunai = 0;
 
-  // 1. Top Metrics (Month to Date)
+  // Metrik bulanan (Month-to-Date)
   let totalOmzet = 0;
   let totalItemsSold = 0;
   let activePartnersCount = 0;
+  let totalHPP = 0;          // Harga Pokok Penjualan bulan berjalan
+  let totalLabaKotor = 0;    // Estimasi Laba Kotor (Omzet - HPP)
 
-  // 2. Low Stock Alerts
+  // Peringatan stok menipis
   const lowStockItems: LowStockItem[] = [];
 
-  // 3. Recent Transactions
+  // Riwayat transaksi terbaru
   let recentTransactions: RecentTransaction[] = [];
 
-  // Advanced Analytics
-  const salesByDate: Record<string, number> = {};
+  // Agregasi analitik penjualan
+  const salesByDate: Record<string, { date: string; timestamp: number; total: number }> = {};
   const salesByPartner: Record<string, number> = {};
   const salesByProduct: Record<string, number> = {};
 
@@ -79,7 +81,9 @@ export default async function AdminDashboardPage() {
         payment_method,
         partner_stores ( name )
       `)
-      .gte("sold_at", thirtyDaysAgo) as any);
+      .gte("sold_at", thirtyDaysAgo)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .order("sold_at", { ascending: true }) as any);
 
     if (txError) throw txError;
 
@@ -105,8 +109,16 @@ export default async function AdminDashboardPage() {
         }
 
         // Kelompokkan per tanggal untuk Grafik Tren (30 Hari Terakhir)
+        const dateKey = `${txDate.getFullYear()}-${String(txDate.getMonth() + 1).padStart(2, "0")}-${String(txDate.getDate()).padStart(2, "0")}`;
         const dateString = txDate.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
-        salesByDate[dateString] = (salesByDate[dateString] || 0) + total;
+        if (!salesByDate[dateKey]) {
+          salesByDate[dateKey] = {
+            date: dateString,
+            timestamp: new Date(txDate.getFullYear(), txDate.getMonth(), txDate.getDate()).getTime(),
+            total: 0,
+          };
+        }
+        salesByDate[dateKey].total += total;
 
         // Kelompokkan Mitra dan Produk (Khusus Bulan Berjalan)
         if (isThisMonth) {
@@ -121,11 +133,17 @@ export default async function AdminDashboardPage() {
           // Ekstraksi item dari JSONB
           if (Array.isArray(tx.items)) {
             for (const item of tx.items) {
+               // eslint-disable-next-line @typescript-eslint/no-explicit-any
                const record = item as any;
                if (record && typeof record === 'object' && record.quantity && record.name) {
                    const qty = Number(record.quantity);
                    totalItemsSold += qty;
                    salesByProduct[record.name] = (salesByProduct[record.name] || 0) + qty;
+                   
+                   // Hitung HPP jika cost_price tersedia langsung di JSONB item
+                   if (isThisMonth && record.cost_price) {
+                     totalHPP += qty * Number(record.cost_price);
+                   }
                }
             }
           }
@@ -133,9 +151,52 @@ export default async function AdminDashboardPage() {
       }
     }
 
-    // Persiapan data untuk DashboardCharts
-    const dailySales = Object.entries(salesByDate)
-        .map(([date, total]) => ({ date, total }));
+    // Jika items JSONB tidak menyimpan cost_price, fallback: fetch dari tabel products
+    // Kumpulkan semua product_id unik dari transaksi bulan ini
+    if (totalHPP === 0 && recentMonthTransactions && recentMonthTransactions.length > 0) {
+      const productNameSet = new Set<string>();
+      for (const tx of recentMonthTransactions) {
+        const isThisMonth = tx.sold_at >= startOfMonth;
+        if (!isThisMonth) continue;
+        if (Array.isArray(tx.items)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          for (const item of tx.items as any[]) {
+            if (item?.name) productNameSet.add(item.name);
+          }
+        }
+      }
+
+      if (productNameSet.size > 0) {
+        const { data: productsData } = await supabase
+          .from("products")
+          .select("name, cost_price")
+          .in("name", Array.from(productNameSet));
+
+        if (productsData && productsData.length > 0) {
+          const costByName = new Map(productsData.map((p) => [p.name, Number(p.cost_price || 0)]));
+
+          for (const tx of recentMonthTransactions) {
+            if (tx.sold_at < startOfMonth) continue;
+            if (Array.isArray(tx.items)) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              for (const item of tx.items as any[]) {
+                if (item?.name && item?.quantity) {
+                  const costPrice = costByName.get(item.name) ?? 0;
+                  totalHPP += Number(item.quantity) * costPrice;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    totalLabaKotor = totalOmzet - totalHPP;
+
+    // Persiapan data untuk DashboardCharts (diurutkan kronologis terlama ke terbaru)
+    const dailySales = Object.values(salesByDate)
+        .sort((a, b) => a.timestamp - b.timestamp)
+        .map(({ date, total }) => ({ date, total }));
 
     const topPartners = Object.entries(salesByPartner)
         .map(([storeName, totalSales]) => ({ storeName, totalSales }))
@@ -187,10 +248,12 @@ export default async function AdminDashboardPage() {
         products ( sku, name, category )
       `)
       .lte("stock_quantity", 5)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .order("stock_quantity", { ascending: true }) as any);
 
     if (mitraError) throw mitraError;
     if (mitraInventory) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mitraInventory.forEach((inv: any) => {
         const product = Array.isArray(inv.products) ? inv.products[0] : inv.products;
         const store = Array.isArray(inv.partner_stores) ? inv.partner_stores[0] : inv.partner_stores;
@@ -223,10 +286,12 @@ export default async function AdminDashboardPage() {
         partner_stores ( name )
       `)
       .order("sold_at", { ascending: false })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .limit(5) as any);
       
     if (recentError) throw recentError;
     if (recentData) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       recentTransactions = recentData.map((tx: any) => {
         const store = Array.isArray(tx.partner_stores) ? tx.partner_stores[0] : tx.partner_stores;
         return {
@@ -240,12 +305,25 @@ export default async function AdminDashboardPage() {
     }
     const displayRecentTransactions = recentTransactions.slice(0, 5);
 
-    const metrics = [
+    const metrics: Array<{
+      label: string;
+      value: string;
+      detail: string;
+      valueClass: string;
+      isProfit?: boolean;
+    }> = [
       {
         label: "Total Omzet Bulan Ini",
         value: loadError ? "—" : currencyFormatter.format(totalOmzet),
         detail: "Pendapatan dari seluruh transaksi",
         valueClass: "text-[#9d5c4c]",
+      },
+      {
+        label: "Estimasi Laba Kotor",
+        value: loadError ? "—" : currencyFormatter.format(totalLabaKotor),
+        detail: "Omzet dikurangi total harga modal",
+        valueClass: totalLabaKotor >= 0 ? "text-emerald-700" : "text-rose-700",
+        isProfit: true,
       },
       {
         label: "Total Barang Terjual",
@@ -265,47 +343,45 @@ export default async function AdminDashboardPage() {
       <div className="w-full px-2 py-3 sm:px-4 sm:py-4">
         <header className="mb-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
           <div>
-            <span className="inline-block rounded-full bg-almond-cream px-3 py-0.5 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
+            <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-3 py-0.5 text-[11px] font-bold text-terracotta-clay">
               Ringkasan Operasional
             </span>
-            <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
+            <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-gray-900">
               Dashboard Admin
             </h1>
-            <p className="mt-0.5 text-xs text-[#6d7687]">
+            <p className="mt-0.5 text-xs text-gray-500">
               Pantau performa penjualan, stok, dan mitra secara real-time.
             </p>
           </div>
         </header>
 
         {loadError && (
-          <p role="alert" className="mb-4 rounded-2xl border border-rose-300 bg-rose-50/95 px-4 py-2.5 text-xs text-rose-800">
+          <p role="alert" className="mb-4 rounded-xl border border-rose-300 bg-rose-50/95 px-4 py-2.5 text-xs text-rose-800">
             {loadError}
           </p>
         )}
 
-        {/* 1. Ringkasan Pendapatan Hari Ini & Rincian Metode Pembayaran */}
         <section aria-label="Ringkasan Pendapatan Hari Ini" className="mb-4">
-          <div className="rounded-2xl bg-[#e0e5ec] p-3.5 sm:p-4 shadow-neu-flat">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-[#a3b1c6]/20">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-3.5 sm:p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-gray-100">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-almond-cream text-terracotta-clay shadow-neu-sm">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-orange-50 border border-orange-200/60 text-terracotta-clay">
                   Hari Ini
                 </span>
-                <span className="text-xs text-[#7b877f]">
+                <span className="text-xs text-gray-500">
                   {new Intl.DateTimeFormat("id-ID", { dateStyle: "full" }).format(new Date())}
                 </span>
               </div>
-              <div className="text-xs text-[#68756e]">
+              <div className="text-xs text-gray-500">
                 Total Transaksi Hari Ini:{" "}
-                <span className="font-bold text-[#2d3440]">
+                <span className="font-bold text-gray-900">
                   {numberFormatter.format(todayTransactionCount)} transaksi
                 </span>
               </div>
             </div>
 
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {/* Kartu Utama: Pendapatan Hari Ini */}
-              <div className="rounded-xl bg-gradient-to-br from-almond-silk via-rosy-taupe to-terracotta-clay p-3.5 text-white shadow-neu-sm flex flex-col justify-between">
+              <div className="rounded-xl bg-gradient-to-br from-terracotta-clay to-rosy-taupe p-3.5 text-white shadow-sm flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-white/90">
@@ -324,64 +400,61 @@ export default async function AdminDashboardPage() {
                 </p>
               </div>
 
-              {/* Rincian Metode: QRIS */}
-              <div className="rounded-xl bg-[#e0e5ec] p-3.5 shadow-neu-sm flex flex-col justify-between">
+              <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-3.5 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">Metode QRIS</span>
-                    <span className="inline-flex items-center rounded-lg bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Metode QRIS</span>
+                    <span className="inline-flex items-center rounded-md bg-blue-50 border border-blue-200 px-2 py-0.5 text-[10px] font-bold text-blue-700">
                       QRIS
                     </span>
                   </div>
-                  <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
+                  <p className="mt-2 text-lg sm:text-xl font-black text-gray-900">
                     {currencyFormatter.format(todayQris)}
                   </p>
                 </div>
-                <div className="mt-2 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
+                <div className="mt-2 flex items-center justify-between border-t border-gray-100 pt-1.5 text-[11px] text-gray-500">
                   <span>Porsi hari ini</span>
-                  <span className="font-bold text-[#2d3440]">
+                  <span className="font-bold text-gray-900">
                     {todayRevenue > 0 ? Math.round((todayQris / todayRevenue) * 100) : 0}%
                   </span>
                 </div>
               </div>
 
-              {/* Rincian Metode: Transfer */}
-              <div className="rounded-xl bg-[#e0e5ec] p-3.5 shadow-neu-sm flex flex-col justify-between">
+              <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-3.5 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">Metode Transfer</span>
-                    <span className="inline-flex items-center rounded-lg bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Metode Transfer</span>
+                    <span className="inline-flex items-center rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
                       Transfer
                     </span>
                   </div>
-                  <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
+                  <p className="mt-2 text-lg sm:text-xl font-black text-gray-900">
                     {currencyFormatter.format(todayTransfer)}
                   </p>
                 </div>
-                <div className="mt-2 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
+                <div className="mt-2 flex items-center justify-between border-t border-gray-100 pt-1.5 text-[11px] text-gray-500">
                   <span>Porsi hari ini</span>
-                  <span className="font-bold text-[#2d3440]">
+                  <span className="font-bold text-gray-900">
                     {todayRevenue > 0 ? Math.round((todayTransfer / todayRevenue) * 100) : 0}%
                   </span>
                 </div>
               </div>
 
-              {/* Rincian Metode: Tunai */}
-              <div className="rounded-xl bg-[#e0e5ec] p-3.5 shadow-neu-sm flex flex-col justify-between">
+              <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-3.5 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#576071]">Metode Tunai</span>
-                    <span className="inline-flex items-center rounded-lg bg-[#e0e5ec] px-2 py-0.5 text-[10px] font-bold text-[#2d3440] shadow-neu-sm">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Metode Tunai</span>
+                    <span className="inline-flex items-center rounded-md bg-gray-100 border border-gray-200 px-2 py-0.5 text-[10px] font-bold text-gray-700">
                       Tunai
                     </span>
                   </div>
-                  <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
+                  <p className="mt-2 text-lg sm:text-xl font-black text-gray-900">
                     {currencyFormatter.format(todayTunai)}
                   </p>
                 </div>
-                <div className="mt-2 flex items-center justify-between border-t border-[#a3b1c6]/20 pt-1.5 text-[11px] text-[#7b877f]">
+                <div className="mt-2 flex items-center justify-between border-t border-gray-100 pt-1.5 text-[11px] text-gray-500">
                   <span>Porsi hari ini</span>
-                  <span className="font-bold text-[#2d3440]">
+                  <span className="font-bold text-gray-900">
                     {todayRevenue > 0 ? Math.round((todayTunai / todayRevenue) * 100) : 0}%
                   </span>
                 </div>
@@ -390,20 +463,38 @@ export default async function AdminDashboardPage() {
           </div>
         </section>
 
-        {/* 2. Top Metrics (Bulan Ini) */}
-        <section aria-label="Statistik Utama" className="grid gap-3 md:grid-cols-3 mb-4">
+        <section aria-label="Statistik Utama" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-4">
           {metrics.map((metric) => (
-            <article key={metric.label} className="rounded-2xl bg-[#e0e5ec] p-3.5 shadow-neu-sm">
-              <p className="text-xs font-semibold text-[#576071]">{metric.label}</p>
-              <p className={`mt-2 break-words text-xl font-black ${metric.valueClass}`}>
-                {metric.value}
-              </p>
-              <p className="mt-1 text-[11px] text-[#7a8394]">{metric.detail}</p>
+            <article
+              key={metric.label}
+              className={`rounded-xl p-3.5 shadow-sm border border-gray-200 flex flex-col justify-between ${
+                metric.isProfit
+                  ? "bg-gradient-to-br from-emerald-50/50 to-white"
+                  : "bg-white"
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-gray-500">{metric.label}</p>
+                  {metric.isProfit && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                      <svg className="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                        <polyline points="17 6 23 6 23 12" />
+                      </svg>
+                      Laba
+                    </span>
+                  )}
+                </div>
+                <p className={`mt-2 break-words text-xl font-black ${metric.valueClass}`}>
+                  {metric.value}
+                </p>
+              </div>
+              <p className="mt-1 text-[11px] text-gray-400">{metric.detail}</p>
             </article>
           ))}
         </section>
 
-        {/* 3. Baris Tengah (Sandingkan 2 Kolom Sejajar: Grafik Tren Kiri + Leaderboard Kanan) */}
         <div className="mb-4">
           <DashboardCharts 
             dailySales={dailySales} 
@@ -411,28 +502,24 @@ export default async function AdminDashboardPage() {
           />
         </div>
 
-        {/* 4. Baris Bawah (Sandingkan 3 Kolom Sejajar: Produk Terlaris + Transaksi Terbaru + Stok Menipis) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
-          {/* ── Kolom 1: Produk Terlaris (Top 5 Best Sellers) ───────────── */}
           <section
             aria-label="Produk Terlaris"
-            className="h-full flex flex-col rounded-2xl bg-[#e0e5ec] shadow-neu-flat border border-white/40 overflow-hidden"
+            className="h-full flex flex-col rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden"
           >
-            {/* Bagian Header (flex-shrink-0) */}
-            <div className="border-b border-[#a3b1c6]/20 px-4 py-3 flex items-center justify-between flex-shrink-0">
+            <div className="border-b border-gray-100 px-4 py-3 flex items-center justify-between flex-shrink-0">
               <div>
-                <h2 className="text-sm font-black text-[#2d3440]">Produk Terlaris</h2>
-                <p className="text-[11px] text-[#7a8394]">Top 5 produk terfavorit bulan ini.</p>
+                <h2 className="text-sm font-black text-gray-900">Produk Terlaris</h2>
+                <p className="text-[11px] text-gray-500">Top 5 produk terfavorit bulan ini.</p>
               </div>
-              <span className="inline-flex items-center rounded-full bg-almond-cream px-2.5 py-0.5 text-[10px] font-bold text-terracotta-clay shadow-neu-sm">
+              <span className="inline-flex items-center rounded-full bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 text-[10px] font-bold text-terracotta-clay">
                 Top 5
               </span>
             </div>
 
-            {/* Bagian Daftar Item (flex flex-col flex-1 justify-between) */}
             <div className="flex-1 flex flex-col p-4">
               {bestSellers.length === 0 ? (
-                <p className="text-center text-xs text-[#6d7687] py-6 my-auto">
+                <p className="text-center text-xs text-gray-500 py-6 my-auto">
                   Belum ada data penjualan produk.
                 </p>
               ) : (
@@ -444,20 +531,20 @@ export default async function AdminDashboardPage() {
                   {bestSellers.map((item, index) => (
                     <div
                       key={item.productName}
-                      className="flex items-center justify-between gap-2 py-1.5 px-2 rounded-xl hover:bg-almond-cream/20 transition-colors"
+                      className="flex items-center justify-between gap-2 py-1.5 px-2 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="flex size-5 shrink-0 items-center justify-center rounded-md bg-almond-silk/50 text-[11px] font-bold text-terracotta-clay shadow-neu-sm">
+                        <span className="flex size-5 shrink-0 items-center justify-center rounded-md bg-gray-100 text-[11px] font-bold text-gray-700">
                           #{index + 1}
                         </span>
                         <p
-                          className="truncate text-xs font-bold text-[#2d3440]"
+                          className="truncate text-xs font-bold text-gray-800"
                           title={item.productName}
                         >
                           {item.productName}
                         </p>
                       </div>
-                      <span className="shrink-0 rounded-full bg-almond-cream px-2 py-0.5 text-[11px] font-black tabular-nums text-terracotta-clay shadow-neu-sm">
+                      <span className="shrink-0 rounded-full bg-orange-50 border border-orange-200/60 px-2 py-0.5 text-[11px] font-bold tabular-nums text-terracotta-clay">
                         {numberFormatter.format(item.quantity)} pcs
                       </span>
                     </div>
@@ -467,16 +554,14 @@ export default async function AdminDashboardPage() {
             </div>
           </section>
 
-          {/* ── Kolom 2: Transaksi Terbaru (5 Transaksi Terakhir) ───────── */}
           <section
             aria-label="Transaksi Terbaru"
-            className="h-full flex flex-col rounded-2xl bg-[#e0e5ec] shadow-neu-flat border border-white/40 overflow-hidden"
+            className="h-full flex flex-col rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden"
           >
-            {/* Bagian Header (flex-shrink-0) */}
-            <div className="border-b border-[#a3b1c6]/20 px-4 py-3 flex items-center justify-between flex-shrink-0">
+            <div className="border-b border-gray-100 px-4 py-3 flex items-center justify-between flex-shrink-0">
               <div>
-                <h2 className="text-sm font-black text-[#2d3440]">Transaksi Terbaru</h2>
-                <p className="text-[11px] text-[#7a8394]">5 penjualan gerai kasir terakhir.</p>
+                <h2 className="text-sm font-black text-gray-900">Transaksi Terbaru</h2>
+                <p className="text-[11px] text-gray-500">5 penjualan gerai kasir terakhir.</p>
               </div>
               <Link
                 href="/penjualan"
@@ -486,35 +571,34 @@ export default async function AdminDashboardPage() {
               </Link>
             </div>
 
-            {/* Bagian Daftar Item (flex flex-col flex-1 justify-between) */}
             <div className="flex-1 flex flex-col p-4">
               {loadError ? (
-                <p className="px-3 py-6 text-center text-xs text-[#68756e] my-auto">
+                <p className="px-3 py-6 text-center text-xs text-gray-500 my-auto">
                   Daftar transaksi belum tersedia.
                 </p>
               ) : displayRecentTransactions.length === 0 ? (
-                <p className="px-3 py-6 text-center text-xs text-[#68756e] my-auto">
+                <p className="px-3 py-6 text-center text-xs text-gray-500 my-auto">
                   Belum ada transaksi.
                 </p>
               ) : (
                 <div
-                  className={`flex flex-col flex-1 divide-y divide-[#a3b1c6]/15 ${
+                  className={`flex flex-col flex-1 divide-y divide-gray-100 ${
                     displayRecentTransactions.length >= 4 ? "justify-between" : "justify-start gap-2"
                   }`}
                 >
                   {displayRecentTransactions.map((tx) => (
                     <div
                       key={tx.id}
-                      className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-almond-cream/20 transition-colors rounded-xl"
+                      className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-gray-50 transition-colors rounded-lg"
                     >
                       <div className="min-w-0">
                         <p
-                          className="font-bold text-[#2d3440] truncate max-w-[130px]"
+                          className="font-bold text-gray-800 truncate max-w-[130px]"
                           title={tx.store_name}
                         >
                           {tx.store_name}
                         </p>
-                        <p className="text-[10px] text-[#7a8394] font-mono">
+                        <p className="text-[10px] text-gray-500 font-mono">
                           {tx.transaction_number}
                         </p>
                       </div>
@@ -522,7 +606,7 @@ export default async function AdminDashboardPage() {
                         <p className="font-black text-terracotta-clay text-xs">
                           {currencyFormatter.format(tx.total)}
                         </p>
-                        <p className="text-[10px] text-[#7a8394]">
+                        <p className="text-[10px] text-gray-400">
                           {dateFormatter.format(new Date(tx.sold_at))}
                         </p>
                       </div>
@@ -533,60 +617,57 @@ export default async function AdminDashboardPage() {
             </div>
           </section>
 
-          {/* ── Kolom 3: Peringatan Stok Menipis (Top 5 Stok Kritis) ────── */}
           <section
             aria-label="Peringatan stok menipis"
-            className="h-full flex flex-col rounded-2xl bg-[#e0e5ec] shadow-neu-flat border border-white/40 overflow-hidden"
+            className="h-full flex flex-col rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden"
           >
-            {/* Bagian Header (flex-shrink-0) */}
-            <div className="border-b border-[#a3b1c6]/20 px-4 py-3 flex items-center justify-between flex-shrink-0">
+            <div className="border-b border-gray-100 px-4 py-3 flex items-center justify-between flex-shrink-0">
               <div>
                 <h2 className="text-sm font-black text-terracotta-clay">Stok Menipis</h2>
-                <p className="text-[11px] text-[#7a8394]">Maksimal 5 item kritis (&le; 5 unit).</p>
+                <p className="text-[11px] text-gray-500">Maksimal 5 item kritis (&le; 5 unit).</p>
               </div>
-              <span className="inline-flex items-center rounded-full bg-rose-100 px-2.5 py-0.5 text-[10px] font-bold text-rose-800 shadow-neu-sm">
+              <span className="inline-flex items-center rounded-full bg-rose-50 border border-rose-200 px-2.5 py-0.5 text-[10px] font-bold text-rose-800">
                 {loadError ? "—" : `${displayLowStockItems.length} item`}
               </span>
             </div>
 
-            {/* Bagian Daftar Item (flex flex-col flex-1 justify-between saat penuh, rata atas saat 1) */}
             <div className="flex-1 flex flex-col p-4">
               {loadError ? (
-                <p className="px-3 py-6 text-center text-xs text-[#7a8394] my-auto">
+                <p className="px-3 py-6 text-center text-xs text-gray-500 my-auto">
                   Daftar peringatan belum tersedia.
                 </p>
               ) : displayLowStockItems.length === 0 ? (
-                <p className="px-3 py-6 text-center text-xs text-[#7a8394] my-auto">
+                <p className="px-3 py-6 text-center text-xs text-gray-500 my-auto">
                   Tidak ada produk menipis.
                 </p>
               ) : (
                 <div
-                  className={`flex flex-col flex-1 divide-y divide-[#a3b1c6]/15 ${
+                  className={`flex flex-col flex-1 divide-y divide-gray-100 ${
                     displayLowStockItems.length >= 4 ? "justify-between" : "justify-start gap-2"
                   }`}
                 >
                   {displayLowStockItems.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-almond-cream/20 transition-colors rounded-xl"
+                      className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-gray-50 transition-colors rounded-lg"
                     >
                       <div className="min-w-0">
                         <p
-                          className="font-bold text-[#2d3440] truncate max-w-[140px]"
+                          className="font-bold text-gray-800 truncate max-w-[140px]"
                           title={item.name}
                         >
                           {item.name}
                         </p>
-                        <p className="text-[10px] text-[#7a8394] truncate">
+                        <p className="text-[10px] text-gray-500 truncate">
                           {item.location}
                         </p>
                       </div>
                       <div className="text-right whitespace-nowrap">
                         <span
-                          className={`inline-flex min-w-[2.2rem] justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold shadow-neu-sm ${
+                          className={`inline-flex min-w-[2.2rem] justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold ${
                             item.stock === 0
-                              ? "bg-rose-100 text-rose-800"
-                              : "bg-almond-cream text-terracotta-clay"
+                              ? "bg-rose-50 text-rose-700 border border-rose-200"
+                              : "bg-orange-50 text-terracotta-clay border border-orange-200/60"
                           }`}
                         >
                           {numberFormatter.format(item.stock)} pcs
