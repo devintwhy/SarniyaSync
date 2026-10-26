@@ -13,7 +13,6 @@ type ProfileFormProps = {
 
 const emptyState = { error: "", success: "" };
 
-// ── Avatar Inisial ─────────────────────────────────────────────────────────
 function Avatar({ name }: { name: string }) {
   const initials = name
     .split(" ")
@@ -27,7 +26,6 @@ function Avatar({ name }: { name: string }) {
   );
 }
 
-// ── Alert Feedback ─────────────────────────────────────────────────────────
 function Alert({ type, message }: { type: "success" | "error"; message: string }) {
   if (!message) return null;
   const styles =
@@ -43,7 +41,6 @@ function Alert({ type, message }: { type: "success" | "error"; message: string }
   );
 }
 
-// ── Submit Button ──────────────────────────────────────────────────────────
 function ActionButton({
   label,
   pendingLabel,

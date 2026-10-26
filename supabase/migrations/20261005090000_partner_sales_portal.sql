@@ -8,6 +8,18 @@ create table if not exists public.partner_store_inventory (
   unique (partner_store_id, product_id)
 );
 
+grant select
+on public.partner_store_inventory
+to anon;
+
+grant select, insert, update, delete
+on public.partner_store_inventory
+to authenticated;
+
+grant select, insert, update, delete
+on public.partner_store_inventory
+to service_role;
+
 create or replace function public.current_app_role()
 returns text
 language sql

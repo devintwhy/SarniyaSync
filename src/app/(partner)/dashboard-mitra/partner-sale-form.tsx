@@ -61,13 +61,13 @@ export default function PartnerSaleForm({ stores, inventory }: PartnerSaleFormPr
   }
 
   if (stores.length === 0) {
-    return <p className="px-5 py-6 text-sm text-[#68756e]">Belum ada toko aktif yang terhubung ke akun ini.</p>;
+    return <p className="px-5 py-6 text-sm text-gray-500">Belum ada toko aktif yang terhubung ke akun ini.</p>;
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-5">
       <div>
-        <label htmlFor="sale-store" className="mb-1.5 block text-sm font-medium text-[#2d3440]">Toko</label>
+        <label htmlFor="sale-store" className="mb-1.5 block text-xs sm:text-sm font-semibold text-gray-900">Toko</label>
         <select
           id="sale-store"
           value={storeId}
@@ -76,21 +76,21 @@ export default function PartnerSaleForm({ stores, inventory }: PartnerSaleFormPr
             setProductId("");
           }}
           required
-          className="min-h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+          className="min-h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20"
         >
           {stores.map((store) => <option key={store.id} value={store.id}>{store.name}</option>)}
         </select>
       </div>
 
       <div>
-        <label htmlFor="sale-product" className="mb-1.5 block text-sm font-medium text-[#2d3440]">Produk</label>
+        <label htmlFor="sale-product" className="mb-1.5 block text-xs sm:text-sm font-semibold text-gray-900">Produk</label>
         <select
           id="sale-product"
           value={productId}
           onChange={(event) => setProductId(event.target.value)}
           required
           disabled={availableProducts.length === 0}
-          className="min-h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-50"
+          className="min-h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20 disabled:bg-gray-50"
         >
           <option value="">{availableProducts.length ? "Pilih produk" : "Tidak ada stok tersedia"}</option>
           {availableProducts.map((product) => (
@@ -103,7 +103,7 @@ export default function PartnerSaleForm({ stores, inventory }: PartnerSaleFormPr
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="sale-quantity" className="mb-1.5 block text-sm font-medium text-[#2d3440]">Jumlah Terjual</label>
+          <label htmlFor="sale-quantity" className="mb-1.5 block text-xs sm:text-sm font-semibold text-gray-900">Jumlah Terjual</label>
           <input
             id="sale-quantity"
             name="quantity"
@@ -112,16 +112,16 @@ export default function PartnerSaleForm({ stores, inventory }: PartnerSaleFormPr
             step="1"
             required
             inputMode="numeric"
-            className="min-h-11 w-full rounded-md border border-slate-200 px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+            className="min-h-10 w-full rounded-lg border border-gray-200 px-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20"
           />
         </div>
         <div>
-          <label htmlFor="sale-payment" className="mb-1.5 block text-sm font-medium text-[#2d3440]">Pembayaran</label>
+          <label htmlFor="sale-payment" className="mb-1.5 block text-xs sm:text-sm font-semibold text-gray-900">Pembayaran</label>
           <select
             id="sale-payment"
             name="payment_method"
             defaultValue="cash"
-            className="min-h-11 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+            className="min-h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20"
           >
             <option value="cash">Tunai</option>
             <option value="transfer">Transfer</option>
@@ -130,13 +130,13 @@ export default function PartnerSaleForm({ stores, inventory }: PartnerSaleFormPr
         </div>
       </div>
 
-      {errorMessage && <p role="alert" className="rounded-md border border-[#f0d4cc] bg-[#fff5f1] px-3 py-2.5 text-sm text-[#9b4936]">{errorMessage}</p>}
-      {successMessage && <p role="status" className="rounded-md border border-[#cfe2d0] bg-[#edf5e8] px-3 py-2.5 text-sm text-[#315d3e]">{successMessage}</p>}
+      {errorMessage && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs sm:text-sm text-rose-800">{errorMessage}</p>}
+      {successMessage && <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs sm:text-sm text-emerald-800">{successMessage}</p>}
 
       <button
         type="submit"
         disabled={isSubmitting || availableProducts.length === 0}
-        className="inline-flex min-h-10 items-center justify-center rounded-md bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-sm font-medium text-white transition-colors hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex min-h-10 items-center justify-center rounded-xl bg-terracotta-clay px-4 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSubmitting ? "Menyimpan transaksi..." : "Catat Penjualan"}
       </button>

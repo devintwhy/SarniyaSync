@@ -38,6 +38,20 @@ type BulkAllocationClientProps = {
 
 const numberFormatter = new Intl.NumberFormat("id-ID");
 
+function getCategoryBadgeClass(category: string | null | undefined): string {
+  const cat = String(category || "").toLowerCase().trim();
+  if (cat.includes("pashmina")) {
+    return "bg-purple-100 text-purple-700";
+  }
+  if (cat.includes("bergo")) {
+    return "bg-orange-100 text-orange-700";
+  }
+  if (cat.includes("segi empat") || cat.includes("segiempat") || cat.includes("square")) {
+    return "bg-teal-100 text-teal-700";
+  }
+  return "bg-gray-100 text-gray-700";
+}
+
 export default function BulkAllocationClient({
   stores,
   products,
@@ -53,7 +67,6 @@ export default function BulkAllocationClient({
   const [successMessage, setSuccessMessage] = useState("");
   const [filterAllocationStoreId, setFilterAllocationStoreId] = useState<string>("all");
 
-  // Map products for quick lookup
   const productsById = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
 
   // Ambil nama toko mitra
@@ -84,13 +97,11 @@ export default function BulkAllocationClient({
     );
   }, [products, searchQuery]);
 
-  // Check if all filtered products are selected
   const isAllSelected = useMemo(() => {
     if (filteredProducts.length === 0) return false;
     return filteredProducts.every((p) => selectedProductIds.has(p.id));
   }, [filteredProducts, selectedProductIds]);
 
-  // Event Handlers
   const handleSelectProduct = (product: WarehouseProduct) => {
     setSelectedProducts((prev) => {
       // Jika sudah ada, hapus (toggle off)
@@ -223,7 +234,6 @@ export default function BulkAllocationClient({
     }
   }
 
-  // Filtered existing allocations table
   const displayedAllocations = useMemo(() => {
     if (filterAllocationStoreId === "all") return allocations;
     return allocations.filter((a) => a.partner_store_id === filterAllocationStoreId);
@@ -392,7 +402,7 @@ export default function BulkAllocationClient({
                           </td>
 
                           <td className="px-3 py-2.5 hidden sm:table-cell whitespace-nowrap">
-                            <span className="inline-block rounded-md bg-[#d7dde6] px-2 py-0.5 text-[10px] font-semibold text-[#576071]">
+                            <span className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${getCategoryBadgeClass(product.category)}`}>
                               {product.category || "Umum"}
                             </span>
                           </td>
@@ -477,7 +487,7 @@ export default function BulkAllocationClient({
                   {stores.length ? (
                     stores.map((s) => (
                       <option key={s.id} value={s.id}>
-                        {s.name} {s.city ? `(${s.city})` : ""}
+                        {s.name}
                       </option>
                     ))
                   ) : (
@@ -676,7 +686,7 @@ export default function BulkAllocationClient({
               <option value="all">Semua Toko Mitra ({allocations.length} alokasi)</option>
               {stores.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.name}{s.city ? ` (${s.city})` : ""}
+                  {s.name}
                 </option>
               ))}
             </select>

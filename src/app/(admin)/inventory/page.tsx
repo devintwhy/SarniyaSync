@@ -80,6 +80,20 @@ function truncateSku(sku: string, maxLen = 12): string {
   return `${sku.slice(0, 8)}...${sku.slice(-4)}`;
 }
 
+function getCategoryBadgeClass(category: string | null | undefined): string {
+  const cat = String(category || "").toLowerCase().trim();
+  if (cat.includes("pashmina")) {
+    return "bg-purple-100 text-purple-700";
+  }
+  if (cat.includes("bergo")) {
+    return "bg-orange-100 text-orange-700";
+  }
+  if (cat.includes("segi empat") || cat.includes("segiempat") || cat.includes("square")) {
+    return "bg-teal-100 text-teal-700";
+  }
+  return "bg-gray-100 text-gray-700";
+}
+
 type InventoryPageProps = {
   searchParams?: {
     search?: string | string[];
@@ -326,8 +340,15 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                           <span className="font-semibold">{productName}</span>
                         </div>
                       </th>
-                      <td className="whitespace-nowrap px-3.5 py-2 text-xs text-[#68756e]">
-                        {getText(product, ["category", "kategori", "jenis"], "Hijab")}
+                      <td className="whitespace-nowrap px-3.5 py-2">
+                        {(() => {
+                          const categoryName = getText(product, ["category", "kategori", "jenis"], "Hijab");
+                          return (
+                            <span className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${getCategoryBadgeClass(categoryName)}`}>
+                              {categoryName}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="whitespace-nowrap px-3.5 py-2 text-right font-bold text-[#2d3440]">
                         {stock ?? "-"} <span className="font-normal text-[11px] text-[#7b877f]">{getText(product, ["unit", "satuan"], "pcs")}</span>

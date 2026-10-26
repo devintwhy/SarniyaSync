@@ -22,7 +22,6 @@ export default async function StockAllocationPage() {
   const role = await getProfileRole(supabase, user.id);
   if (role !== "admin" && role !== "pemilik") redirect("/partner");
 
-  // 1. Ambil data Toko Mitra Aktif
   const { data: storesData, error: storesError } = await supabase
     .from("partner_stores")
     .select("id, name, city")
@@ -31,7 +30,6 @@ export default async function StockAllocationPage() {
 
   const stores = storesData ?? [];
 
-  // 2. Ambil seluruh produk gudang pusat yang memiliki stok > 0
   const products: Array<{
     id: string;
     sku: string;

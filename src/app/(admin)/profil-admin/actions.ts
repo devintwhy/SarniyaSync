@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 
-// ── Update Nama Profil ─────────────────────────────────────────────────────
 export async function updateProfileAction(
   prevState: { error: string; success: string },
   formData: FormData
@@ -20,7 +19,6 @@ export async function updateProfileAction(
   try {
     const supabase = await createSupabaseServerClient();
 
-    // 1. Ketersediaan Session yang valid
     const {
       data: { user },
       error: authError,
@@ -40,7 +38,6 @@ export async function updateProfileAction(
 
     const role = existingProfile?.role || "admin";
 
-    // 2 & 3. Upsert dengan ID eksplisit user.id
     const { error: upsertError } = await supabase
       .from("profiles")
       .upsert({
@@ -51,7 +48,6 @@ export async function updateProfileAction(
       });
 
     if (upsertError) {
-      // Fallback: jika policy hanya membolehkan UPDATE eksplisit
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
@@ -77,10 +73,8 @@ export async function updateProfileAction(
   }
 }
 
-// Alias fungsi updateProfile
 export const updateProfile = updateProfileAction;
 
-// ── Update Password ────────────────────────────────────────────────────────
 export async function updatePasswordAction(
   prevState: { error: string; success: string },
   formData: FormData

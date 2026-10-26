@@ -130,7 +130,6 @@ export default function PenerimaanClient({
           });
           addToast("error", `Gagal menerima paket: ${result.error}`);
         } else {
-          // Update baris secara optimistik: ubah status jadi DITERIMA
           setTransfers((prev) =>
             prev.map((t) =>
               t.id === transfer.id

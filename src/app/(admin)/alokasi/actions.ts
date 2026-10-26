@@ -143,7 +143,6 @@ export async function allocatePartnerStock(input: AllocationInput): Promise<Allo
   }
 }
 
-// Alokasi stok massal (Bulk Stock Allocation)
 export type BulkAllocationItem = {
   productId: string;
   quantity: number;
@@ -172,7 +171,6 @@ export async function bulkAllocatePartnerStock(
       return { error: "Pilih setidaknya 1 produk untuk dialokasikan." };
     }
 
-    // Validasi kuantitas setiap item
     for (const item of input.items) {
       if (!uuidPattern.test(item.productId)) {
         return { error: "Data produk tidak valid." };
@@ -194,7 +192,6 @@ export async function bulkAllocatePartnerStock(
       return { error: "Hanya Admin/Pemilik yang berwenang mengalokasikan stok." };
     }
 
-    // 1. Verifikasi toko mitra aktif
     const { data: store, error: storeError } = await supabase
       .from("partner_stores")
       .select("id, name")
@@ -205,7 +202,6 @@ export async function bulkAllocatePartnerStock(
     if (storeError) throw storeError;
     if (!store) return { error: "Toko mitra tidak ditemukan atau sedang nonaktif." };
 
-    // 2. Ambil semua produk terkait dari katalog gudang pusat
     const productIds = input.items.map((i) => i.productId);
     const { data: products, error: productsError } = await supabase
       .from("products")
@@ -220,7 +216,6 @@ export async function bulkAllocatePartnerStock(
 
     const productMap = new Map(products.map((p) => [p.id, p]));
 
-    // 3. Verifikasi ketersediaan stok pusat untuk masing-masing item
     for (const item of input.items) {
       const prod = productMap.get(item.productId);
       if (!prod) {
@@ -233,7 +228,6 @@ export async function bulkAllocatePartnerStock(
       }
     }
 
-    // 4. Kurangi stok gudang pusat untuk setiap produk
     for (const item of input.items) {
       const prod = productMap.get(item.productId)!;
       const { error: deductError } = await supabase
@@ -249,9 +243,6 @@ export async function bulkAllocatePartnerStock(
       }
     }
 
-    // 5. Buat catatan kiriman (stock_transfers) dengan status DIKIRIM
-    //    Stok TIDAK langsung ditambahkan ke toko mitra.
-    //    Mitra perlu mengkonfirmasi penerimaan di halaman "Penerimaan Barang".
     const now = new Date().toISOString();
     const transferPayload = input.items.map((item) => ({
       product_id: item.productId,
@@ -267,7 +258,6 @@ export async function bulkAllocatePartnerStock(
       .insert(transferPayload);
 
     if (transferError) {
-      // Log detail error agar bisa debug di server console
       console.error("[bulkAllocate] stock_transfers INSERT error:", {
         code: transferError.code,
         message: transferError.message,
@@ -276,13 +266,13 @@ export async function bulkAllocatePartnerStock(
         payload: transferPayload,
       });
 
-      // Rollback: kembalikan stok gudang pusat yang sudah dikurangi
+      // Rollback stok gudang pusat jika pencatatan transfer gagal
       for (const item of input.items) {
         const prod = productMap.get(item.productId)!;
         await supabase
           .from("products")
           .update({
-            stock_quantity: prod.stock_quantity, // kembali ke stok awal
+            stock_quantity: prod.stock_quantity,
             updated_at: new Date().toISOString(),
           })
           .eq("id", prod.id);
@@ -290,7 +280,6 @@ export async function bulkAllocatePartnerStock(
       throw new Error(`Gagal membuat catatan pengiriman: [${transferError.code}] ${transferError.message}${transferError.hint ? ` — Hint: ${transferError.hint}` : ""}`);
     }
 
-    // 6. Revalidasi path
     revalidatePath("/alokasi");
     revalidatePath("/inventory");
     revalidatePath("/partner/penerimaan");

@@ -35,6 +35,20 @@ const dateFormatter = new Intl.DateTimeFormat("id-ID", {
   timeStyle: "short",
 });
 
+function getCategoryBadgeClass(category: string | null | undefined): string {
+  const cat = String(category || "").toLowerCase().trim();
+  if (cat.includes("pashmina")) {
+    return "bg-purple-100 text-purple-700";
+  }
+  if (cat.includes("bergo")) {
+    return "bg-orange-100 text-orange-700";
+  }
+  if (cat.includes("segi empat") || cat.includes("segiempat") || cat.includes("square")) {
+    return "bg-teal-100 text-teal-700";
+  }
+  return "bg-gray-100 text-gray-700";
+}
+
 export default async function PartnerDashboardPage() {
   const supabase = await createSupabaseServerClient();
   const {
@@ -45,7 +59,6 @@ export default async function PartnerDashboardPage() {
     redirect("/login");
   }
 
-  // 1. Ambil Toko Milik Mitra yang sedang login
   const { data: stores, error: storesError } = await supabase
     .from("partner_stores")
     .select("id, name, city, is_active, status")
@@ -55,7 +68,7 @@ export default async function PartnerDashboardPage() {
   if (storesError) {
     return (
       <div className="w-full px-5 py-8 sm:px-8">
-        <p className="rounded-md border border-[#f0d4cc] bg-[#fff5f1] px-4 py-3 text-sm text-[#9b4936]">
+        <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
           Gagal memuat profil toko: {storesError.message}
         </p>
       </div>
@@ -67,23 +80,22 @@ export default async function PartnerDashboardPage() {
   );
   const activeStoreIds = activeStores.map((s) => s.id);
 
-  // Jika mitra belum memiliki toko aktif
   if (activeStoreIds.length === 0) {
     return (
       <div className="w-full px-5 py-12 sm:px-8">
-        <div className="rounded-2xl border border-[#d2ddd6] bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-[#f4f8f5]">
-            <Store className="size-7 text-[#9d5c4c]" />
+        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-orange-50">
+            <Store className="size-7 text-terracotta-clay" />
           </div>
-          <h1 className="mt-4 text-xl font-bold text-[#9d5c4c]">Belum Ada Toko Aktif</h1>
-          <p className="mt-2 text-sm text-[#68756e]">
+          <h1 className="mt-4 text-xl font-bold text-gray-900">Belum Ada Toko Aktif</h1>
+          <p className="mt-2 text-sm text-gray-500">
             Akun Anda belum memiliki toko dengan status aktif. Hubungi Administrator pusat untuk
             verifikasi dan aktivasi toko mitra Anda.
           </p>
           <div className="mt-6 flex justify-center gap-3">
             <Link
               href="/partner/profil"
-              className="rounded-md border border-[#9d5c4c] px-4 py-2 text-sm font-medium text-[#9d5c4c] hover:bg-[#f4f8f5]"
+              className="rounded-xl border border-terracotta-clay px-4 py-2 text-sm font-semibold text-terracotta-clay hover:bg-orange-50 transition-colors"
             >
               Cek Status Profil
             </Link>
@@ -93,14 +105,12 @@ export default async function PartnerDashboardPage() {
     );
   }
 
-  // Rentang Waktu
   const now = new Date();
   const thirtyDaysAgoDate = new Date();
   thirtyDaysAgoDate.setDate(now.getDate() - 30);
   const thirtyDaysAgo = thirtyDaysAgoDate.toISOString();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-  // Variabel Akumulasi Metrik
   let todayRevenue = 0;
   let todayTransactionCount = 0;
   let todayQris = 0;
@@ -114,7 +124,6 @@ export default async function PartnerDashboardPage() {
   const salesByDate: Record<string, { date: string; timestamp: number; total: number }> = {};
   const salesByProduct: Record<string, number> = {};
 
-  // 2. Query Transaksi 30 Hari Terakhir KHUSUS Toko Mitra
   const { data: transactions } = await (supabase
     .from("sales_transactions")
     .select(`
@@ -138,7 +147,6 @@ export default async function PartnerDashboardPage() {
       const isToday = txDate.toDateString() === now.toDateString();
       const isThisMonth = tx.sold_at >= startOfMonth;
 
-      // Metrik Hari Ini
       if (isToday) {
         todayRevenue += total;
         todayTransactionCount += 1;
@@ -152,7 +160,6 @@ export default async function PartnerDashboardPage() {
         }
       }
 
-      // Grafik Tren 30 Hari Terakhir
       const dateKey = `${txDate.getFullYear()}-${String(txDate.getMonth() + 1).padStart(2, "0")}-${String(txDate.getDate()).padStart(2, "0")}`;
       const dateString = txDate.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
       if (!salesByDate[dateKey]) {
@@ -164,7 +171,6 @@ export default async function PartnerDashboardPage() {
       }
       salesByDate[dateKey].total += total;
 
-      // Metrik & Produk Terlaris Bulan Berjalan
       if (isThisMonth) {
         monthlyRevenue += total;
         monthlyTransactionCount += 1;
@@ -184,18 +190,15 @@ export default async function PartnerDashboardPage() {
     }
   }
 
-  // Data Array untuk Grafik Harian (diurutkan kronologis terlama ke terbaru)
   const dailySales = Object.values(salesByDate)
     .sort((a, b) => a.timestamp - b.timestamp)
     .map(({ date, total }) => ({ date, total }));
 
-  // Top 5 Produk Terlaris di Toko Saya
   const bestSellers = Object.entries(salesByProduct)
     .map(([productName, quantity]) => ({ productName, quantity }))
     .sort((a, b) => b.quantity - a.quantity)
     .slice(0, 5);
 
-  // 3. Query Peringatan Stok Menipis (stok <= 5 unit) KHUSUS Inventaris Toko Mitra
   const { data: lowStockData } = await (supabase
     .from("partner_store_inventory")
     .select(`
@@ -229,7 +232,6 @@ export default async function PartnerDashboardPage() {
     });
   }
 
-  // 4. Query 5 Transaksi Penjualan Terbaru Toko Mitra
   const { data: recentData } = await (supabase
     .from("sales_transactions")
     .select(`
@@ -265,19 +267,19 @@ export default async function PartnerDashboardPage() {
       label: "Total Omzet Bulan Ini",
       value: currencyFormatter.format(monthlyRevenue),
       detail: `${numberFormatter.format(monthlyTransactionCount)} transaksi berhasil`,
-      valueClass: "text-[#315d3e]",
+      valueClass: "text-emerald-700",
     },
     {
       label: "Total Barang Terjual",
       value: `${numberFormatter.format(monthlyItemsSold)} unit`,
       detail: "Barang keluar bulan ini",
-      valueClass: "text-[#9d5c4c]",
+      valueClass: "text-gray-900",
     },
     {
       label: "Peringatan Stok Menipis",
       value: `${numberFormatter.format(lowStockItems.length)} produk`,
       detail: "Stok sisa ≤ 5 unit",
-      valueClass: lowStockItems.length > 0 ? "text-[#a44d36]" : "text-[#9d5c4c]",
+      valueClass: lowStockItems.length > 0 ? "text-amber-700" : "text-gray-900",
     },
   ];
 
@@ -286,13 +288,13 @@ export default async function PartnerDashboardPage() {
       <header className="flex flex-col justify-between gap-2.5 sm:flex-row sm:items-end">
         <div>
           <div className="flex items-center gap-1.5">
-            <span className="inline-flex items-center rounded-full bg-[#f7e4d4] px-2.5 py-0.5 text-xs font-bold text-[#9d5c4c]">
+            <span className="inline-flex items-center rounded-full bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 text-xs font-bold text-terracotta-clay">
               Portal Mitra
             </span>
-            <span className="text-xs text-[#7a8394]">&bull; {storeNames}</span>
+            <span className="text-xs text-gray-500">&bull; {storeNames}</span>
           </div>
-          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">Dasbor Toko Saya</h1>
-          <p className="mt-0.5 text-xs sm:text-sm text-[#6d7687]">
+          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-gray-900">Dasbor Toko Saya</h1>
+          <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
             Pantau omzet harian, performa produk, dan peringatan stok inventaris toko Anda secara real-time.
           </p>
         </div>
@@ -300,13 +302,13 @@ export default async function PartnerDashboardPage() {
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href="/partner/kasir"
-            className="inline-flex h-9 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:brightness-105 active:scale-[0.99]"
+            className="inline-flex h-9 items-center justify-center rounded-xl bg-terracotta-clay px-4 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:opacity-90 active:scale-95"
           >
             + Kasir POS
           </Link>
           <Link
             href="/partner/transaksi"
-            className="inline-flex h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-3.5 text-xs sm:text-sm font-semibold text-[#2d3440] shadow-sm transition-all hover:bg-slate-50"
+            className="inline-flex h-9 items-center justify-center rounded-xl border border-gray-200 bg-white px-3.5 text-xs sm:text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50"
           >
             Riwayat Transaksi
           </Link>
@@ -314,26 +316,26 @@ export default async function PartnerDashboardPage() {
       </header>
 
       <section aria-label="Ringkasan Pendapatan Hari Ini">
-        <div className="rounded-xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-sm shadow-[#2d3440]/5">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 pb-3 border-b border-slate-100">
+        <div className="rounded-xl border border-gray-200 bg-white p-3.5 sm:p-4 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 pb-3 border-b border-gray-100">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-[#f7e4d4] text-[#9d5c4c]">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-50 border border-orange-200/60 text-terracotta-clay">
                 Hari Ini
               </span>
-              <span className="text-xs text-[#7a8394]">
+              <span className="text-xs text-gray-500">
                 {new Intl.DateTimeFormat("id-ID", { dateStyle: "full" }).format(new Date())}
               </span>
             </div>
-            <div className="text-xs text-[#6d7687]">
+            <div className="text-xs text-gray-500">
               Transaksi Hari Ini:{" "}
-              <span className="font-bold text-[#2d3440]">
+              <span className="font-bold text-gray-900">
                 {numberFormatter.format(todayTransactionCount)} struk
               </span>
             </div>
           </div>
 
           <div className="mt-3.5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl bg-gradient-to-br from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] p-3.5 sm:p-4 text-white shadow-md flex flex-col justify-between">
+            <div className="rounded-xl bg-gradient-to-br from-terracotta-clay to-rosy-taupe p-3.5 sm:p-4 text-white shadow-sm flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-white/80">
@@ -350,61 +352,61 @@ export default async function PartnerDashboardPage() {
               <p className="mt-2 text-[11px] font-medium text-white/80">Total omzet kas masuk toko hari ini</p>
             </div>
 
-            <div className="rounded-xl border border-slate-200/80 bg-[#f0f2f5]/40 p-3 sm:p-3.5 flex flex-col justify-between">
+            <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-3 sm:p-3.5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#7a8394]">QRIS</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">QRIS</span>
                   <span className="inline-flex items-center rounded-lg bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-200/60">
                     QRIS
                   </span>
                 </div>
-                <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
+                <p className="mt-2 text-lg sm:text-xl font-black text-gray-900">
                   {currencyFormatter.format(todayQris)}
                 </p>
               </div>
-              <div className="mt-2 flex items-center justify-between border-t border-slate-200/60 pt-1.5 text-[11px] text-[#7a8394]">
+              <div className="mt-2 flex items-center justify-between border-t border-gray-200/60 pt-1.5 text-[11px] text-gray-500">
                 <span>Porsi hari ini</span>
-                <span className="font-bold text-[#2d3440]">
+                <span className="font-bold text-gray-900">
                   {todayRevenue > 0 ? Math.round((todayQris / todayRevenue) * 100) : 0}%
                 </span>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200/80 bg-[#f0f2f5]/40 p-3 sm:p-3.5 flex flex-col justify-between">
+            <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-3 sm:p-3.5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#7a8394]">Transfer Bank</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Transfer Bank</span>
                   <span className="inline-flex items-center rounded-lg bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200/60">
                     Transfer
                   </span>
                 </div>
-                <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
+                <p className="mt-2 text-lg sm:text-xl font-black text-gray-900">
                   {currencyFormatter.format(todayTransfer)}
                 </p>
               </div>
-              <div className="mt-2 flex items-center justify-between border-t border-slate-200/60 pt-1.5 text-[11px] text-[#7a8394]">
+              <div className="mt-2 flex items-center justify-between border-t border-gray-200/60 pt-1.5 text-[11px] text-gray-500">
                 <span>Porsi hari ini</span>
-                <span className="font-bold text-[#2d3440]">
+                <span className="font-bold text-gray-900">
                   {todayRevenue > 0 ? Math.round((todayTransfer / todayRevenue) * 100) : 0}%
                 </span>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200/80 bg-[#f0f2f5]/40 p-3 sm:p-3.5 flex flex-col justify-between">
+            <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-3 sm:p-3.5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#7a8394]">Tunai / Cash</span>
-                  <span className="inline-flex items-center rounded-lg bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700 border border-slate-300/60">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Tunai / Cash</span>
+                  <span className="inline-flex items-center rounded-lg bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-700 border border-gray-300/60">
                     Tunai
                   </span>
                 </div>
-                <p className="mt-2 text-lg sm:text-xl font-black text-[#2d3440]">
+                <p className="mt-2 text-lg sm:text-xl font-black text-gray-900">
                   {currencyFormatter.format(todayTunai)}
                 </p>
               </div>
-              <div className="mt-2 flex items-center justify-between border-t border-slate-200/60 pt-1.5 text-[11px] text-[#7a8394]">
+              <div className="mt-2 flex items-center justify-between border-t border-gray-200/60 pt-1.5 text-[11px] text-gray-500">
                 <span>Porsi hari ini</span>
-                <span className="font-bold text-[#2d3440]">
+                <span className="font-bold text-gray-900">
                   {todayRevenue > 0 ? Math.round((todayTunai / todayRevenue) * 100) : 0}%
                 </span>
               </div>
@@ -417,13 +419,13 @@ export default async function PartnerDashboardPage() {
         {metrics.map((metric) => (
           <article
             key={metric.label}
-            className="rounded-xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-sm shadow-[#2d3440]/5"
+            className="rounded-xl border border-gray-200 bg-white p-3.5 sm:p-4 shadow-sm"
           >
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[#7a8394]">{metric.label}</p>
-            <p className={`mt-2 break-words text-xl sm:text-2xl font-black text-balance ${metric.valueClass.replace('text-[#9d5c4c]', 'text-[#2d3440]')}`}>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500">{metric.label}</p>
+            <p className={`mt-2 break-words text-xl sm:text-2xl font-black text-balance ${metric.valueClass}`}>
               {metric.value}
             </p>
-            <p className="mt-1 text-xs text-[#6d7687]">{metric.detail}</p>
+            <p className="mt-1 text-xs text-gray-500">{metric.detail}</p>
           </article>
         ))}
       </section>
@@ -451,28 +453,28 @@ export default async function PartnerDashboardPage() {
             <div className="px-4 py-8 text-center">
               <CheckCircle2 className="size-8 mx-auto text-emerald-600 mb-1" />
               <p className="mt-1.5 text-xs sm:text-sm font-bold text-emerald-700">Semua stok toko Anda dalam kondisi aman!</p>
-              <p className="text-[11px] text-[#7a8394]">Tidak ada produk dengan sisa stok &le; 5 unit.</p>
+              <p className="text-[11px] text-gray-500">Tidak ada produk dengan sisa stok &le; 5 unit.</p>
             </div>
           ) : (
             <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar flex-1">
               <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="sticky top-0 z-10 bg-[#fdf8f0] backdrop-blur-md text-[11px] uppercase text-amber-900 font-bold shadow-sm">
+                <thead className="sticky top-0 z-10 bg-gray-50 text-[11px] font-bold uppercase tracking-wider text-gray-600 border-b border-gray-200 shadow-sm">
                   <tr>
                     <th scope="col" className="px-3.5 py-2.5">Produk</th>
                     <th scope="col" className="px-3.5 py-2.5">Kategori</th>
                     <th scope="col" className="px-3.5 py-2.5 text-right">Sisa Stok</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-amber-100/60">
+                <tbody className="divide-y divide-gray-100">
                   {lowStockItems.map((item) => (
-                    <tr key={item.id} className="hover:bg-amber-50/20 transition-colors">
-                      <th scope="row" className="px-3.5 py-2 font-semibold text-[#2d3440]">
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                      <th scope="row" className="px-3.5 py-2 font-semibold text-gray-900">
                         <div>{item.name}</div>
-                        <div className="text-[10px] font-mono font-normal text-[#7a8394]">{item.sku}</div>
+                        <div className="text-[10px] font-mono font-normal text-gray-500">{item.sku}</div>
                       </th>
-                      <td className="px-3.5 py-2 text-[#576071]">
-                        <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-[#576071]">
-                          {item.category}
+                      <td className="px-3.5 py-2">
+                        <span className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${getCategoryBadgeClass(item.category)}`}>
+                          {item.category || "Hijab"}
                         </span>
                       </td>
                       <td className="px-3.5 py-2 text-right">
@@ -496,45 +498,45 @@ export default async function PartnerDashboardPage() {
 
         <section
           aria-label="Transaksi terbaru toko saya"
-          className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5 flex flex-col"
+          className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm flex flex-col"
         >
-          <div className="flex flex-col gap-1 border-b border-slate-100 bg-[#f0f2f5]/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-1 border-b border-gray-100 bg-gray-50/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="font-bold text-[#2d3440] text-sm sm:text-base">Penjualan Terbaru Toko Saya</h2>
-              <p className="text-xs text-[#7a8394]">5 transaksi kasir terakhir.</p>
+              <h2 className="font-bold text-gray-900 text-sm sm:text-base">Penjualan Terbaru Toko Saya</h2>
+              <p className="text-xs text-gray-500">5 transaksi kasir terakhir.</p>
             </div>
-            <Link href="/partner/transaksi" className="text-xs font-bold text-[#9d5c4c] hover:underline self-start sm:self-auto">
+            <Link href="/partner/transaksi" className="text-xs font-bold text-terracotta-clay hover:underline self-start sm:self-auto">
               Lihat Semua &rarr;
             </Link>
           </div>
 
           {recentTransactions.length === 0 ? (
-            <div className="px-4 py-8 text-center text-xs sm:text-sm text-[#6d7687]">
+            <div className="px-4 py-8 text-center text-xs sm:text-sm text-gray-500">
               Belum ada transaksi penjualan yang tercatat.
             </div>
           ) : (
             <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar flex-1">
               <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="sticky top-0 z-10 bg-[#f0f2f5] backdrop-blur-md text-[11px] uppercase tracking-wider text-[#6d7687] font-bold shadow-sm">
+                <thead className="sticky top-0 z-10 bg-gray-50 text-[11px] font-bold uppercase tracking-wider text-gray-600 border-b border-gray-200 shadow-sm">
                   <tr>
                     <th scope="col" className="px-3.5 py-2.5">Tanggal</th>
                     <th scope="col" className="px-3.5 py-2.5">No. Struk</th>
                     <th scope="col" className="px-3.5 py-2.5 text-right">Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-gray-100">
                   {recentTransactions.map((tx) => (
-                    <tr key={tx.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="px-3.5 py-2 text-[#576071] whitespace-nowrap text-[11px]">
+                    <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-3.5 py-2 text-gray-600 whitespace-nowrap text-[11px]">
                         {dateFormatter.format(new Date(tx.sold_at))}
                       </td>
-                      <th scope="row" className="px-3.5 py-2 font-semibold text-[#2d3440]">
+                      <th scope="row" className="px-3.5 py-2 font-semibold text-gray-900">
                         <div>{tx.transaction_number}</div>
-                        <span className="inline-block rounded bg-slate-100 px-1 py-0.2 text-[9px] font-bold uppercase text-[#576071]">
+                        <span className="inline-block rounded bg-gray-100 px-1 py-0.2 text-[9px] font-bold uppercase text-gray-600">
                           {tx.payment_method}
                         </span>
                       </th>
-                      <td className="px-3.5 py-2 text-right font-black text-[#2d3440] whitespace-nowrap text-xs sm:text-sm">
+                      <td className="px-3.5 py-2 text-right font-black text-gray-900 whitespace-nowrap text-xs sm:text-sm">
                         {currencyFormatter.format(tx.total)}
                       </td>
                     </tr>

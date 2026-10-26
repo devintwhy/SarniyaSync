@@ -6,7 +6,6 @@ import { recordCartTransaction, type CartItemInput } from "../cart-actions";
 import ThermalReceipt, { type ReceiptData } from "@/components/receipt";
 import { useSidebar } from "@/context/sidebar-context";
 
-// ── Tipe lokal ─────────────────────────────────────────────────────────────────
 type StoreOption = { id: string; name: string };
 
 type InventoryOption = {
@@ -15,13 +14,14 @@ type InventoryOption = {
   productId: string;
   sku: string;
   name: string;
+  category?: string | null;
   sellingPrice: number;
   stock: number;
   imageUrl?: string | null;
 };
 
 type CartRow = CartItemInput & {
-  rowId: string; // Kunci unik per baris
+  rowId: string;
   productName: string;
   sku: string;
   price: number;
@@ -35,7 +35,6 @@ type PosCartFormProps = {
   inventory: InventoryOption[];
 };
 
-// ── Helper format Rupiah ───────────────────────────────────────────────────────
 const idr = new Intl.NumberFormat("id-ID", {
   style: "currency",
   currency: "IDR",
@@ -46,16 +45,12 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
   const { isSidebarOpen } = useSidebar();
   const uid = useId();
 
-  // ── State Toko Aktif ────────────────────────────────────────────────────────
   const [storeId, setStoreId] = useState(stores[0]?.id ?? "");
 
-  // ── State Pencarian Produk & Filter ─────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
 
-  // ── State Keranjang Belanja ────────────────────────────────────────────────
   const [cart, setCart] = useState<CartRow[]>([]);
 
-  // ── State Metode Pembayaran & Tunai ────────────────────────────────────────
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "transfer" | "qris">("cash");
   const [cashReceivedInput, setCashReceivedInput] = useState<string>("");
 
@@ -70,14 +65,38 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
 
   const filteredProducts = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    if (!q) return availableForStore;
-    return availableForStore.filter(
-      (item) =>
-        item.name.toLowerCase().includes(q) || item.sku.toLowerCase().includes(q),
-    );
+    const baseList = !q
+      ? [...availableForStore]
+      : availableForStore.filter(
+          (item) =>
+            item.name.toLowerCase().includes(q) ||
+            item.sku.toLowerCase().includes(q) ||
+            (item.category && item.category.toLowerCase().includes(q)),
+        );
+
+    return baseList.sort((a, b) => {
+      const aKosong = a.stock <= 0;
+      const bKosong = b.stock <= 0;
+
+      // 1. Prioritas 1: Ketersediaan Stok (stok <= 0 ditaruh di paling bawah)
+      if (aKosong !== bKosong) return aKosong ? 1 : -1;
+
+      // 2. Prioritas 2: Kategori Abjad (A-Z)
+      const katA = (a.category || "").toLowerCase();
+      const katB = (b.category || "").toLowerCase();
+      if (katA < katB) return -1;
+      if (katA > katB) return 1;
+
+      // 3. Prioritas 3: Nama Produk Abjad (A-Z)
+      const namaA = a.name.toLowerCase();
+      const namaB = b.name.toLowerCase();
+      if (namaA < namaB) return -1;
+      if (namaA > namaB) return 1;
+
+      return 0;
+    });
   }, [availableForStore, searchQuery]);
 
-  // Kalkulasi total belanja dan jumlah unit
   const grandTotal = useMemo(() => {
     return cart.reduce((sum, row) => sum + row.subtotal, 0);
   }, [cart]);
@@ -86,7 +105,6 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
     return cart.reduce((sum, row) => sum + row.quantity, 0);
   }, [cart]);
 
-  // Kalkulasi nominal kembalian dan validasi tunai
   const parsedCashReceived = Number(cashReceivedInput.replace(/\D/g, "")) || 0;
   const cashChange = parsedCashReceived - grandTotal;
   const isCashInsufficient = paymentMethod === "cash" && parsedCashReceived < grandTotal;
@@ -147,14 +165,13 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
     }
   }
 
-  // ── Handler: Ubah Jumlah Qty di Panel Kanan ────────────────────────────────
   function handleUpdateQty(allocationId: string, delta: number) {
     setCart((prev) =>
       prev
         .map((row) => {
           if (row.allocationId !== allocationId) return row;
           const nextQty = row.quantity + delta;
-          if (nextQty <= 0) return null; // Akan difilter di bawah
+          if (nextQty <= 0) return null;
           if (nextQty > row.maxStock) {
             setErrorMessage(`Maksimal stok tersedia hanya ${row.maxStock} unit.`);
             return row;
@@ -170,24 +187,20 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
     );
   }
 
-  // ── Handler: Hapus Item dari Keranjang ─────────────────────────────────────
   function handleRemoveItem(allocationId: string) {
     setCart((prev) => prev.filter((r) => r.allocationId !== allocationId));
   }
 
-  // ── Handler: Reset Keranjang ───────────────────────────────────────────────
   function handleClearCart() {
     setCart([]);
     setCashReceivedInput("");
     setErrorMessage("");
   }
 
-  // ── Handler: Preset Uang Cepat (Quick Cash) ────────────────────────────────
   function handleQuickCash(nominal: number) {
     setCashReceivedInput(String(nominal));
   }
 
-  // ── Handler: Submit Transaksi ke Supabase ──────────────────────────────────
   function handleSubmit() {
     if (cart.length === 0) return;
     if (isCashInsufficient) {
@@ -259,7 +272,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
           <div className="flex items-center gap-2">
             <label
               htmlFor={`${uid}-store-selector`}
-              className="text-[10px] font-bold uppercase tracking-wider text-gray-500"
+              className="text-xs font-bold uppercase tracking-wider text-gray-500"
             >
               Toko:
             </label>
@@ -268,7 +281,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
               value={storeId}
               onChange={(e) => handleStoreChange(e.target.value)}
               disabled={isPending}
-              className="h-8.5 rounded-lg border border-gray-200 bg-gray-50 px-2.5 text-xs font-semibold text-gray-700 outline-none transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay cursor-pointer"
+              className="h-10 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700 outline-none transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay cursor-pointer"
             >
               {stores.map((s) => (
                 <option key={s.id} value={s.id} className="bg-white text-gray-800">
@@ -279,8 +292,8 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
           </div>
 
           <div className="relative flex-1 max-w-xs">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5 text-gray-400">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   stroke="currentColor"
@@ -295,13 +308,13 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari produk / SKU..."
-              className="h-8.5 w-full rounded-lg border border-gray-200 bg-gray-50 pl-8 pr-7 text-xs font-medium text-gray-800 placeholder:text-gray-400 outline-none transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
+              className="h-10 w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-8 py-2 text-sm font-medium text-gray-800 placeholder:text-gray-400 outline-none transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 flex items-center pr-2 text-xs font-bold text-gray-400 hover:text-terracotta-clay"
+                className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-xs font-bold text-gray-400 hover:text-terracotta-clay"
               >
                 ✕
               </button>
@@ -408,9 +421,16 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                     </div>
 
                     <div className="mt-2">
-                      <p className="text-[9px] font-mono text-gray-500 truncate">
-                        {item.sku}
-                      </p>
+                      <div className="flex items-center justify-between gap-1">
+                        <p className="text-[9px] font-mono text-gray-400 truncate">
+                          {item.sku}
+                        </p>
+                        {item.category && (
+                          <span className="text-[9px] font-semibold text-gray-500 truncate">
+                            {item.category}
+                          </span>
+                        )}
+                      </div>
                       <h3 className="mt-0.5 line-clamp-2 text-[11px] sm:text-xs font-bold text-gray-800 leading-tight min-h-[1.75rem] group-hover:text-terracotta-clay transition-colors" title={item.name}>
                         {item.name}
                       </h3>

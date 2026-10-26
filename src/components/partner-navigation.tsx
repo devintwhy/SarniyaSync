@@ -17,7 +17,6 @@ const partnerRoutes = {
   profile: "/profil-mitra",
 } as const;
 
-// ── Urutan Menu Navigasi Mitra Sesuai Alur Logis ─────────────────────────────
 const navigationItems = [
   { label: "Dashboard", href: partnerRoutes.dashboard },
   { label: "Katalog", href: partnerRoutes.katalog },
@@ -31,7 +30,6 @@ const navigationItems = [
 function getPartnerNavIcon(label: string) {
   const l = label.toLowerCase();
 
-  // 1. Dashboard
   if (l.includes("dashboard")) {
     return (
       <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -43,7 +41,6 @@ function getPartnerNavIcon(label: string) {
     );
   }
 
-  // 2. Katalog (Katalog Produk)
   if (l.includes("katalog") || l.includes("produk")) {
     return (
       <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -54,7 +51,6 @@ function getPartnerNavIcon(label: string) {
     );
   }
 
-  // 3. Stok Toko
   if (l.includes("stok")) {
     return (
       <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -65,7 +61,6 @@ function getPartnerNavIcon(label: string) {
     );
   }
 
-  // 4. Penerimaan Paket (Truck/In-Transit)
   if (l.includes("penerimaan") || l.includes("paket") || l.includes("transit")) {
     return (
       <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -77,7 +72,6 @@ function getPartnerNavIcon(label: string) {
     );
   }
 
-  // 5. Kasir (POS)
   if (l.includes("kasir")) {
     return (
       <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -90,7 +84,6 @@ function getPartnerNavIcon(label: string) {
     );
   }
 
-  // 5. Riwayat Transaksi
   if (l.includes("transaksi") || l.includes("riwayat")) {
     return (
       <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -103,7 +96,6 @@ function getPartnerNavIcon(label: string) {
     );
   }
 
-  // 6. Pengaturan Akun
   return (
     <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="3" />
@@ -118,7 +110,6 @@ export default function PartnerNavigation() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // ── State Collapsible Sidebar (Shared via SidebarContext) ──────────────────
   const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
 
   async function handleLogout() {
@@ -150,12 +141,12 @@ export default function PartnerNavigation() {
           }`}
         >
           <div className={`flex items-center gap-3 ${!isSidebarOpen ? "justify-center" : ""}`}>
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gray-50 border border-gray-200 p-1.5 shadow-sm">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-orange-50/60 border border-orange-100 p-1.5 shadow-sm">
               <Image
                 src="/logo-sarniya.png"
-                alt="Logo SarniyaSync"
-                width={30}
-                height={30}
+                alt="Sarniya Logo"
+                width={36}
+                height={36}
                 className="h-full w-full object-contain"
                 priority
               />
@@ -213,15 +204,15 @@ export default function PartnerNavigation() {
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 title={!isSidebarOpen ? item.label : undefined}
-                className={`group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-xl h-10 px-3.5 text-xs font-semibold overflow-hidden transition-all duration-200 ${
+                className={`group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-xl h-10 px-3.5 text-xs overflow-hidden transition-all duration-200 ${
                   isActive
-                    ? "bg-terracotta-clay text-white shadow-sm"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    ? "bg-terracotta-clay text-white shadow-sm font-semibold"
+                    : "text-gray-700 font-medium hover:bg-gray-100 hover:text-gray-900"
                 }`}
               >
                 <span
                   className={`flex size-6 shrink-0 items-center justify-center mr-3 transition-colors ${
-                    isActive ? "text-white" : "text-gray-400 group-hover:text-terracotta-clay"
+                    isActive ? "text-white" : "text-gray-700 group-hover:text-terracotta-clay"
                   }`}
                 >
                   {getPartnerNavIcon(item.label)}

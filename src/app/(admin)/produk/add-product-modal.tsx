@@ -36,7 +36,6 @@ export default function AddProductModal({ action }: AddProductModalProps) {
       } else {
         setSuccessMessage("Produk berhasil ditambahkan.");
         formRef.current?.reset();
-        // Tutup modal setelah 1.2 detik agar pesan sukses terlihat
         setTimeout(() => {
           closeModal();
           setSuccessMessage("");
@@ -77,7 +76,6 @@ export default function AddProductModal({ action }: AddProductModalProps) {
         aria-modal="true"
         aria-labelledby="modal-title"
         onClick={(e) => {
-          // Tutup jika klik backdrop
           if (e.target === dialogRef.current) closeModal();
         }}
         className="m-auto max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-2xl border border-[#e1e7e0] bg-white p-0 shadow-2xl shadow-[#9d5c4c]/20 backdrop:bg-[#9d5c4c]/40 backdrop:backdrop-blur-sm open:flex open:flex-col"

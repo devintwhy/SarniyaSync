@@ -48,7 +48,6 @@ export default async function PartnerRiwayatPage() {
 
   if (!user) redirect("/login");
 
-  // Ambil daftar toko milik mitra
   const { data: stores, error: storesError } = await supabase
     .from("partner_stores")
     .select("id, name, is_active")
@@ -113,10 +112,10 @@ export default async function PartnerRiwayatPage() {
           <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-3 py-0.5 text-[11px] font-bold text-terracotta-clay">
             Portal Mitra
           </span>
-          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
+          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-gray-900">
             Riwayat Transaksi
           </h1>
-          <p className="mt-0.5 text-xs text-[#7a8394]">
+          <p className="mt-0.5 text-xs text-gray-500">
             Daftar seluruh transaksi kasir yang telah selesai di toko Anda beserta ringkasan omzet dan ekspor Excel.
           </p>
         </div>

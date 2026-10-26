@@ -103,19 +103,16 @@ export default function AdminTransactionClient({
   const [cancellingIds, setCancellingIds] = useState<Set<string>>(new Set());
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  // Auto-sync jika initialTransactions berubah (navigasi/refresh)
   useEffect(() => {
     setTransactions(initialTransactions);
   }, [initialTransactions]);
 
-  // Fungsi toast
   const addToast = useCallback((type: "success" | "error", message: string) => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, type, message }]);
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
   }, []);
 
-  // Fungsi Pembatalan Transaksi dengan Optimistic Update
   const handleCancelTransaction = useCallback(async (tx: AdminTransaction) => {
     if (tx.status === "Batal" || tx.status === "Dibatalkan") {
       addToast("error", "Transaksi ini sudah dibatalkan sebelumnya.");
@@ -127,7 +124,6 @@ export default function AdminTransactionClient({
     );
     if (!confirmed) return;
 
-    // Optimistic update: langsung tandai sebagai Batal di UI
     setCancellingIds((prev) => new Set(prev).add(tx.id));
     setTransactions((prev) =>
       prev.map((t) => (t.id === tx.id ? { ...t, status: "Batal" } : t))
@@ -136,7 +132,6 @@ export default function AdminTransactionClient({
     try {
       const result = await cancelPartnerSale(tx.id);
       if (result.error) {
-        // Rollback optimistic update jika server gagal
         setTransactions((prev) =>
           prev.map((t) => (t.id === tx.id ? { ...t, status: tx.status } : t))
         );
@@ -145,7 +140,6 @@ export default function AdminTransactionClient({
         addToast("success", `Transaksi ${tx.transactionNumber} berhasil dibatalkan. Stok telah dikembalikan ke mitra.`);
       }
     } catch (error) {
-      // Rollback jika exception
       setTransactions((prev) =>
         prev.map((t) => (t.id === tx.id ? { ...t, status: tx.status } : t))
       );
@@ -159,7 +153,6 @@ export default function AdminTransactionClient({
     }
   }, [addToast]);
 
-  // Tanggal Hari Ini & Kemarin untuk Shortcut Cepat
   const todayStr = useMemo(() => getLocalDateString(new Date()), []);
   const yesterdayStr = useMemo(() => {
     const y = new Date();
@@ -167,23 +160,19 @@ export default function AdminTransactionClient({
     return getLocalDateString(y);
   }, []);
 
-  // Filter Data Transaksi secara Reaktif
   const filteredTransactions = useMemo(() => {
     const q = searchTerm.toLowerCase().trim();
 
     return transactions.filter((tx) => {
-      // Filter Tanggal
       if (selectedDate) {
         const txDateStr = getLocalDateString(tx.soldAt);
         if (txDateStr !== selectedDate) return false;
       }
 
-      // Filter Toko
       if (selectedStore !== "all" && tx.partnerStoreId !== selectedStore) {
         return false;
       }
 
-      // Filter Metode Pembayaran
       if (selectedPayment !== "all") {
         const pm = String(tx.paymentMethod || "cash").toLowerCase().trim();
         if (selectedPayment === "cash" && pm !== "cash" && pm !== "tunai") return false;
@@ -191,7 +180,6 @@ export default function AdminTransactionClient({
         if (selectedPayment === "qris" && pm !== "qris") return false;
       }
 
-      // Filter Pencarian Teks
       if (!q) return true;
 
       const matchTxNumber = tx.transactionNumber.toLowerCase().includes(q);
@@ -205,13 +193,12 @@ export default function AdminTransactionClient({
     });
   }, [transactions, selectedDate, selectedStore, selectedPayment, searchTerm]);
 
-  // Hanya hitung transaksi yang TIDAK dibatalkan untuk ringkasan pendapatan
+  // Transaksi aktif untuk agregasi pendapatan dan performa penjualan
   const activeForMetrics = useMemo(
     () => filteredTransactions.filter((tx) => tx.status !== "Batal" && tx.status !== "Dibatalkan"),
     [filteredTransactions]
   );
 
-  // Kalkulasi Reaktif Ringkasan Total Penjualan (HANYA transaksi aktif — bukan Batal)
   const summaryMetrics = useMemo(() => {
     let totalOmzet = 0;
     let totalItems = 0;
@@ -250,7 +237,6 @@ export default function AdminTransactionClient({
     };
   }, [activeForMetrics]);
 
-  // Fungsi Ekspor ke Excel (.xlsx) Berdasarkan Filter yang Aktif
   function handleExportExcel() {
     if (filteredTransactions.length === 0) {
       alert("Tidak ada data transaksi untuk diekspor pada filter ini.");
@@ -306,17 +292,16 @@ export default function AdminTransactionClient({
 
       const worksheet = XLSX.utils.json_to_sheet(excelRows);
 
-      // Atur lebar kolom agar rapi
       worksheet["!cols"] = [
-        { wch: 22 }, // No. Transaksi
-        { wch: 20 }, // Tanggal
-        { wch: 25 }, // Toko Mitra
-        { wch: 18 }, // Metode Pembayaran
-        { wch: 30 }, // Nama Produk
-        { wch: 8 },  // Qty
-        { wch: 16 }, // Harga Satuan
-        { wch: 16 }, // Subtotal Item
-        { wch: 18 }, // Total Struk
+        { wch: 22 },
+        { wch: 20 },
+        { wch: 25 },
+        { wch: 18 },
+        { wch: 30 },
+        { wch: 8 },
+        { wch: 16 },
+        { wch: 16 },
+        { wch: 18 },
       ];
 
       const workbook = XLSX.utils.book_new();

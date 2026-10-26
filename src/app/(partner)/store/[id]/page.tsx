@@ -68,26 +68,26 @@ export default async function StoreReportPage({ params }: StorePageProps) {
   return (
     <div className="w-full px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
       <header className="mb-8">
-        <Link href="/dashboard-mitra" className="mb-4 inline-flex text-sm font-semibold text-[#9d5c4c] hover:underline">
+        <Link href="/dashboard-mitra" className="mb-4 inline-flex text-sm font-semibold text-terracotta-clay hover:underline">
           &larr; Kembali ke dashboard mitra
         </Link>
         <div>
-          <span className="inline-block rounded-full bg-[#f7e4d4] px-3 py-1 text-xs font-bold text-[#9d5c4c]">
+          <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-3 py-1 text-xs font-bold text-terracotta-clay">
             Laporan Toko Mitra
           </span>
-          <h1 className="mt-2 text-3xl font-black tracking-tight text-[#2d3440]">{store.name}</h1>
-          <p className="mt-2 text-sm text-[#6d7687]">
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-gray-900">{store.name}</h1>
+          <p className="mt-2 text-sm text-gray-500">
             {[store.address, store.city].filter(Boolean).join(", ") || "Alamat belum tersedia"}
           </p>
         </div>
       </header>
 
       <section aria-label="Ringkasan penjualan toko" className="mb-6 grid gap-4 sm:grid-cols-2">
-        <article className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-[#2d3440]/5">
-          <p className="text-xs font-bold uppercase tracking-wider text-[#7a8394]">Jumlah Transaksi</p>
-          <p className="mt-3 text-3xl font-black text-[#2d3440]">{loadError ? "—" : transactions.length}</p>
+        <article className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Jumlah Transaksi</p>
+          <p className="mt-3 text-3xl font-black text-gray-900">{loadError ? "—" : transactions.length}</p>
         </article>
-        <article className="rounded-2xl bg-gradient-to-br from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] p-6 text-white shadow-lg shadow-[#9d5c4c]/20">
+        <article className="rounded-xl bg-gradient-to-br from-terracotta-clay to-rosy-taupe p-6 text-white shadow-sm">
           <p className="text-xs font-bold uppercase tracking-wider text-white/80">Total Penjualan</p>
           <p className="mt-3 break-words text-3xl font-black tracking-tight text-white">
             {loadError ? "—" : currencyFormatter.format(totalSales)}
@@ -95,19 +95,19 @@ export default async function StoreReportPage({ params }: StorePageProps) {
         </article>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5">
-        <div className="border-b border-slate-100 px-6 py-5">
-          <h2 className="font-bold text-[#2d3440]">Transaksi Toko</h2>
-          <p className="mt-1 text-sm text-[#7a8394]">Riwayat transaksi berdasarkan waktu penjualan.</p>
+      <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="border-b border-gray-100 px-6 py-5">
+          <h2 className="font-bold text-gray-900">Transaksi Toko</h2>
+          <p className="mt-1 text-sm text-gray-500">Riwayat transaksi berdasarkan waktu penjualan.</p>
         </div>
         {loadError ? (
-          <p role="alert" className="px-6 py-6 text-sm text-red-600">Transaksi gagal dimuat: {loadError}</p>
+          <p role="alert" className="px-6 py-6 text-sm text-rose-600">Transaksi gagal dimuat: {loadError}</p>
         ) : transactions.length === 0 ? (
-          <p className="px-6 py-12 text-center text-sm text-[#6d7687]">Belum ada transaksi untuk toko ini.</p>
+          <p className="px-6 py-12 text-center text-sm text-gray-500">Belum ada transaksi untuk toko ini.</p>
         ) : (
           <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="sticky top-0 z-10 bg-[#f0f2f5] backdrop-blur-md text-xs uppercase tracking-wider text-[#6d7687] font-bold shadow-sm">
+              <thead className="sticky top-0 z-10 bg-gray-50 text-[11px] font-bold uppercase tracking-wider text-gray-600 border-b border-gray-200 shadow-sm">
                 <tr>
                   <th scope="col" className="px-6 py-3.5">Nomor</th>
                   <th scope="col" className="px-6 py-3.5">Waktu</th>
@@ -117,21 +117,21 @@ export default async function StoreReportPage({ params }: StorePageProps) {
                   <th scope="col" className="px-6 py-3.5">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-gray-100">
                 {transactions.map((transaction) => (
-                  <tr key={transaction.id} className="hover:bg-slate-50/70 transition-colors">
-                    <th scope="row" className="whitespace-nowrap px-6 py-4 font-mono font-semibold text-[#2d3440]">
+                  <tr key={transaction.id} className="hover:bg-gray-50 transition-colors">
+                    <th scope="row" className="whitespace-nowrap px-6 py-4 font-mono font-semibold text-gray-900">
                       {transaction.transaction_number}
                     </th>
-                    <td className="whitespace-nowrap px-6 py-4 text-[#576071]">
+                    <td className="whitespace-nowrap px-6 py-4 text-gray-600">
                       {dateFormatter.format(new Date(transaction.sold_at))}
                     </td>
-                    <td className="px-6 py-4 text-[#576071]">{transaction.customer_name || "-"}</td>
-                    <td className="px-6 py-4 text-[#576071]">{transaction.channel}</td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right font-black text-[#2d3440]">
+                    <td className="px-6 py-4 text-gray-600">{transaction.customer_name || "-"}</td>
+                    <td className="px-6 py-4 text-gray-600">{transaction.channel}</td>
+                    <td className="whitespace-nowrap px-6 py-4 text-right font-black text-gray-900">
                       {currencyFormatter.format(Number(transaction.total || 0))}
                     </td>
-                    <td className="px-6 py-4 text-[#576071]">{transaction.status}</td>
+                    <td className="px-6 py-4 text-gray-600">{transaction.status}</td>
                   </tr>
                 ))}
               </tbody>

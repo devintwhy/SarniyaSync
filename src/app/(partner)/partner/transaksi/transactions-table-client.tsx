@@ -64,9 +64,9 @@ export default function TransactionsTableClient({ rows }: TransactionsTableClien
 
   return (
     <div>
-      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between px-4 py-2.5 border-b border-slate-100 bg-[#f0f2f5]/40">
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50/70">
         <div className="relative flex-1 max-w-md">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-[#7a8394]">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
               <path
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
@@ -82,13 +82,13 @@ export default function TransactionsTableClient({ rows }: TransactionsTableClien
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Cari no. struk, nama produk, tanggal..."
-            className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-7 text-xs sm:text-sm text-[#2d3440] outline-none transition-all placeholder:text-[#8f98a8] focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+            className="h-9 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-7 text-xs sm:text-sm text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20"
           />
           {searchTerm && (
             <button
               type="button"
               onClick={() => setSearchTerm("")}
-              className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-xs text-[#7a8394] hover:text-[#2d3440]"
+              className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-xs text-gray-400 hover:text-gray-700"
             >
               ✕
             </button>
@@ -96,21 +96,21 @@ export default function TransactionsTableClient({ rows }: TransactionsTableClien
         </div>
 
         <div className="flex items-center gap-2">
-          <label htmlFor="filter-pm" className="text-xs font-bold uppercase tracking-wider text-[#576071]">
+          <label htmlFor="filter-pm" className="text-xs font-bold uppercase tracking-wider text-gray-500">
             Metode:
           </label>
           <select
             id="filter-pm"
             value={selectedPayment}
             onChange={(e) => setSelectedPayment(e.target.value)}
-            className="h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-[#2d3440] outline-none transition-all focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+            className="h-9 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-semibold text-gray-900 outline-none transition-all focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20"
           >
             <option value="all">Semua Metode</option>
             <option value="cash">Tunai</option>
             <option value="transfer">Transfer</option>
             <option value="qris">QRIS</option>
           </select>
-          <span className="text-xs font-bold text-[#9d5c4c] ml-1">
+          <span className="text-xs font-bold text-terracotta-clay ml-1">
             {filteredRows.length} dari {rows.length}
           </span>
         </div>
@@ -118,7 +118,7 @@ export default function TransactionsTableClient({ rows }: TransactionsTableClien
 
       <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar">
         <table className="w-full min-w-[650px] text-left text-xs sm:text-sm">
-          <thead className="sticky top-0 z-10 bg-[#f0f2f5] backdrop-blur-md text-[11px] uppercase tracking-wider text-[#6d7687] font-bold shadow-sm">
+          <thead className="sticky top-0 z-10 bg-gray-50 text-[11px] font-bold uppercase tracking-wider text-gray-600 border-b border-gray-200 shadow-sm">
             <tr>
               <th scope="col" className="px-3.5 py-2.5">Produk &amp; No. Struk</th>
               <th scope="col" className="px-3.5 py-2.5 text-right">Jml</th>
@@ -129,10 +129,10 @@ export default function TransactionsTableClient({ rows }: TransactionsTableClien
               <th scope="col" className="px-3.5 py-2.5 text-right">Subtotal</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-gray-100">
             {filteredRows.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-xs sm:text-sm text-[#7a8394]">
+                <td colSpan={7} className="px-4 py-8 text-center text-xs sm:text-sm text-gray-500">
                   {searchTerm
                     ? `Tidak ada transaksi yang cocok dengan pencarian "${searchTerm}".`
                     : "Belum ada transaksi toko."}
@@ -146,32 +146,32 @@ export default function TransactionsTableClient({ rows }: TransactionsTableClien
                     ? "bg-blue-50 text-blue-700 border border-blue-200/60"
                     : pm === "transfer"
                     ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
-                    : "bg-slate-100 text-slate-700 border border-slate-300/60";
+                    : "bg-gray-100 text-gray-700 border border-gray-200";
 
                 return (
-                  <tr key={item.id} className="transition-colors hover:bg-slate-50/70">
-                    <th scope="row" className="px-3.5 py-2 font-semibold text-[#2d3440]">
+                  <tr key={item.id} className="transition-colors hover:bg-gray-50">
+                    <th scope="row" className="px-3.5 py-2 font-semibold text-gray-900">
                       <div>{item.name}</div>
-                      <div className="text-[10px] font-mono font-normal text-[#7a8394]">
+                      <div className="text-[10px] font-mono font-normal text-gray-500">
                         {item.transactionNumber}
                       </div>
                     </th>
-                    <td className="whitespace-nowrap px-3.5 py-2 text-right tabular-nums font-bold text-[#2d3440]">
+                    <td className="whitespace-nowrap px-3.5 py-2 text-right tabular-nums font-bold text-gray-900">
                       {item.quantity}
                     </td>
-                    <td className="whitespace-nowrap px-3.5 py-2 text-right tabular-nums text-[#576071]">
+                    <td className="whitespace-nowrap px-3.5 py-2 text-right tabular-nums text-gray-600">
                       {currencyFormatter.format(item.unitPrice)}
                     </td>
-                    <td className="px-3.5 py-2 text-xs text-[#576071]">{item.storeName}</td>
+                    <td className="px-3.5 py-2 text-xs text-gray-600">{item.storeName}</td>
                     <td className="whitespace-nowrap px-3.5 py-2">
                       <span className={`inline-flex rounded-md px-2 py-0.5 text-[11px] font-bold ${badgeClass}`}>
                         {paymentLabel[item.paymentMethod] ?? item.paymentMethod}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-3.5 py-2 text-[11px] text-[#576071]">
+                    <td className="whitespace-nowrap px-3.5 py-2 text-[11px] text-gray-500">
                       {dateFormatter.format(new Date(item.soldAt))}
                     </td>
-                    <td className="whitespace-nowrap px-3.5 py-2 text-right tabular-nums font-black text-[#2d3440]">
+                    <td className="whitespace-nowrap px-3.5 py-2 text-right tabular-nums font-black text-gray-900">
                       {currencyFormatter.format(item.total)}
                     </td>
                   </tr>

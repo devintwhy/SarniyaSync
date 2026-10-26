@@ -49,31 +49,6 @@ export default function LoginPage() {
         throw new Error("Role akun belum terdaftar. Hubungi administrator.");
       }
 
-      // Pengecekan status akun khusus untuk role Mitra
-      if (role === "mitra") {
-        const { data: store, error: storeError } = await supabase
-          .from("partner_stores")
-          .select("status, status_message")
-          .eq("owner_id", data.user.id)
-          .maybeSingle();
-
-        if (storeError) {
-          console.error("Gagal memeriksa status toko:", storeError.message);
-        }
-
-        const storeStatus = store?.status ?? "pending";
-        if (storeStatus === "nonaktif" || storeStatus === "pending") {
-          await supabase.auth.signOut();
-          const defaultMsg =
-            storeStatus === "pending"
-              ? "Akun Anda sedang ditinjau atau dinonaktifkan. Silakan hubungi Admin."
-              : "Akun Anda sedang dinonaktifkan. Silakan hubungi Admin.";
-
-          throw new Error(store?.status_message?.trim() || defaultMsg);
-        }
-      }
-
-      // Penanganan redirect aman tanpa loop
       const nextPath = new URLSearchParams(window.location.search).get("next");
       const safeNextPath =
         nextPath?.startsWith("/") && !nextPath.startsWith("//") && nextPath !== "/"
@@ -125,7 +100,6 @@ export default function LoginPage() {
     }
   }
 
-  // Neumorphism Box Shadow Presets
   const neuInputInset = {
     boxShadow:
       "inset 6px 6px 12px rgba(163, 177, 198, 0.7), inset -6px -6px 12px rgba(255, 255, 255, 0.85)",
@@ -208,7 +182,7 @@ export default function LoginPage() {
                 type="email"
                 required
                 autoComplete="email"
-                placeholder="nama@tokomitra.com"
+                placeholder="mitratoko@gmail.com"
                 style={neuInputInset}
                 className="h-14 sm:h-16 w-full rounded-2xl border-none bg-[#e0e5ec] px-5 text-base text-[#2d3440] placeholder-[#8f98a8] outline-none transition-all focus:ring-2 focus:ring-[#C89F91]/50"
               />
@@ -254,7 +228,7 @@ export default function LoginPage() {
               style={neuButtonRaised}
               className="mt-4 inline-flex h-14 sm:h-16 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-[#C89F91] via-[#c09485] to-[#b38274] px-6 text-base sm:text-lg font-bold tracking-wide text-white transition-all duration-300 hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? "Memverifikasi Kredensial..." : "Sign In ke SarniyaSync"}
+              {isSubmitting ? "Memproses..." : "Masuk"}
             </button>
           </form>
 

@@ -64,17 +64,14 @@ export default function PartnerCatalogClient({
     const q = searchTerm.toLowerCase().trim();
 
     return products.filter((product) => {
-      // Filter Kategori
       if (selectedCategory !== "all" && product.category !== selectedCategory) {
         return false;
       }
 
-      // Filter Toko (jika mitra memiliki lebih dari 1 toko)
       if (selectedStore !== "all" && product.store_id && product.store_id !== selectedStore) {
         return false;
       }
 
-      // Filter Pencarian Teks
       if (!q) return true;
 
       const matchName = (product.name || "").toLowerCase().includes(q);

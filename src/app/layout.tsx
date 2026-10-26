@@ -3,7 +3,6 @@ import localFont from "next/font/local";
 import SessionWatchdog from "@/components/session-watchdog";
 import "./globals.css";
 
-// ── Typography Setup ──────────────────────────────────────────────────────────
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -18,7 +17,6 @@ const geistMono = localFont({
   display: "swap",
 });
 
-// ── Mobile Responsive Viewport (<576px, 576px - 991px, >=992px) ──────────────
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,

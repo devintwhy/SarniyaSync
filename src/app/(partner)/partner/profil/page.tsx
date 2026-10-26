@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
+import { updatePartnerProfileAction } from "./actions";
 
 const dateFormatter = new Intl.DateTimeFormat("id-ID", {
   dateStyle: "long",
@@ -15,7 +16,7 @@ function Avatar({ name }: { name: string }) {
     .slice(0, 2)
     .join("");
   return (
-    <div className="flex size-11 sm:size-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] text-sm sm:text-base font-bold text-white shadow-sm">
+    <div className="flex size-11 sm:size-12 shrink-0 items-center justify-center rounded-xl bg-terracotta-clay text-sm sm:text-base font-bold text-white shadow-sm">
       {initials || "M"}
     </div>
   );
@@ -50,16 +51,13 @@ function AlertMessage({ error, success }: { error: string; success: string }) {
 export default function PartnerProfilePage() {
   const router = useRouter();
 
-  // 1. Inisialisasi Supabase SSR Browser Client di dalam komponen
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // Loading state
   const [isLoading, setIsLoading] = useState(true);
 
-  // Form field states
   const [formData, setFormData] = useState({
     namaLengkap: "",
     namaToko: "",
@@ -71,17 +69,14 @@ export default function PartnerProfilePage() {
   const [storeStatus, setStoreStatus] = useState("pending");
   const [createdAtText, setCreatedAtText] = useState("—");
 
-  // Feedback states untuk form profil
   const [profileState, setProfileState] = useState({ error: "", success: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Password fields
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordState, setPasswordState] = useState({ error: "", success: "" });
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
 
-  // ── Ambil Sesi & Data Awal Saat Mount ──────────────────────────────────────
   useEffect(() => {
     let isMounted = true;
 
@@ -151,134 +146,38 @@ export default function PartnerProfilePage() {
     };
   }, [supabase, router]);
 
-  // ── 2 & 3. Fungsi handleSubmit Sesuai Format yang Diminta ──────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setProfileState({ error: "", success: "" });
 
-    // 1. Ambil KTP / Sesi Pengguna
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (!session) {
-      console.error("Gagal: Sesi tidak ditemukan. Request akan ditolak Supabase.");
-      setProfileState({
-        error: "Gagal: Sesi tidak ditemukan. Silakan login ulang.",
-        success: "",
-      });
-      setIsSubmitting(false);
-      return;
-    }
-
-    const trimmedName = formData.namaLengkap.trim();
-    const trimmedStore = formData.namaToko.trim();
-
-    if (!trimmedName || trimmedName.length < 2) {
-      setProfileState({
-        error: "Nama lengkap pemilik minimal 2 karakter.",
-        success: "",
-      });
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (!trimmedStore || trimmedStore.length < 2) {
-      setProfileState({
-        error: "Nama toko minimal 2 karakter.",
-        success: "",
-      });
-      setIsSubmitting(false);
-      return;
-    }
-
-    const nowIso = new Date().toISOString();
-
-    // 2. Lakukan penyimpanan dengan membawa ID yang sah
-    const { error } = await supabase
-      .from("profiles")
-      .upsert({
-        id: session.user.id, // ID ini wajib dikirim agar lolos RLS
-        full_name: trimmedName,
-        phone: formData.phone.trim() || null,
-        role: "mitra",
-        updated_at: nowIso,
-      })
-      .eq("id", session.user.id);
-
-    if (error) {
-      console.error("Error dari Supabase:", error.message);
-      // Coba fallback UPDATE eksplisit jika policy RLS hanya mengizinkan update
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({
-          full_name: trimmedName,
-          phone: formData.phone.trim() || null,
-          updated_at: nowIso,
-        })
-        .eq("id", session.user.id);
-
-      if (updateError) {
-        setProfileState({
-          error: `Error dari Supabase: ${error.message || updateError.message}`,
-          success: "",
-        });
-        setIsSubmitting(false);
-        return;
-      }
-    }
-
-    // 3. Simpan / Perbarui partner_stores
     try {
-      const { data: existingStore } = await supabase
-        .from("partner_stores")
-        .select("id")
-        .eq("owner_id", session.user.id)
-        .maybeSingle();
-
-      if (existingStore) {
-        await supabase
-          .from("partner_stores")
-          .update({
-            name: trimmedStore,
-            phone: formData.phone.trim() || null,
-            address: formData.alamatLengkap.trim() || null,
-            updated_at: nowIso,
-          })
-          .eq("id", existingStore.id)
-          .eq("owner_id", session.user.id);
-      } else {
-        await supabase
-          .from("partner_stores")
-          .insert({
-            owner_id: session.user.id,
-            name: trimmedStore,
-            phone: formData.phone.trim() || null,
-            address: formData.alamatLengkap.trim() || null,
-            status: "pending",
-            is_active: false,
-            created_at: nowIso,
-            updated_at: nowIso,
-          });
-      }
-
-      setProfileState({
-        error: "",
-        success: "Data profil pemilik dan toko Mitra berhasil disimpan!",
+      const result = await updatePartnerProfileAction({
+        namaLengkap: formData.namaLengkap,
+        namaToko: formData.namaToko,
+        alamatLengkap: formData.alamatLengkap,
+        phone: formData.phone,
       });
-    } catch (storeErr) {
-      console.error("Error partner_stores:", storeErr);
+
+      if (result.error) {
+        setProfileState({ error: result.error, success: "" });
+      } else {
+        setProfileState({
+          error: "",
+          success: result.success || "Data profil pemilik dan toko Mitra berhasil disimpan!",
+        });
+        router.refresh();
+      }
+    } catch (err) {
       setProfileState({
-        error: "",
-        success: "Data profil berhasil disimpan!",
+        error: `Terjadi kesalahan: ${err instanceof Error ? err.message : String(err)}`,
+        success: "",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // ── Handler Ubah Password ───────────────────────────────────────────────────
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmittingPassword(true);
@@ -346,29 +245,29 @@ export default function PartnerProfilePage() {
     <div className="w-full max-w-3xl mx-auto space-y-3 sm:space-y-4">
       <header>
         <div className="flex items-center gap-1.5">
-          <span className="inline-flex items-center rounded-full bg-[#f7e4d4] px-2.5 py-0.5 text-xs font-bold text-[#9d5c4c]">
+          <span className="inline-flex items-center rounded-full bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 text-xs font-bold text-terracotta-clay">
             Pengaturan Akun
           </span>
-          <span className="text-xs text-[#7a8394]">&bull; Portal Mitra</span>
+          <span className="text-xs text-gray-500">&bull; Portal Mitra</span>
         </div>
-        <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
+        <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-gray-900">
           Profil Pemilik & Toko
         </h1>
-        <p className="mt-0.5 text-xs sm:text-sm text-[#6d7687]">
+        <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
           Kelola data pendaftaran mandiri, informasi operasional toko, dan keamanan kata sandi Anda.
         </p>
       </header>
 
       <section
         aria-label="Informasi Akun"
-        className="rounded-xl border border-slate-200/80 bg-white p-3.5 sm:p-4 shadow-sm shadow-[#2d3440]/5"
+        className="rounded-xl border border-gray-200 bg-white p-3.5 sm:p-4 shadow-sm"
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <Avatar name={formData.namaLengkap || "Mitra"} />
             <div>
               <div className="flex flex-wrap items-center gap-1.5">
-                <h2 className="text-sm sm:text-base font-black text-[#2d3440]">
+                <h2 className="text-sm sm:text-base font-black text-gray-900">
                   {isLoading ? "Memuat profil..." : formData.namaLengkap || "Mitra Sarniya"}
                 </h2>
                 <span
@@ -377,21 +276,21 @@ export default function PartnerProfilePage() {
                   {statusBadge.text}
                 </span>
               </div>
-              <p className="text-xs text-[#6d7687]">{isLoading ? "..." : email}</p>
-              <p className="text-[11px] text-[#7a8394]">
+              <p className="text-xs text-gray-500">{isLoading ? "..." : email}</p>
+              <p className="text-[11px] text-gray-500">
                 Toko:{" "}
-                <span className="font-semibold text-[#2d3440]">
+                <span className="font-semibold text-gray-900">
                   {isLoading ? "..." : formData.namaToko || "Belum ada nama toko"}
                 </span>
               </p>
             </div>
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-slate-50/60 px-3 py-1.5 sm:text-right">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#7a8394]">
+          <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 sm:text-right">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500">
               Terdaftar Sejak
             </p>
-            <p className="text-xs font-bold text-[#2d3440]">
+            <p className="text-xs font-bold text-gray-900">
               {isLoading ? "..." : createdAtText}
             </p>
           </div>
@@ -400,13 +299,13 @@ export default function PartnerProfilePage() {
 
       <section
         aria-label="Pembaruan Data Profil dan Toko"
-        className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5"
+        className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
       >
-        <div className="border-b border-slate-100 px-4 py-2.5">
-          <h2 className="text-sm sm:text-base font-bold text-[#2d3440]">
+        <div className="border-b border-gray-100 bg-gray-50/70 px-4 py-2.5">
+          <h2 className="text-sm sm:text-base font-bold text-gray-900">
             Informasi Profil & Toko
           </h2>
-          <p className="text-xs text-[#7a8394]">
+          <p className="text-xs text-gray-500">
             Perbarui data diri pemilik dan identitas toko yang Anda daftarkan.
           </p>
         </div>
@@ -421,9 +320,9 @@ export default function PartnerProfilePage() {
             <div>
               <label
                 htmlFor="namaLengkap"
-                className="mb-1 block text-xs font-semibold text-[#2d3440]"
+                className="mb-1 block text-xs font-semibold text-gray-900"
               >
-                Nama Lengkap Pemilik <span className="text-[#a44d36]">*</span>
+                Nama Lengkap Pemilik <span className="text-rose-600">*</span>
               </label>
               <input
                 id="namaLengkap"
@@ -436,14 +335,14 @@ export default function PartnerProfilePage() {
                 }
                 placeholder="cth. Budi Santoso"
                 disabled={isLoading || isSubmitting}
-                className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-50 disabled:opacity-70"
+                className="h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20 disabled:bg-gray-50 disabled:opacity-70"
               />
             </div>
 
             <div>
               <label
                 htmlFor="phone"
-                className="mb-1 block text-xs font-semibold text-[#2d3440]"
+                className="mb-1 block text-xs font-semibold text-gray-900"
               >
                 Nomor Telepon / WhatsApp
               </label>
@@ -457,7 +356,7 @@ export default function PartnerProfilePage() {
                 }
                 placeholder="cth. 081234567890"
                 disabled={isLoading || isSubmitting}
-                className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-50 disabled:opacity-70"
+                className="h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20 disabled:bg-gray-50 disabled:opacity-70"
               />
             </div>
           </div>
@@ -465,9 +364,9 @@ export default function PartnerProfilePage() {
           <div>
             <label
               htmlFor="namaToko"
-              className="mb-1 block text-xs font-semibold text-[#2d3440]"
+              className="mb-1 block text-xs font-semibold text-gray-900"
             >
-              Nama Toko Mitra <span className="text-[#a44d36]">*</span>
+              Nama Toko Mitra <span className="text-rose-600">*</span>
             </label>
             <input
               id="namaToko"
@@ -480,14 +379,14 @@ export default function PartnerProfilePage() {
               }
               placeholder="cth. Toko Berkah Sarniya"
               disabled={isLoading || isSubmitting}
-              className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-50 disabled:opacity-70"
+              className="h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20 disabled:bg-gray-50 disabled:opacity-70"
             />
           </div>
 
           <div>
             <label
               htmlFor="alamatLengkap"
-              className="mb-1 block text-xs font-semibold text-[#2d3440]"
+              className="mb-1 block text-xs font-semibold text-gray-900"
             >
               Alamat Lengkap Toko
             </label>
@@ -501,7 +400,7 @@ export default function PartnerProfilePage() {
               }
               placeholder="cth. Jl. Melati No. 12, Kelurahan Sukajadi, Kota Bandung"
               disabled={isLoading || isSubmitting}
-              className="w-full rounded-lg border border-slate-200 bg-white p-2.5 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-50 disabled:opacity-70"
+              className="w-full rounded-lg border border-gray-200 bg-white p-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20 disabled:bg-gray-50 disabled:opacity-70"
             />
           </div>
 
@@ -509,7 +408,7 @@ export default function PartnerProfilePage() {
             <button
               type="submit"
               disabled={isLoading || isSubmitting}
-              className="inline-flex h-9 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-9 items-center justify-center rounded-xl bg-terracotta-clay px-4 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting
                 ? "Menyimpan Perubahan..."
@@ -521,13 +420,13 @@ export default function PartnerProfilePage() {
 
       <section
         aria-label="Keamanan dan Ubah Password"
-        className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm shadow-[#2d3440]/5"
+        className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
       >
-        <div className="border-b border-slate-100 px-4 py-2.5">
-          <h2 className="text-sm sm:text-base font-bold text-[#2d3440]">
+        <div className="border-b border-gray-100 bg-gray-50/70 px-4 py-2.5">
+          <h2 className="text-sm sm:text-base font-bold text-gray-900">
             Keamanan & Ubah Password
           </h2>
-          <p className="text-xs text-[#7a8394]">
+          <p className="text-xs text-gray-500">
             Gunakan password baru yang kuat minimal 8 karakter.
           </p>
         </div>
@@ -542,9 +441,9 @@ export default function PartnerProfilePage() {
             <div>
               <label
                 htmlFor="newPassword"
-                className="mb-1 block text-xs font-semibold text-[#2d3440]"
+                className="mb-1 block text-xs font-semibold text-gray-900"
               >
-                Password Baru <span className="text-[#a44d36]">*</span>
+                Password Baru <span className="text-rose-600">*</span>
               </label>
               <input
                 id="newPassword"
@@ -557,16 +456,16 @@ export default function PartnerProfilePage() {
                 placeholder="Minimal 8 karakter"
                 autoComplete="new-password"
                 disabled={isSubmittingPassword}
-                className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-50 disabled:opacity-70"
+                className="h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20 disabled:bg-gray-50 disabled:opacity-70"
               />
             </div>
 
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="mb-1 block text-xs font-semibold text-[#2d3440]"
+                className="mb-1 block text-xs font-semibold text-gray-900"
               >
-                Konfirmasi Password Baru <span className="text-[#a44d36]">*</span>
+                Konfirmasi Password Baru <span className="text-rose-600">*</span>
               </label>
               <input
                 id="confirmPassword"
@@ -579,7 +478,7 @@ export default function PartnerProfilePage() {
                 placeholder="Ulangi password baru"
                 autoComplete="new-password"
                 disabled={isSubmittingPassword}
-                className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-50 disabled:opacity-70"
+                className="h-9 w-full rounded-lg border border-gray-200 bg-white px-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20 disabled:bg-gray-50 disabled:opacity-70"
               />
             </div>
           </div>
@@ -588,7 +487,7 @@ export default function PartnerProfilePage() {
             <button
               type="submit"
               disabled={isSubmittingPassword}
-              className="inline-flex h-9 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-9 items-center justify-center rounded-xl bg-terracotta-clay px-4 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmittingPassword
                 ? "Memperbarui Password..."

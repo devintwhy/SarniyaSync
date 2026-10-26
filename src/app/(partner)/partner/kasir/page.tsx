@@ -18,7 +18,6 @@ export default async function PartnerKasirPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // Ambil daftar toko mitra milik pengguna aktif
   const { data: stores, error: storesError } = await supabase
     .from("partner_stores")
     .select("id, name, is_active, status")
@@ -28,7 +27,6 @@ export default async function PartnerKasirPage() {
     store.status ? store.status === "aktif" : store.is_active,
   );
 
-  // Jika akun mitra masih pending atau nonaktif, arahkan ke halaman status verifikasi
   if ((stores ?? []).length > 0 && activeStores.length === 0) {
     redirect("/partner/status");
   }
@@ -36,11 +34,11 @@ export default async function PartnerKasirPage() {
   const storeIds = activeStores.map((store) => store.id);
   let inventoryError = storesError?.message ?? "";
 
-  // 1. Tarik seluruh master produk aktif dari tabel products
   type MasterProduct = {
     id: string;
     sku: string;
     name: string;
+    category?: string | null;
     selling_price: number;
     image_url: string | null;
   };
@@ -50,7 +48,7 @@ export default async function PartnerKasirPage() {
     for (let offset = 0; ; offset += PAGE_SIZE) {
       const { data, error } = await supabase
         .from("products")
-        .select("id, sku, name, selling_price, image_url")
+        .select("id, sku, name, category, selling_price, image_url")
         .eq("is_active", true)
         .order("name", { ascending: true })
         .range(offset, offset + PAGE_SIZE - 1);
@@ -66,7 +64,6 @@ export default async function PartnerKasirPage() {
     }
   }
 
-  // 2. Tarik inventaris fisik toko mitra dari partner_store_inventory
   type AllocationRow = {
     id: string;
     partner_store_id: string;
@@ -94,7 +91,7 @@ export default async function PartnerKasirPage() {
     }
   }
 
-  // 3. LEFT JOIN master produk dengan partner_store_inventory
+  // Relasi master produk dengan inventaris gerai mitra
   const inventoryMap = new Map<string, AllocationRow>();
   for (const row of allocationRows) {
     inventoryMap.set(`${row.partner_store_id}_${row.product_id}`, row);
@@ -110,6 +107,7 @@ export default async function PartnerKasirPage() {
         productId: product.id,
         sku: product.sku,
         name: product.name,
+        category: product.category ?? "Hijab",
         sellingPrice: product.selling_price,
         stock: Math.max(0, stock),
         imageUrl: product.image_url ?? null,
@@ -124,10 +122,10 @@ export default async function PartnerKasirPage() {
           <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-3 py-0.5 text-[11px] font-bold text-terracotta-clay">
             Portal Mitra POS
           </span>
-          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
+          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-gray-900">
             Kasir Penjualan
           </h1>
-          <p className="mt-0.5 text-xs font-medium text-[#7a8394]">
+          <p className="mt-0.5 text-xs text-gray-500">
             Layar kasir modern untuk melayani pesanan pelanggan secara cepat &amp; cetak struk nota.
           </p>
         </div>
@@ -136,12 +134,12 @@ export default async function PartnerKasirPage() {
       {inventoryError ? (
         <div
           role="alert"
-          className="rounded-3xl border border-rose-300 bg-rose-50 p-6 text-sm font-semibold text-rose-800"
+          className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-sm font-semibold text-rose-800"
         >
           Pilihan stok gagal dimuat: {inventoryError}
         </div>
       ) : activeStores.length === 0 ? (
-        <div className="rounded-3xl bg-gray-50 border border-gray-200 p-12 text-center text-sm font-medium text-gray-500">
+        <div className="rounded-xl bg-gray-50 border border-gray-200 p-12 text-center text-sm font-medium text-gray-500">
           Belum ada toko aktif yang terdaftar untuk akun Anda.
         </div>
       ) : (

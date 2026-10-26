@@ -4,7 +4,6 @@ import { useState, useTransition, useId } from "react";
 import { recordCartTransaction, type CartItemInput } from "../cart-actions";
 import ThermalReceipt, { type ReceiptData } from "@/components/receipt";
 
-// ── Tipe lokal ─────────────────────────────────────────────────────────────────
 type StoreOption = { id: string; name: string };
 
 type InventoryOption = {
@@ -18,7 +17,7 @@ type InventoryOption = {
 };
 
 type CartRow = CartItemInput & {
-  rowId: string; // kunci unik per baris keranjang
+  rowId: string;
   productName: string;
   price: number;
   subtotal: number;
@@ -29,35 +28,28 @@ type PosCartFormProps = {
   inventory: InventoryOption[];
 };
 
-// ── Helper format Rupiah ───────────────────────────────────────────────────────
 const idr = new Intl.NumberFormat("id-ID", {
   style: "currency",
   currency: "IDR",
   maximumFractionDigits: 0,
 });
 
-// ── Komponen Utama ─────────────────────────────────────────────────────────────
 export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
   const uid = useId();
 
-  // ── State form pemilihan produk ────────────────────────────────────────────
   const [storeId, setStoreId] = useState(stores[0]?.id ?? "");
   const [selectedAllocId, setSelectedAllocId] = useState("");
   const [qty, setQty] = useState(1);
 
-  // ── State keranjang belanja ────────────────────────────────────────────────
   const [cart, setCart] = useState<CartRow[]>([]);
 
-  // ── State metode pembayaran ────────────────────────────────────────────────
   const [paymentMethod, setPaymentMethod] = useState("cash");
 
-  // ── State feedback & Receipt ────────────────────────────────────────────────
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [lastReceipt, setLastReceipt] = useState<ReceiptData | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  // ── Produk tersedia untuk toko yang dipilih ────────────────────────────────
   const availableForStore = inventory.filter(
     (item) => item.storeId === storeId && item.stock > 0,
   );
@@ -66,16 +58,14 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
     (item) => item.allocationId === selectedAllocId,
   );
 
-  // Stok sisa = stok DB dikurangi qty yang sudah ada di keranjang
+  // Validasi ketersediaan stok fisik gerai dikurangi akumulasi kuantitas keranjang
   const stockInCart = cart
     .filter((row) => row.allocationId === selectedAllocId)
     .reduce((sum, row) => sum + row.quantity, 0);
   const availableQty = (selectedItem?.stock ?? 0) - stockInCart;
 
-  // ── Grand total ────────────────────────────────────────────────────────────
   const grandTotal = cart.reduce((sum, row) => sum + row.subtotal, 0);
 
-  // ── Handler: ganti toko → reset keranjang ─────────────────────────────────
   function handleStoreChange(newStoreId: string) {
     setStoreId(newStoreId);
     setSelectedAllocId("");
@@ -86,7 +76,6 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
     setLastReceipt(null);
   }
 
-  // ── Handler: Tambah ke keranjang ──────────────────────────────────────────
   function handleAddToCart() {
     if (!selectedItem) return;
     if (qty < 1 || !Number.isFinite(qty)) return;
@@ -103,7 +92,6 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
     );
 
     if (existing !== -1) {
-      // Update qty baris yang sudah ada
       setCart((prev) =>
         prev.map((row, i) =>
           i === existing
@@ -128,23 +116,19 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
       setCart((prev) => [...prev, newRow]);
     }
 
-    // Reset input produk & jumlah
     setSelectedAllocId("");
     setQty(1);
   }
 
-  // ── Handler: Hapus baris dari keranjang ───────────────────────────────────
   function handleRemoveRow(rowId: string) {
     setCart((prev) => prev.filter((row) => row.rowId !== rowId));
   }
 
-  // ── Handler: Update jumlah langsung di tabel keranjang ────────────────────
   function handleQtyChange(rowId: string, newQty: number) {
     setCart((prev) =>
       prev.flatMap((row) => {
         if (row.rowId !== rowId) return [row];
-        if (newQty < 1) return []; // hapus baris jika qty = 0
-        // Hitung stok tersedia untuk baris ini
+        if (newQty < 1) return [];
         const otherInCart = cart
           .filter((r) => r.allocationId === row.allocationId && r.rowId !== rowId)
           .reduce((sum, r) => sum + r.quantity, 0);
@@ -157,14 +141,12 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
     );
   }
 
-  // ── Handler: Proses Transaksi ──────────────────────────────────────────────
   function handleSubmit() {
     if (cart.length === 0) return;
     setErrorMessage("");
     setSuccessMessage("");
     setLastReceipt(null);
 
-    // Siapkan data untuk receipt jika sukses
     const storeName = stores.find((s) => s.id === storeId)?.name ?? "Toko Mitra";
     const receiptItems = cart.map((r) => ({
       name: r.productName,
@@ -214,19 +196,18 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
 
   if (stores.length === 0) {
     return (
-      <p className="px-5 py-6 text-sm text-[#68756e]">
+      <p className="px-5 py-6 text-sm text-gray-500">
         Belum ada toko aktif yang terhubung ke akun ini.
       </p>
     );
   }
 
-  // =========================================================================
   return (
-    <div className="divide-y divide-[#edf0ec]">
+    <div className="divide-y divide-gray-100">
       <div className="p-5">
         <label
           htmlFor={`${uid}-store`}
-          className="mb-1.5 block text-sm font-medium text-[#2d3440]"
+          className="mb-1.5 block text-sm font-semibold text-gray-900"
         >
           Toko
         </label>
@@ -235,7 +216,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
           value={storeId}
           onChange={(e) => handleStoreChange(e.target.value)}
           disabled={isPending}
-          className="min-h-10 w-full max-w-sm rounded-lg border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+          className="min-h-10 w-full max-w-sm rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20"
         >
           {stores.map((store) => (
             <option key={store.id} value={store.id}>
@@ -245,15 +226,15 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
         </select>
       </div>
 
-      <div className="bg-[#fafbf9] p-5">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#557b64]">
+      <div className="bg-gray-50/60 p-5">
+        <p className="mb-3 text-xs font-bold uppercase tracking-wide text-terracotta-clay">
           Tambah Item ke Keranjang
         </p>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="min-w-0 flex-1">
             <label
               htmlFor={`${uid}-product`}
-              className="mb-1.5 block text-sm font-medium text-[#2d3440]"
+              className="mb-1.5 block text-sm font-semibold text-gray-900"
             >
               Produk
             </label>
@@ -266,7 +247,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                 setErrorMessage("");
               }}
               disabled={availableForStore.length === 0 || isPending}
-              className="min-h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-100"
+              className="min-h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20 disabled:bg-gray-100"
             >
               <option value="">
                 {availableForStore.length
@@ -290,7 +271,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
               })}
             </select>
             {selectedItem && (
-              <p className="mt-1 text-xs text-[#557b64]">
+              <p className="mt-1 text-xs text-terracotta-clay font-medium">
                 Stok tersedia: <strong>{availableQty}</strong> unit ·{" "}
                 {idr.format(selectedItem.sellingPrice)} / pcs
               </p>
@@ -300,7 +281,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
           <div className="sm:w-28">
             <label
               htmlFor={`${uid}-qty`}
-              className="mb-1.5 block text-sm font-medium text-[#2d3440]"
+              className="mb-1.5 block text-sm font-semibold text-gray-900"
             >
               Jumlah
             </label>
@@ -314,7 +295,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
               value={qty}
               onChange={(e) => setQty(Math.max(1, Number(e.target.value)))}
               disabled={!selectedItem || isPending}
-              className="min-h-10 w-full rounded-lg border border-slate-200 px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25 disabled:bg-slate-100"
+              className="min-h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20 disabled:bg-gray-100"
             />
           </div>
 
@@ -323,7 +304,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
             id={`${uid}-add-btn`}
             onClick={handleAddToCart}
             disabled={!selectedItem || qty < 1 || availableQty < 1 || isPending}
-            className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-sm font-bold text-white shadow-sm transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 sm:self-end"
+            className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-terracotta-clay px-4 text-sm font-bold text-white shadow-sm transition-all hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 sm:self-end"
           >
             <svg
               aria-hidden="true"
@@ -345,11 +326,11 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
       </div>
 
       <div>
-        <div className="border-b border-slate-100 px-6 py-3.5">
-          <p className="text-xs font-bold uppercase tracking-wide text-[#9d5c4c]">
+        <div className="border-b border-gray-100 px-6 py-3.5">
+          <p className="text-xs font-bold uppercase tracking-wide text-terracotta-clay">
             Keranjang Belanja
             {cart.length > 0 && (
-              <span className="ml-2 rounded-full bg-[#cc9787] px-2 py-0.5 text-xs font-bold text-white">
+              <span className="ml-2 rounded-full bg-terracotta-clay px-2 py-0.5 text-xs font-bold text-white">
                 {cart.length}
               </span>
             )}
@@ -358,40 +339,40 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
 
         {cart.length === 0 ? (
           <div className="px-5 py-8 text-center">
-            <p className="text-sm text-[#7b877f]">
+            <p className="text-sm text-gray-500">
               Keranjang masih kosong. Tambahkan produk di atas.
             </p>
           </div>
         ) : (
           <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar">
             <table className="w-full min-w-[560px] text-left text-sm">
-              <thead className="sticky top-0 z-10 bg-[#f7f9f6] backdrop-blur-md text-xs uppercase tracking-wide text-[#68756e] shadow-sm">
+              <thead className="sticky top-0 z-10 bg-gray-50 text-[11px] font-bold uppercase tracking-wider text-gray-600 border-b border-gray-200 shadow-sm">
                 <tr>
-                  <th scope="col" className="px-5 py-3 font-medium">
+                  <th scope="col" className="px-5 py-3 font-semibold">
                     Produk
                   </th>
-                  <th scope="col" className="px-5 py-3 text-right font-medium">
+                  <th scope="col" className="px-5 py-3 text-right font-semibold">
                     Harga Satuan
                   </th>
-                  <th scope="col" className="px-5 py-3 text-center font-medium">
+                  <th scope="col" className="px-5 py-3 text-center font-semibold">
                     Jumlah
                   </th>
-                  <th scope="col" className="px-5 py-3 text-right font-medium">
+                  <th scope="col" className="px-5 py-3 text-right font-semibold">
                     Subtotal
                   </th>
-                  <th scope="col" className="px-5 py-3 font-medium">
+                  <th scope="col" className="px-5 py-3 font-semibold">
                     <span className="sr-only">Hapus</span>
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#edf0ec]">
+              <tbody className="divide-y divide-gray-100">
                 {cart.map((row) => (
-                  <tr key={row.rowId} className="transition-colors hover:bg-[#fafbf9]">
-                    <td className="px-5 py-3.5 font-medium text-[#2d3440]">
+                  <tr key={row.rowId} className="transition-colors hover:bg-gray-50">
+                    <td className="px-5 py-3.5 font-semibold text-gray-900">
                       {row.productName}
                     </td>
 
-                    <td className="whitespace-nowrap px-5 py-3.5 text-right tabular-nums text-[#576071]">
+                    <td className="whitespace-nowrap px-5 py-3.5 text-right tabular-nums text-gray-600">
                       {idr.format(row.price)}
                     </td>
 
@@ -406,11 +387,11 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                         }
                         disabled={isPending}
                         aria-label={`Jumlah ${row.productName}`}
-                        className="w-16 rounded-md border border-slate-200 px-2 py-1 text-center text-sm tabular-nums text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+                        className="w-16 rounded-md border border-gray-200 px-2 py-1 text-center text-sm tabular-nums text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20"
                       />
                     </td>
 
-                    <td className="whitespace-nowrap px-5 py-3.5 text-right tabular-nums font-semibold text-[#2d3440]">
+                    <td className="whitespace-nowrap px-5 py-3.5 text-right tabular-nums font-bold text-gray-900">
                       {idr.format(row.subtotal)}
                     </td>
 
@@ -420,7 +401,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                         onClick={() => handleRemoveRow(row.rowId)}
                         disabled={isPending}
                         aria-label={`Hapus ${row.productName} dari keranjang`}
-                        className="rounded-md p-1 text-[#9b4936] opacity-60 transition-opacity hover:opacity-100 disabled:cursor-not-allowed"
+                        className="rounded-md p-1 text-rose-600 opacity-70 transition-opacity hover:opacity-100 disabled:cursor-not-allowed"
                       >
                         <svg
                           width="16"
@@ -447,14 +428,14 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
         )}
 
         {cart.length > 0 && (
-          <div className="border-t border-[#edf0ec] bg-[#f7f9f6] px-5 py-4">
+          <div className="border-t border-gray-100 bg-gray-50/70 px-5 py-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#576071]">
+              <span className="text-sm text-gray-600">
                 {cart.reduce((s, r) => s + r.quantity, 0)} item
               </span>
               <div className="text-right">
-                <p className="text-xs text-[#7a8394]">Grand Total</p>
-                <p className="text-xl font-black tabular-nums text-[#2d3440]">
+                <p className="text-xs text-gray-500">Grand Total</p>
+                <p className="text-xl font-black tabular-nums text-gray-900">
                   {idr.format(grandTotal)}
                 </p>
               </div>
@@ -468,7 +449,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
           <div className="sm:w-56">
             <label
               htmlFor={`${uid}-payment`}
-              className="mb-1.5 block text-sm font-medium text-[#2d3440]"
+              className="mb-1.5 block text-sm font-semibold text-gray-900"
             >
               Metode Pembayaran
             </label>
@@ -477,7 +458,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
               disabled={isPending}
-              className="min-h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
+              className="min-h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none focus:border-terracotta-clay focus:ring-2 focus:ring-terracotta-clay/20"
             >
               <option value="cash">Tunai</option>
               <option value="transfer">Transfer</option>
@@ -490,7 +471,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
             id={`${uid}-submit-btn`}
             onClick={handleSubmit}
             disabled={cart.length === 0 || isPending}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-6 text-sm font-bold text-white shadow-md shadow-[#9d5c4c]/20 transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-terracotta-clay px-6 text-sm font-bold text-white shadow-sm transition-all hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPending ? (
               <>
@@ -549,7 +530,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
         {errorMessage && (
           <p
             role="alert"
-            className="mt-4 rounded-lg border border-[#f0d4cc] bg-[#fff5f1] px-4 py-3 text-sm text-[#9b4936]"
+            className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"
           >
             {errorMessage}
           </p>
@@ -557,8 +538,8 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
       </div>
 
       {successMessage && lastReceipt && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#2d3440]/50 backdrop-blur-sm print:hidden">
-          <div className="mx-4 w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm print:hidden">
+          <div className="mx-4 w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 shadow-2xl">
             <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-emerald-50">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path
@@ -570,14 +551,14 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                 />
               </svg>
             </div>
-            <h3 className="mb-2 text-lg font-black text-[#2d3440]">Transaksi Berhasil!</h3>
-            <p className="text-sm text-[#6d7687]">{successMessage}</p>
+            <h3 className="mb-2 text-lg font-black text-gray-900">Transaksi Berhasil!</h3>
+            <p className="text-sm text-gray-500">{successMessage}</p>
             
             <div className="mt-6 flex flex-col gap-3">
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 font-bold text-white shadow-md shadow-[#9d5c4c]/20 transition hover:brightness-105 active:scale-[0.99]"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-terracotta-clay px-4 font-bold text-white shadow-sm transition hover:opacity-90 active:scale-95"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -587,7 +568,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
               <button
                 type="button"
                 onClick={() => setSuccessMessage("")}
-                className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-200 px-4 font-medium text-[#576071] transition hover:bg-slate-50"
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 bg-white px-4 font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 Tutup & Lanjut
               </button>

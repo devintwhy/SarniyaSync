@@ -8,7 +8,6 @@ export const metadata = {
   description: "Kelola seluruh produk katalog SarniyaSync — tambah, lihat harga modal, harga jual, dan stok pusat.",
 };
 
-// Server action untuk menambah produk baru ke master produk pusat
 async function addProductAction(formData: FormData): Promise<{ error?: string }> {
   "use server";
 
@@ -21,7 +20,6 @@ async function addProductAction(formData: FormData): Promise<{ error?: string }>
   const sellingPriceRaw = formData.get("selling_price");
   const stockRaw = formData.get("stock_quantity");
 
-  // Validasi input produk
   if (!name) return { error: "Nama produk wajib diisi." };
   if (!category) return { error: "Kategori wajib dipilih." };
 

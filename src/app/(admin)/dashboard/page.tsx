@@ -36,42 +36,33 @@ export default async function AdminDashboardPage() {
   const supabase = await createSupabaseServerClient();
   const loadError = "";
 
-  // Metrik harian dan rincian metode pembayaran
   let todayRevenue = 0;
   let todayTransactionCount = 0;
   let todayQris = 0;
   let todayTransfer = 0;
   let todayTunai = 0;
 
-  // Metrik bulanan (Month-to-Date)
   let totalOmzet = 0;
   let totalItemsSold = 0;
   let activePartnersCount = 0;
-  let totalHPP = 0;          // Harga Pokok Penjualan bulan berjalan
-  let totalLabaKotor = 0;    // Estimasi Laba Kotor (Omzet - HPP)
+  let totalHPP = 0;
+  let totalLabaKotor = 0;
 
-  // Peringatan stok menipis
   const lowStockItems: LowStockItem[] = [];
-
-  // Riwayat transaksi terbaru
   let recentTransactions: RecentTransaction[] = [];
 
-  // Agregasi analitik penjualan
   const salesByDate: Record<string, { date: string; timestamp: number; total: number }> = {};
   const salesByPartner: Record<string, number> = {};
   const salesByProduct: Record<string, number> = {};
 
   try {
     const now = new Date();
-    // Rentang 30 hari untuk grafik tren
     const thirtyDaysAgoDate = new Date();
     thirtyDaysAgoDate.setDate(now.getDate() - 30);
     const thirtyDaysAgo = thirtyDaysAgoDate.toISOString();
     
-    // Rentang awal bulan untuk metrik bulanan
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-    // Mengambil transaksi 30 hari terakhir beserta payment_method
     const { data: recentMonthTransactions, error: txError } = await (supabase
       .from("sales_transactions")
       .select(`
@@ -94,7 +85,6 @@ export default async function AdminDashboardPage() {
         const isToday = txDate.toDateString() === now.toDateString();
         const isThisMonth = tx.sold_at >= startOfMonth;
 
-        // Hitung Pendapatan Hari Ini & Rincian Metode Pembayaran
         if (isToday) {
           todayRevenue += total;
           todayTransactionCount += 1;
@@ -108,7 +98,6 @@ export default async function AdminDashboardPage() {
           }
         }
 
-        // Kelompokkan per tanggal untuk Grafik Tren (30 Hari Terakhir)
         const dateKey = `${txDate.getFullYear()}-${String(txDate.getMonth() + 1).padStart(2, "0")}-${String(txDate.getDate()).padStart(2, "0")}`;
         const dateString = txDate.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
         if (!salesByDate[dateKey]) {
@@ -120,7 +109,6 @@ export default async function AdminDashboardPage() {
         }
         salesByDate[dateKey].total += total;
 
-        // Kelompokkan Mitra dan Produk (Khusus Bulan Berjalan)
         if (isThisMonth) {
           totalOmzet += total;
           
@@ -130,7 +118,6 @@ export default async function AdminDashboardPage() {
              
           salesByPartner[storeName] = (salesByPartner[storeName] || 0) + total;
 
-          // Ekstraksi item dari JSONB
           if (Array.isArray(tx.items)) {
             for (const item of tx.items) {
                // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -140,7 +127,7 @@ export default async function AdminDashboardPage() {
                    totalItemsSold += qty;
                    salesByProduct[record.name] = (salesByProduct[record.name] || 0) + qty;
                    
-                   // Hitung HPP jika cost_price tersedia langsung di JSONB item
+                   // Kalkulasi HPP dan laba kotor transaksi berjalan
                    if (isThisMonth && record.cost_price) {
                      totalHPP += qty * Number(record.cost_price);
                    }
@@ -151,8 +138,7 @@ export default async function AdminDashboardPage() {
       }
     }
 
-    // Jika items JSONB tidak menyimpan cost_price, fallback: fetch dari tabel products
-    // Kumpulkan semua product_id unik dari transaksi bulan ini
+    // Fallback: hitung HPP dari master produk jika belum tercatat di riwayat transaksi
     if (totalHPP === 0 && recentMonthTransactions && recentMonthTransactions.length > 0) {
       const productNameSet = new Set<string>();
       for (const tx of recentMonthTransactions) {
@@ -193,7 +179,6 @@ export default async function AdminDashboardPage() {
 
     totalLabaKotor = totalOmzet - totalHPP;
 
-    // Persiapan data untuk DashboardCharts (diurutkan kronologis terlama ke terbaru)
     const dailySales = Object.values(salesByDate)
         .sort((a, b) => a.timestamp - b.timestamp)
         .map(({ date, total }) => ({ date, total }));
@@ -201,14 +186,13 @@ export default async function AdminDashboardPage() {
     const topPartners = Object.entries(salesByPartner)
         .map(([storeName, totalSales]) => ({ storeName, totalSales }))
         .sort((a, b) => b.totalSales - a.totalSales)
-        .slice(0, 5); // 5 Mitra Teratas
+        .slice(0, 5);
 
     const bestSellers = Object.entries(salesByProduct)
         .map(([productName, quantity]) => ({ productName, quantity }))
         .sort((a, b) => b.quantity - a.quantity)
-        .slice(0, 5); // 5 Produk Terlaris (Top 5)
+        .slice(0, 5);
 
-    // Ambil jumlah mitra aktif
     const { count: partnersCount, error: partnersError } = await supabase
       .from("partner_stores")
       .select("*", { count: "exact", head: true })
@@ -217,7 +201,6 @@ export default async function AdminDashboardPage() {
     if (partnersError) throw partnersError;
     activePartnersCount = partnersCount || 0;
 
-    // Ambil stok menipis di Pusat (products)
     const { data: pusatProducts, error: pusatError } = await supabase
       .from("products")
       .select("id, sku, name, category, stock_quantity")
@@ -238,7 +221,6 @@ export default async function AdminDashboardPage() {
       });
     }
 
-    // Ambil stok menipis di Mitra (partner_store_inventory)
     const { data: mitraInventory, error: mitraError } = await (supabase
       .from("partner_store_inventory")
       .select(`
@@ -271,11 +253,9 @@ export default async function AdminDashboardPage() {
       });
     }
 
-    // Urutkan item dengan stok paling sedikit dan batasi maksimal 5 item
     lowStockItems.sort((a, b) => a.stock - b.stock);
     const displayLowStockItems = lowStockItems.slice(0, 5);
 
-    // Ambil 5 transaksi terbaru
     const { data: recentData, error: recentError } = await (supabase
       .from("sales_transactions")
       .select(`

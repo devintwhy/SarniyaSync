@@ -7,13 +7,11 @@ export async function GET() {
   try {
     const supabase = await createSupabaseServerClient();
 
-    // Pastikan hanya yang sudah login yang bisa mengekspor
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    // Ambil data transaksi beserta nama mitra
     const { data: transactions, error } = await (supabase
       .from("sales_transactions")
       .select(`
@@ -32,12 +30,10 @@ export async function GET() {
       return new NextResponse("Gagal mengambil data", { status: 500 });
     }
 
-    // Header CSV (5 kolom utama)
     const csvRows = [
       ["ID Transaksi", "Tanggal", "Nama Toko", "Metode Pembayaran", "Total"].join(","),
     ];
 
-    // Proses data transaksi
     for (const tx of transactions ?? []) {
       const storeName = Array.isArray(tx.partner_stores)
         ? tx.partner_stores[0]?.name

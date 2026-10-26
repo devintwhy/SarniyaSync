@@ -1,19 +1,5 @@
 "use client";
 
-/**
- * SessionWatchdog — Auto-logout saat tidak ada aktivitas selama durasi tertentu.
- *
- * Cara kerja:
- *  1. Pasang event listener untuk aktivitas pengguna (mouse, keyboard, touch, scroll).
- *  2. Setiap ada aktivitas, timer di-reset.
- *  3. Jika timer habis tanpa aktivitas → panggil supabase.auth.signOut() + redirect login.
- *  4. Di 60 detik terakhir, tampilkan countdown modal agar pengguna bisa memperpanjang sesi.
- *
- * Penggunaan di layout.tsx (atau di komponen yang selalu ter-render):
- *   <SessionWatchdog idleMinutes={480} /> // 8 jam shift
- *   <SessionWatchdog idleMinutes={30} />  // 30 menit untuk kasir
- */
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/utils/supabase/client";
@@ -25,7 +11,6 @@ type SessionWatchdogProps = {
   warningSeconds?: number;
 };
 
-// Path yang dikecualikan — tidak perlu memantau aktivitas di halaman login
 const EXCLUDED_PATHS = ["/login"];
 
 export default function SessionWatchdog({
@@ -34,7 +19,7 @@ export default function SessionWatchdog({
 }: SessionWatchdogProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [countdown, setCountdown] = useState<number | null>(null); // null = dialog tersembunyi
+  const [countdown, setCountdown] = useState<number | null>(null);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const warnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -43,7 +28,6 @@ export default function SessionWatchdog({
   const idleMs = idleMinutes * 60 * 1000;
   const warnMs = idleMs - warningSeconds * 1000;
 
-  // ── Logout ────────────────────────────────────────────────────────────────
   const doLogout = useCallback(async () => {
     clearTimeout(idleTimerRef.current ?? undefined);
     clearTimeout(warnTimerRef.current ?? undefined);
@@ -54,16 +38,13 @@ export default function SessionWatchdog({
       const supabase = createSupabaseBrowserClient();
       await supabase.auth.signOut();
     } catch {
-      // Lanjutkan redirect meski signOut gagal
     }
     router.replace("/login?reason=idle");
   }, [router]);
 
-  // ── Reset timer saat ada aktivitas ────────────────────────────────────────
   const resetTimer = useCallback(() => {
     if (isExcluded) return;
 
-    // Sembunyikan warning jika sedang tampil
     if (countdown !== null) {
       setCountdown(null);
       clearInterval(countdownIntervalRef.current ?? undefined);
@@ -72,7 +53,6 @@ export default function SessionWatchdog({
     clearTimeout(idleTimerRef.current ?? undefined);
     clearTimeout(warnTimerRef.current ?? undefined);
 
-    // Timer peringatan (warnMs sebelum logout)
     if (warnMs > 0) {
       warnTimerRef.current = setTimeout(() => {
         setCountdown(warningSeconds);
@@ -88,13 +68,11 @@ export default function SessionWatchdog({
       }, warnMs);
     }
 
-    // Timer logout utama
     idleTimerRef.current = setTimeout(() => {
       void doLogout();
     }, idleMs);
   }, [isExcluded, countdown, warnMs, warningSeconds, idleMs, doLogout]);
 
-  // ── Pasang event listener aktivitas ───────────────────────────────────────
   useEffect(() => {
     if (isExcluded) return;
 
@@ -111,7 +89,6 @@ export default function SessionWatchdog({
 
     const handleActivity = () => resetTimer();
 
-    // Mulai timer pertama kali
     resetTimer();
 
     events.forEach((event) => window.addEventListener(event, handleActivity, { passive: true }));
@@ -125,10 +102,8 @@ export default function SessionWatchdog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isExcluded, pathname]);
 
-  // ── Jika halaman dikecualikan, render nothing ──────────────────────────────
   if (isExcluded) return null;
 
-  // ── Warning Dialog ────────────────────────────────────────────────────────
   if (countdown === null) return null;
 
   return (

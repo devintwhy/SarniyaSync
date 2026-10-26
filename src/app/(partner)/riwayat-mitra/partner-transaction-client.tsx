@@ -92,7 +92,6 @@ export default function PartnerTransactionClient({
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
-  // Tanggal Hari Ini & Kemarin untuk Shortcut Cepat
   const todayStr = useMemo(() => getLocalDateString(new Date()), []);
   const yesterdayStr = useMemo(() => {
     const y = new Date();
@@ -100,23 +99,19 @@ export default function PartnerTransactionClient({
     return getLocalDateString(y);
   }, []);
 
-  // Filter Data Transaksi secara Reaktif
   const filteredTransactions = useMemo(() => {
     const q = searchTerm.toLowerCase().trim();
 
     return transactions.filter((tx) => {
-      // Filter Tanggal
       if (selectedDate) {
         const txDateStr = getLocalDateString(tx.soldAt);
         if (txDateStr !== selectedDate) return false;
       }
 
-      // Filter Toko (jika punya lebih dari 1 toko)
       if (selectedStore !== "all" && tx.partnerStoreId !== selectedStore) {
         return false;
       }
 
-      // Filter Metode Pembayaran
       if (selectedPayment !== "all") {
         const pm = String(tx.paymentMethod || "cash").toLowerCase().trim();
         if (selectedPayment === "cash" && pm !== "cash" && pm !== "tunai") return false;
@@ -124,7 +119,6 @@ export default function PartnerTransactionClient({
         if (selectedPayment === "qris" && pm !== "qris") return false;
       }
 
-      // Filter Pencarian Teks
       if (!q) return true;
 
       const matchTxNumber = tx.transactionNumber.toLowerCase().includes(q);
@@ -138,7 +132,6 @@ export default function PartnerTransactionClient({
     });
   }, [transactions, selectedDate, selectedStore, selectedPayment, searchTerm]);
 
-  // Kalkulasi Reaktif Ringkasan Total Penjualan
   const summaryMetrics = useMemo(() => {
     let totalOmzet = 0;
     let totalItems = 0;
@@ -177,7 +170,6 @@ export default function PartnerTransactionClient({
     };
   }, [filteredTransactions]);
 
-  // Fungsi Ekspor ke Excel (.xlsx) Berdasarkan Filter Aktif
   function handleExportExcel() {
     if (filteredTransactions.length === 0) {
       alert("Tidak ada data transaksi untuk diekspor pada filter ini.");
@@ -233,17 +225,16 @@ export default function PartnerTransactionClient({
 
       const worksheet = XLSX.utils.json_to_sheet(excelRows);
 
-      // Kolom terformat rapi
       worksheet["!cols"] = [
-        { wch: 22 }, // No. Transaksi
-        { wch: 20 }, // Tanggal
-        { wch: 25 }, // Toko Mitra
-        { wch: 18 }, // Metode Pembayaran
-        { wch: 30 }, // Nama Produk
-        { wch: 8 },  // Qty
-        { wch: 16 }, // Harga Satuan
-        { wch: 16 }, // Subtotal Item
-        { wch: 18 }, // Total Struk
+        { wch: 22 },
+        { wch: 20 },
+        { wch: 25 },
+        { wch: 18 },
+        { wch: 30 },
+        { wch: 8 },
+        { wch: 16 },
+        { wch: 16 },
+        { wch: 18 },
       ];
 
       const workbook = XLSX.utils.book_new();
@@ -568,19 +559,19 @@ export default function PartnerTransactionClient({
                   <th scope="col" className="px-3 py-2.5 text-right">Grand Total</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#a3b1c6]/15">
+              <tbody className="divide-y divide-gray-100">
                 {filteredTransactions.map((tx) => (
-                  <tr key={tx.id} className="align-top hover:bg-almond-cream/25 transition-colors">
-                    <td className="px-3 py-2 font-mono text-xs font-bold text-[#2d3440]">
+                  <tr key={tx.id} className="align-top hover:bg-gray-50 transition-colors">
+                    <td className="px-3 py-2 font-mono text-xs font-bold text-gray-900">
                       {tx.transactionNumber}
                     </td>
 
-                    <td className="whitespace-nowrap px-3 py-2 text-[11px] text-[#7a8394]">
+                    <td className="whitespace-nowrap px-3 py-2 text-[11px] text-gray-500">
                       {dateFormatter.format(new Date(tx.soldAt))}
                     </td>
 
                     {stores.length > 1 && (
-                      <td className="px-3 py-2 font-semibold text-[#2d3440]">
+                      <td className="px-3 py-2 font-semibold text-gray-900">
                         {tx.storeName}
                       </td>
                     )}
@@ -593,12 +584,12 @@ export default function PartnerTransactionClient({
                       {tx.items.length > 0 ? (
                         <ul className="space-y-1">
                           {tx.items.map((item, idx) => (
-                            <li key={idx} className="flex items-center justify-between gap-2 text-xs text-[#2d3440]">
+                            <li key={idx} className="flex items-center justify-between gap-2 text-xs text-gray-900">
                               <span className="truncate font-medium" title={item.name}>
                                 • {item.name}
                               </span>
                               <div className="flex items-center gap-1.5 shrink-0">
-                                <span className="text-[10px] text-[#7a8394]">
+                                <span className="text-[10px] text-gray-500">
                                   @{currencyFormatter.format(item.unitPrice)}
                                 </span>
                                 <span className="inline-flex items-center rounded-md bg-orange-50 border border-orange-200/60 px-1.5 py-0.5 text-[10px] font-bold text-terracotta-clay">
@@ -609,7 +600,7 @@ export default function PartnerTransactionClient({
                           ))}
                         </ul>
                       ) : (
-                        <span className="text-[11px] italic text-[#7a8394]">Rincian item tidak tersedia</span>
+                        <span className="text-[11px] italic text-gray-500">Rincian item tidak tersedia</span>
                       )}
                     </td>
 

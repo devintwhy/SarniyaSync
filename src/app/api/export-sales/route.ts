@@ -7,13 +7,11 @@ export async function GET() {
   try {
     const supabase = await createSupabaseServerClient();
 
-    // Pastikan hanya admin/pemilik yang bisa ekspor
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    // Ambil data transaksi beserta nama mitra
     const { data: transactions, error } = await (supabase
       .from("sales_transactions")
       .select(`
@@ -33,12 +31,10 @@ export async function GET() {
       return new NextResponse("Gagal mengambil data", { status: 500 });
     }
 
-    // Header CSV
     const csvRows = [
       ["ID Transaksi", "Tanggal", "Toko Mitra", "Metode Pembayaran", "Total Penjualan", "Nama Produk", "Qty", "Harga Satuan", "Subtotal"].join(","),
     ];
 
-    // Proses data
     for (const tx of transactions ?? []) {
       const storeName = Array.isArray(tx.partner_stores)
         ? tx.partner_stores[0]?.name
@@ -54,7 +50,6 @@ export async function GET() {
           ? "Transfer"
           : "Tunai";
 
-      // Jika tidak ada items, buat 1 baris rekap
       if (!tx.items || !Array.isArray(tx.items) || tx.items.length === 0) {
         csvRows.push(
           [
@@ -72,7 +67,6 @@ export async function GET() {
         continue;
       }
 
-      // Jika ada multi-items, pecah per item barang
       for (const item of tx.items) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const record = item as any;

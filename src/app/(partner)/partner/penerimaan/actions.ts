@@ -25,7 +25,6 @@ export async function receiveStockTransfer(transferId: string): Promise<ReceiveR
     });
 
     if (error) {
-      // Map kode error PostgreSQL ke pesan yang lebih ramah
       if (error.message.includes("P0002")) return { error: "Kiriman tidak ditemukan." };
       if (error.message.includes("P0003")) return { error: "Paket ini sudah diterima sebelumnya." };
       if (error.message.includes("42501")) return { error: "Anda tidak berhak menerima kiriman ini." };

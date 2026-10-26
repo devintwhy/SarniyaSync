@@ -77,11 +77,10 @@ export async function cancelPartnerSale(transactionId: string): Promise<CancelRe
 
     const allocationsByProduct = new Map((allocations ?? []).map((allocation) => [allocation.product_id, allocation]));
 
-    // Rollback Inventory: Kembalikan stok ke toko mitra
+    // Rollback inventaris: pengembalian stok gerai mitra saat pembatalan
     for (const item of saleItems ?? []) {
       const allocation = allocationsByProduct.get(item.productId);
       if (!allocation) {
-        // Jika baris belum ada di inventaris mitra, buat baris baru
         const { error: insertError } = await supabase
           .from("partner_store_inventory")
           .insert({
@@ -111,7 +110,6 @@ export async function cancelPartnerSale(transactionId: string): Promise<CancelRe
       }
     }
 
-    // Ubah status transaksi menjadi 'Batal'
     const { data: updatedTransaction, error: updateTxError } = await supabase
       .from("sales_transactions")
       .update({

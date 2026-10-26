@@ -33,7 +33,6 @@ export default async function PenerimaanPage() {
   let initialTransfers: StockTransferItem[] = [];
 
   if (store) {
-    // Ambil SELURUH riwayat (semua status), urutkan terbaru
     const { data, error: transferError } = await supabase
       .from("stock_transfers")
       .select(

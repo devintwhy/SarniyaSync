@@ -18,7 +18,6 @@ export async function registerMitraAction(
   const phone = String(formData.get("phone") ?? "").trim();
   const address = String(formData.get("address") ?? "").trim();
 
-  // Validasi input
   if (!email || !password || !fullName || !storeName) {
     return { error: "Email, password, nama lengkap pemilik, dan nama toko wajib diisi." };
   }
@@ -31,7 +30,6 @@ export async function registerMitraAction(
   try {
     const supabase = await createSupabaseServerClient();
 
-    // 1. Buat akun login pengguna
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
@@ -51,7 +49,6 @@ export async function registerMitraAction(
 
     const userId = authData.user.id;
 
-    // 2. Insert / upsert ke tabel profiles dengan default role 'mitra'
     const { error: profileError } = await supabase.from("profiles").upsert({
       id: userId,
       full_name: fullName,
@@ -65,7 +62,6 @@ export async function registerMitraAction(
       };
     }
 
-    // 3. Insert ke tabel partner_stores dengan status default 'pending'
     const { error: storeError } = await supabase.from("partner_stores").insert({
       owner_id: userId,
       name: storeName,

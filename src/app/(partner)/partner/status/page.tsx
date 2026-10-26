@@ -31,55 +31,29 @@ export default async function PartnerStatusPage() {
 
   const isPending = status === "pending";
 
-  const neuCardRaised = {
-    boxShadow:
-      "9px 9px 20px rgba(163, 177, 198, 0.6), -9px -9px 20px rgba(255, 255, 255, 0.6)",
-  };
-
-  const neuLogoRaised = {
-    boxShadow:
-      "6px 6px 14px rgba(163, 177, 198, 0.55), -6px -6px 14px rgba(255, 255, 255, 0.85)",
-  };
-
-  const neuInset = {
-    boxShadow:
-      "inset 6px 6px 12px rgba(163, 177, 198, 0.7), inset -6px -6px 12px rgba(255, 255, 255, 0.85)",
-  };
-
-  const neuButtonRaised = {
-    boxShadow:
-      "8px 8px 18px rgba(163, 177, 198, 0.6), -8px -8px 18px rgba(255, 255, 255, 0.9)",
-  };
-
   return (
-    <main className="min-h-screen w-full bg-[#e0e5ec] flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12">
-      <div
-        className="w-full max-w-xl rounded-[32px] bg-[#e0e5ec] p-8 sm:p-12 text-center transition-all duration-300"
-        style={neuCardRaised}
-      >
-        <div
-          className="mx-auto mb-6 flex size-24 items-center justify-center rounded-3xl bg-[#e0e5ec] p-3"
-          style={neuLogoRaised}
-        >
+    <main className="min-h-screen w-full bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 text-center shadow-sm">
+        <div className="mx-auto mb-5 flex size-20 items-center justify-center rounded-2xl bg-orange-50/60 border border-orange-100 p-2.5">
           <Image
             src="/logo-sarniya.png"
             alt="Sarniya Logo"
             width={80}
             height={80}
-            className="h-full w-full object-contain drop-shadow"
+            className="h-full w-full object-contain"
             priority
           />
         </div>
 
-        <span className="inline-block rounded-full bg-[#f7e4d4] px-4 py-1 text-xs font-bold text-[#9d5c4c]">
+        <span className="inline-flex items-center rounded-full bg-orange-50 border border-orange-200/60 px-3.5 py-1 text-xs font-bold text-terracotta-clay">
           Status Verifikasi Toko
         </span>
 
-        <h1 className="mt-4 text-2xl sm:text-3xl font-black text-[#2d3440]">
+        <h1 className="mt-4 text-xl sm:text-2xl font-black tracking-tight text-gray-900">
           {isPending ? "Akun Mitra Sedang Ditinjau" : "Akun Mitra Dinonaktifkan"}
         </h1>
 
-        <p className="mt-3 text-sm sm:text-base leading-relaxed text-[#6d7687]">
+        <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-gray-500 max-w-md mx-auto">
           {store?.status_message?.trim() ||
             (isPending
               ? "Pendaftaran toko Mitra Anda berhasil diterima dan saat ini sedang dalam proses peninjauan & verifikasi oleh Administrator. Fitur Kasir (POS) akan otomatis aktif setelah toko Anda disetujui."
@@ -87,16 +61,15 @@ export default async function PartnerStatusPage() {
         </p>
 
         {store && (
-          <div
-            className="mt-6 inline-flex items-center gap-2.5 rounded-2xl bg-[#e0e5ec] px-5 py-3 text-xs sm:text-sm text-[#2d3440]"
-            style={neuInset}
-          >
-            <span className="font-bold">Toko:</span> {store.name} —{" "}
+          <div className="mt-5 inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-xs sm:text-sm text-gray-800">
+            <span className="font-semibold text-gray-500">Toko:</span>
+            <span className="font-bold text-gray-900">{store.name}</span>
+            <span className="text-gray-300">&bull;</span>
             <span
-              className={`rounded-full px-2.5 py-0.5 text-xs font-bold uppercase ${
+              className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${
                 isPending
-                  ? "bg-[#faecc2] text-[#926004]"
-                  : "bg-[#f0d4cc] text-[#9b4936]"
+                  ? "bg-amber-50 text-amber-700 border border-amber-200/60"
+                  : "bg-rose-50 text-rose-700 border border-rose-200/60"
               }`}
             >
               {status}
@@ -104,18 +77,16 @@ export default async function PartnerStatusPage() {
           </div>
         )}
 
-        <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+        <div className="mt-7 flex flex-col-reverse justify-center gap-2.5 sm:flex-row">
           <Link
             href="/dashboard-mitra"
-            style={neuButtonRaised}
-            className="inline-flex h-14 items-center justify-center rounded-2xl bg-[#e0e5ec] px-6 text-sm sm:text-base font-bold text-[#576071] transition-all hover:text-[#2d3440] active:scale-95"
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-gray-200 bg-white px-5 text-xs sm:text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 active:scale-95"
           >
             Dashboard Mitra
           </Link>
           <Link
             href="/partner/profil"
-            style={neuButtonRaised}
-            className="inline-flex h-14 items-center justify-center rounded-2xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-6 text-sm sm:text-base font-bold text-white transition-all hover:brightness-105 active:scale-95"
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-terracotta-clay px-5 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:opacity-90 active:scale-95"
           >
             Lihat Profil Saya
           </Link>

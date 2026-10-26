@@ -13,6 +13,18 @@ create table if not exists public.stock_transfers (
   updated_at       timestamptz not null default now()
 );
 
+grant select
+on public.stock_transfers
+to anon;
+
+grant select, insert, update, delete
+on public.stock_transfers
+to authenticated;
+
+grant select, insert, update, delete
+on public.stock_transfers
+to service_role;
+
 create index if not exists idx_stock_transfers_store_status
   on public.stock_transfers(partner_store_id, status);
 create index if not exists idx_stock_transfers_product

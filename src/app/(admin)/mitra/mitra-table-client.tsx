@@ -26,17 +26,14 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
-  // State untuk Modal Pesan
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMitra, setSelectedMitra] = useState<StoreItem | null>(null);
   const [messageInput, setMessageInput] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [modalFeedback, setModalFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // State untuk status update inline di tabel
   const [updatingStoreId, setUpdatingStoreId] = useState<string | null>(null);
 
-  // Sinkronisasi data ketika prop stores berubah
   useEffect(() => {
     setStoresList(stores);
   }, [stores]);
@@ -47,7 +44,6 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
     pending: "border-amber-200 bg-amber-50 text-amber-700 focus:ring-amber-300",
   };
 
-  // Filter daftar toko mitra berdasarkan pencarian dan status
   const filteredStores = useMemo(() => {
     const q = searchTerm.toLowerCase().trim();
 
@@ -58,12 +54,10 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
 
       const currentStatus = (store.status || (store.is_active ? "aktif" : "pending")).toLowerCase();
 
-      // Filter status
       if (filterStatus !== "all" && currentStatus !== filterStatus) {
         return false;
       }
 
-      // Filter search term
       if (!q) return true;
 
       const matchName = store.name.toLowerCase().includes(q);
@@ -75,7 +69,6 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
     });
   }, [storesList, searchTerm, filterStatus]);
 
-  // Handler ubah status langsung dari dropdown di baris tabel
   async function handleStatusChange(storeId: string, newStatus: MitraStatus) {
     setUpdatingStoreId(storeId);
     try {
@@ -109,7 +102,6 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
     }
   }
 
-  // Buka Modal untuk toko terpilih
   function handleOpenMessageModal(store: StoreItem) {
     setSelectedMitra(store);
     setMessageInput(store.status_message ?? "");
@@ -117,7 +109,6 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
     setIsModalOpen(true);
   }
 
-  // Simpan pesan dari dalam Modal ke Supabase
   async function handleSaveMessage() {
     if (!selectedMitra) return;
 
@@ -132,7 +123,6 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
         setModalFeedback({ type: "error", text: res.error });
       } else {
         const trimmed = messageInput.trim() || null;
-        // Perbarui state lokal agar data langsung sinkron
         setStoresList((prev) =>
           prev.map((s) =>
             s.id === selectedMitra.id
@@ -238,15 +228,22 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                 const isRowUpdating = updatingStoreId === store.id;
 
                 return (
-                  <tr key={store.id} className="transition-colors hover:bg-almond-cream/25">
-                    <td className="px-4 py-2.5 font-medium text-[#2d3440]">
-                      <div className="font-bold text-[#2d3440]">{store.name}</div>
-                      <div className="text-[10px] font-medium text-[#7a8394]">ID: {store.id.slice(0, 8)}</div>
+                  <tr key={store.id} className="transition-colors hover:bg-gray-50">
+                    <td className="px-4 py-2.5 font-medium text-gray-900">
+                      <div className="font-bold text-gray-900">{store.name}</div>
+                      <div className="text-[10px] font-medium text-gray-400">ID: {store.id.slice(0, 8)}</div>
                     </td>
-                    <td className="px-4 py-2.5 font-semibold text-[#2d3440]">{ownerName}</td>
-                    <td className="px-4 py-2.5 font-medium text-[#576071]">{store.phone || "—"}</td>
-                    <td className="px-4 py-2.5 font-medium text-[#576071]">
-                      {store.city || store.address || "—"}
+                    <td className="px-4 py-2.5 font-semibold text-gray-900">{ownerName}</td>
+                    <td className="px-4 py-2.5 font-medium text-gray-600">{store.phone || "—"}</td>
+                    <td className="px-4 py-2.5 font-medium text-gray-600 max-w-xs">
+                      <p className="line-clamp-2 text-xs text-gray-900" title={store.address || store.city || "—"}>
+                        {store.address || store.city || "—"}
+                      </p>
+                      {store.address && store.city && !store.address.toLowerCase().includes(store.city.toLowerCase()) && (
+                        <span className="text-[10px] text-gray-500 font-normal block mt-0.5">
+                          Kota: {store.city}
+                        </span>
+                      )}
                     </td>
                     
                     <td className="px-4 py-2.5">

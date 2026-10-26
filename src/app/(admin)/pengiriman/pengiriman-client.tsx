@@ -59,7 +59,6 @@ export default function PengirimanClient({
   const [filterStore, setFilterStore] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Unique stores for filter dropdown
   const stores = useMemo(() => {
     const map = new Map<string, string>();
     for (const t of initialTransfers) {

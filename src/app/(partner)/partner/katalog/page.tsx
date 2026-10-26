@@ -19,7 +19,6 @@ export default async function PartnerKatalogPage() {
 
   if (!user) redirect("/login");
 
-  // 1. Ambil daftar gerai milik mitra yang sedang login
   const { data: stores, error: storesError } = await supabase
     .from("partner_stores")
     .select("id, name, is_active, status")
@@ -29,7 +28,6 @@ export default async function PartnerKatalogPage() {
   const storeNames = new Map((stores ?? []).map((store) => [store.id, store.name]));
   let errorMessage = storesError?.message ?? "";
 
-  // 2. Tarik seluruh master produk aktif
   type MasterProduct = {
     id: string;
     sku: string;
@@ -61,7 +59,6 @@ export default async function PartnerKatalogPage() {
     }
   }
 
-  // 3. Tarik inventaris fisik gerai mitra
   type InventoryRow = {
     id: string;
     partner_store_id: string;
@@ -90,7 +87,7 @@ export default async function PartnerKatalogPage() {
     }
   }
 
-  // 4. LEFT JOIN master produk dengan inventaris gerai mitra
+  // Relasi master produk dengan inventaris gerai mitra
   const inventoryMap = new Map<string, InventoryRow>();
   for (const row of inventoryRows) {
     inventoryMap.set(`${row.partner_store_id}_${row.product_id}`, row);
@@ -143,10 +140,10 @@ export default async function PartnerKatalogPage() {
         <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-3 py-0.5 text-[11px] font-bold text-terracotta-clay">
           Portal Mitra
         </span>
-        <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
+        <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-gray-900">
           Katalog Produk Mitra
         </h1>
-        <p className="mt-0.5 text-xs text-[#7a8394]">
+        <p className="mt-0.5 text-xs text-gray-500">
           Etalase visual koleksi hijab dan ketersediaan stok fisik di gerai toko Anda.
         </p>
       </header>

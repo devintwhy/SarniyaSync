@@ -11,19 +11,16 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        // Palet Resmi SarniyaSync
         "almond-cream": "#f7e4d4ff",
         "almond-silk": "#e1b5a4ff",
         "rosy-taupe": "#cc9787ff",
         "dusty-rose": "#cc8c7dff",
         "terracotta-clay": "#9d5c4cff",
-        // Aliases sarniya-*
         "sarniya-cream": "#f7e4d4ff",
         "sarniya-silk": "#e1b5a4ff",
         "sarniya-taupe": "#cc9787ff",
         "sarniya-rose": "#cc8c7dff",
         "sarniya-clay": "#9d5c4cff",
-        // Enterprise canvas background
         "neu-bg": "#f9fafb",
       },
       backgroundImage: {
