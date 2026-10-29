@@ -122,10 +122,10 @@ export default async function PartnerKasirPage() {
           <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-3 py-0.5 text-[11px] font-bold text-terracotta-clay">
             Portal Mitra POS
           </span>
-          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-gray-900">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">
             Kasir Penjualan
           </h1>
-          <p className="mt-0.5 text-xs text-gray-500">
+          <p className="mt-0.5 text-sm text-gray-500">
             Layar kasir modern untuk melayani pesanan pelanggan secara cepat &amp; cetak struk nota.
           </p>
         </div>

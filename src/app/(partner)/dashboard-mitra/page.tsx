@@ -208,7 +208,7 @@ export default async function PartnerDashboardPage() {
       products ( sku, name, category, price )
     `)
     .in("partner_store_id", activeStoreIds)
-    .lte("stock_quantity", 5)
+    .lt("stock_quantity", 10)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .order("stock_quantity", { ascending: true }) as any);
 
@@ -278,7 +278,7 @@ export default async function PartnerDashboardPage() {
     {
       label: "Peringatan Stok Menipis",
       value: `${numberFormatter.format(lowStockItems.length)} produk`,
-      detail: "Stok sisa ≤ 5 unit",
+      detail: "Stok sisa < 10 unit",
       valueClass: lowStockItems.length > 0 ? "text-amber-700" : "text-gray-900",
     },
   ];
@@ -293,8 +293,8 @@ export default async function PartnerDashboardPage() {
             </span>
             <span className="text-xs text-gray-500">&bull; {storeNames}</span>
           </div>
-          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-gray-900">Dasbor Toko Saya</h1>
-          <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">Dasbor Toko Saya</h1>
+          <p className="mt-0.5 text-sm text-gray-500">
             Pantau omzet harian, performa produk, dan peringatan stok inventaris toko Anda secara real-time.
           </p>
         </div>
@@ -441,8 +441,8 @@ export default async function PartnerDashboardPage() {
         >
           <div className="flex flex-col gap-1 border-b border-amber-100 bg-amber-50/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="font-bold text-amber-900 text-sm sm:text-base">Peringatan Stok Toko Saya</h2>
-              <p className="text-xs text-amber-700">Produk di inventaris toko dengan stok &le; 5 unit.</p>
+              <h2 className="text-base font-semibold text-amber-900">Peringatan Stok Toko Saya</h2>
+              <p className="text-xs text-amber-700">Produk di inventaris toko dengan stok &lt; 10 unit.</p>
             </div>
             <span className="text-[11px] font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-full self-start sm:self-auto">
               {lowStockItems.length} produk menipis
@@ -453,7 +453,7 @@ export default async function PartnerDashboardPage() {
             <div className="px-4 py-8 text-center">
               <CheckCircle2 className="size-8 mx-auto text-emerald-600 mb-1" />
               <p className="mt-1.5 text-xs sm:text-sm font-bold text-emerald-700">Semua stok toko Anda dalam kondisi aman!</p>
-              <p className="text-[11px] text-gray-500">Tidak ada produk dengan sisa stok &le; 5 unit.</p>
+              <p className="text-[11px] text-gray-500">Tidak ada produk dengan sisa stok &lt; 10 unit.</p>
             </div>
           ) : (
             <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar flex-1">
@@ -502,7 +502,7 @@ export default async function PartnerDashboardPage() {
         >
           <div className="flex flex-col gap-1 border-b border-gray-100 bg-gray-50/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="font-bold text-gray-900 text-sm sm:text-base">Penjualan Terbaru Toko Saya</h2>
+              <h2 className="text-base font-semibold text-gray-800">Penjualan Terbaru Toko Saya</h2>
               <p className="text-xs text-gray-500">5 transaksi kasir terakhir.</p>
             </div>
             <Link href="/partner/transaksi" className="text-xs font-bold text-terracotta-clay hover:underline self-start sm:self-auto">

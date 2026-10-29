@@ -28,6 +28,9 @@ export type ExistingAllocation = {
   store_name: string | null;
   store_city: string | null;
   store_is_active: boolean | null;
+  product_name?: string | null;
+  product_sku?: string | null;
+  product_category?: string | null;
 };
 
 type BulkAllocationClientProps = {
@@ -700,17 +703,21 @@ export default function BulkAllocationClient({
         ) : (
           <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar rounded-xl border border-gray-200 bg-white mt-3">
             <table className="w-full text-left text-xs">
-              <thead className="sticky top-0 z-10 bg-gray-50 text-[11px] font-bold uppercase tracking-wider text-gray-600 border-b border-gray-200 shadow-sm">
+              <thead className="sticky top-0 z-10 bg-gray-50 text-xs font-medium uppercase tracking-wider text-gray-500 border-b border-gray-200 shadow-sm">
                 <tr>
                   <th scope="col" className="px-3.5 py-2.5">Toko Mitra</th>
                   <th scope="col" className="px-3.5 py-2.5">SKU</th>
                   <th scope="col" className="px-3.5 py-2.5">Nama Produk</th>
+                  <th scope="col" className="px-3.5 py-2.5">Kategori</th>
                   <th scope="col" className="px-3.5 py-2.5 text-right">Stok di Mitra</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {displayedAllocations.map((alloc) => {
                   const prod = productsById.get(alloc.product_id);
+                  const productName = alloc.product_name || prod?.name || "Produk tidak ditemukan";
+                  const productSku = alloc.product_sku || prod?.sku || "-";
+                  const categoryName = alloc.product_category || prod?.category || "Hijab";
 
                   return (
                     <tr key={alloc.id} className="hover:bg-gray-50 transition-colors">
@@ -728,10 +735,15 @@ export default function BulkAllocationClient({
                         )}
                       </td>
                       <td className="px-3.5 py-2 font-mono text-[11px] text-gray-500">
-                        {prod?.sku || "-"}
+                        {productSku}
                       </td>
                       <td className="px-3.5 py-2 font-bold text-gray-800">
-                        {prod?.name || "Produk tidak ditemukan"}
+                        {productName}
+                      </td>
+                      <td className="px-3.5 py-2 whitespace-nowrap">
+                        <span className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${getCategoryBadgeClass(categoryName)}`}>
+                          {categoryName}
+                        </span>
                       </td>
                       <td className="px-3.5 py-2 text-right whitespace-nowrap">
                         <span className="inline-block rounded-md bg-orange-50 border border-orange-200/60 px-2 py-0.5 text-xs font-bold text-terracotta-clay">

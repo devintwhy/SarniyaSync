@@ -35,10 +35,10 @@ export default async function PartnerManagementPage() {
         <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-3 py-0.5 text-[11px] font-bold text-terracotta-clay">
           Area Pemilik / Administrator
         </span>
-        <h1 className="mt-1.5 text-xl sm:text-2xl font-black tracking-tight text-gray-900">
+        <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-gray-900">
           Manajemen Mitra
         </h1>
-        <p className="mt-0.5 text-xs text-gray-500">
+        <p className="mt-0.5 text-sm text-gray-500">
           Kelola status operasional toko mitra (Aktif, Pending, atau Nonaktif) secara langsung dengan kendali terpadu.
         </p>
       </header>
@@ -56,7 +56,7 @@ export default async function PartnerManagementPage() {
           className="overflow-hidden rounded-xl bg-white border border-gray-200 shadow-sm"
         >
           <div className="border-b border-gray-100 px-4 py-3 sm:px-5">
-            <h2 className="text-base font-black text-gray-900">Daftar Toko Mitra</h2>
+            <h2 className="text-base font-semibold text-gray-800">Daftar Toko Mitra</h2>
             <p className="mt-0.5 text-xs font-medium text-gray-500">
               {stores?.length ?? 0} toko mitra terdaftar dalam ekosistem SarniyaSync
             </p>

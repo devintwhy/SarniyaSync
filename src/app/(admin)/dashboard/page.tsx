@@ -21,6 +21,20 @@ type RecentTransaction = {
   store_name: string;
 };
 
+type TransactionItem = {
+  name?: string;
+  quantity?: number | string;
+  cost_price?: number | string;
+};
+
+type MonthlyTransactionRow = {
+  total: number | string | null;
+  items: TransactionItem[] | null;
+  sold_at: string;
+  payment_method: string | null;
+  partner_stores: { name: string | null } | { name: string | null }[] | null;
+};
+
 const numberFormatter = new Intl.NumberFormat("id-ID");
 const currencyFormatter = new Intl.NumberFormat("id-ID", {
   style: "currency",
@@ -47,6 +61,8 @@ export default async function AdminDashboardPage() {
   let activePartnersCount = 0;
   let totalHPP = 0;
   let totalLabaKotor = 0;
+  let totalKerugianPenyusutan = 0;
+  let totalUnitPenyusutan = 0;
 
   const lowStockItems: LowStockItem[] = [];
   let recentTransactions: RecentTransaction[] = [];
@@ -63,7 +79,7 @@ export default async function AdminDashboardPage() {
     
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-    const { data: recentMonthTransactions, error: txError } = await (supabase
+    const { data: recentMonthTransactions, error: txError } = (await supabase
       .from("sales_transactions")
       .select(`
         total,
@@ -73,8 +89,10 @@ export default async function AdminDashboardPage() {
         partner_stores ( name )
       `)
       .gte("sold_at", thirtyDaysAgo)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .order("sold_at", { ascending: true }) as any);
+      .order("sold_at", { ascending: true })) as unknown as {
+      data: MonthlyTransactionRow[] | null;
+      error: { message: string } | null;
+    };
 
     if (txError) throw txError;
 
@@ -120,8 +138,7 @@ export default async function AdminDashboardPage() {
 
           if (Array.isArray(tx.items)) {
             for (const item of tx.items) {
-               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-               const record = item as any;
+               const record = item as TransactionItem;
                if (record && typeof record === 'object' && record.quantity && record.name) {
                    const qty = Number(record.quantity);
                    totalItemsSold += qty;
@@ -145,8 +162,7 @@ export default async function AdminDashboardPage() {
         const isThisMonth = tx.sold_at >= startOfMonth;
         if (!isThisMonth) continue;
         if (Array.isArray(tx.items)) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          for (const item of tx.items as any[]) {
+          for (const item of tx.items as TransactionItem[]) {
             if (item?.name) productNameSet.add(item.name);
           }
         }
@@ -164,8 +180,7 @@ export default async function AdminDashboardPage() {
           for (const tx of recentMonthTransactions) {
             if (tx.sold_at < startOfMonth) continue;
             if (Array.isArray(tx.items)) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              for (const item of tx.items as any[]) {
+              for (const item of tx.items as TransactionItem[]) {
                 if (item?.name && item?.quantity) {
                   const costPrice = costByName.get(item.name) ?? 0;
                   totalHPP += Number(item.quantity) * costPrice;
@@ -204,7 +219,7 @@ export default async function AdminDashboardPage() {
     const { data: pusatProducts, error: pusatError } = await supabase
       .from("products")
       .select("id, sku, name, category, stock_quantity")
-      .lte("stock_quantity", 5)
+      .lt("stock_quantity", 10)
       .order("stock_quantity", { ascending: true });
 
     if (pusatError) throw pusatError;
@@ -229,7 +244,7 @@ export default async function AdminDashboardPage() {
         partner_stores ( name ),
         products ( sku, name, category )
       `)
-      .lte("stock_quantity", 5)
+      .lt("stock_quantity", 10)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .order("stock_quantity", { ascending: true }) as any);
 
@@ -285,12 +300,35 @@ export default async function AdminDashboardPage() {
     }
     const displayRecentTransactions = recentTransactions.slice(0, 5);
 
+    try {
+      const { data: adjustmentsData } = await supabase
+        .from("stock_adjustments")
+        .select(`
+          quantity_changed,
+          products ( cost_price )
+        `)
+        .lt("quantity_changed", 0)
+        .gte("created_at", startOfMonth);
+
+      if (adjustmentsData) {
+        for (const item of adjustmentsData as any[]) {
+          const qtyLost = Math.abs(Number(item.quantity_changed || 0));
+          const prod = Array.isArray(item.products) ? item.products[0] : item.products;
+          const cost = Number(prod?.cost_price || 0);
+          totalUnitPenyusutan += qtyLost;
+          totalKerugianPenyusutan += qtyLost * cost;
+        }
+      }
+    } catch {
+    }
+
     const metrics: Array<{
       label: string;
       value: string;
       detail: string;
       valueClass: string;
       isProfit?: boolean;
+      isLoss?: boolean;
     }> = [
       {
         label: "Total Omzet Bulan Ini",
@@ -304,6 +342,13 @@ export default async function AdminDashboardPage() {
         detail: "Omzet dikurangi total harga modal",
         valueClass: totalLabaKotor >= 0 ? "text-emerald-700" : "text-rose-700",
         isProfit: true,
+      },
+      {
+        label: "Kerugian Penyusutan",
+        value: loadError ? "—" : currencyFormatter.format(totalKerugianPenyusutan),
+        detail: `${numberFormatter.format(totalUnitPenyusutan)} unit rusak/hilang`,
+        valueClass: "text-rose-700",
+        isLoss: true,
       },
       {
         label: "Total Barang Terjual",
@@ -326,10 +371,10 @@ export default async function AdminDashboardPage() {
             <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-3 py-0.5 text-[11px] font-bold text-terracotta-clay">
               Ringkasan Operasional
             </span>
-            <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-gray-900">
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">
               Dashboard Admin
             </h1>
-            <p className="mt-0.5 text-xs text-gray-500">
+            <p className="mt-0.5 text-sm text-gray-500">
               Pantau performa penjualan, stok, dan mitra secara real-time.
             </p>
           </div>
@@ -443,13 +488,15 @@ export default async function AdminDashboardPage() {
           </div>
         </section>
 
-        <section aria-label="Statistik Utama" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-4">
+        <section aria-label="Statistik Utama" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 mb-4">
           {metrics.map((metric) => (
             <article
               key={metric.label}
               className={`rounded-xl p-3.5 shadow-sm border border-gray-200 flex flex-col justify-between ${
                 metric.isProfit
                   ? "bg-gradient-to-br from-emerald-50/50 to-white"
+                  : metric.isLoss
+                  ? "bg-gradient-to-br from-rose-50/40 to-white"
                   : "bg-white"
               }`}
             >
@@ -463,6 +510,11 @@ export default async function AdminDashboardPage() {
                         <polyline points="17 6 23 6 23 12" />
                       </svg>
                       Laba
+                    </span>
+                  )}
+                  {metric.isLoss && (
+                    <span className="inline-flex items-center rounded-full bg-rose-50 border border-rose-200 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+                      Penyusutan
                     </span>
                   )}
                 </div>
@@ -489,7 +541,7 @@ export default async function AdminDashboardPage() {
           >
             <div className="border-b border-gray-100 px-4 py-3 flex items-center justify-between flex-shrink-0">
               <div>
-                <h2 className="text-sm font-black text-gray-900">Produk Terlaris</h2>
+                <h2 className="text-base font-semibold text-gray-800">Produk Terlaris</h2>
                 <p className="text-[11px] text-gray-500">Top 5 produk terfavorit bulan ini.</p>
               </div>
               <span className="inline-flex items-center rounded-full bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 text-[10px] font-bold text-terracotta-clay">
@@ -540,7 +592,7 @@ export default async function AdminDashboardPage() {
           >
             <div className="border-b border-gray-100 px-4 py-3 flex items-center justify-between flex-shrink-0">
               <div>
-                <h2 className="text-sm font-black text-gray-900">Transaksi Terbaru</h2>
+                <h2 className="text-base font-semibold text-gray-800">Transaksi Terbaru</h2>
                 <p className="text-[11px] text-gray-500">5 penjualan gerai kasir terakhir.</p>
               </div>
               <Link
@@ -603,8 +655,8 @@ export default async function AdminDashboardPage() {
           >
             <div className="border-b border-gray-100 px-4 py-3 flex items-center justify-between flex-shrink-0">
               <div>
-                <h2 className="text-sm font-black text-terracotta-clay">Stok Menipis</h2>
-                <p className="text-[11px] text-gray-500">Maksimal 5 item kritis (&le; 5 unit).</p>
+                <h2 className="text-base font-semibold text-terracotta-clay">Stok Menipis</h2>
+                <p className="text-[11px] text-gray-500">Maksimal 5 item kritis (&lt; 10 unit).</p>
               </div>
               <span className="inline-flex items-center rounded-full bg-rose-50 border border-rose-200 px-2.5 py-0.5 text-[10px] font-bold text-rose-800">
                 {loadError ? "—" : `${displayLowStockItems.length} item`}
@@ -663,7 +715,7 @@ export default async function AdminDashboardPage() {
       </div>
     );
   } catch (error) {
-    console.error("Failed to load dashboard data:", error);
+    void error;
     return (
         <div className="p-8">
             <p className="text-red-500">Gagal memuat dashboard. Periksa koneksi ke database.</p>

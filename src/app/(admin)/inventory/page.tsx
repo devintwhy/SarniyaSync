@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Loader2, Pencil, Trash2 } from "lucide-react";
+import AddProductModal from "@/components/admin/AddProductModal";
 
 type Product = Record<string, unknown>;
 
@@ -71,10 +72,10 @@ const currencyFormatter = new Intl.NumberFormat("id-ID", {
   minimumFractionDigits: 0,
 });
 
-/**
- * Menyingkat SKU panjang secara visual di tabel.
- * Contoh: "1712345678901234" → "17123456...1234"
- */
+
+
+
+
 function truncateSku(sku: string, maxLen = 12): string {
   if (sku.length <= maxLen) return sku;
   return `${sku.slice(0, 8)}...${sku.slice(-4)}`;
@@ -183,19 +184,29 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
           <span className="inline-block rounded-full bg-[#f7e4d4] px-2.5 py-0.5 text-xs font-bold text-[#9d5c4c]">
             Area Pemilik / Administrator
           </span>
-          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">Kelola Stok</h1>
-          <p className="mt-0.5 text-xs sm:text-sm text-[#6d7687]">Daftar produk dan ketersediaan stok pusat.</p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">Kelola Stok</h1>
+          <p className="mt-0.5 text-sm text-gray-500">Daftar produk dan ketersediaan stok pusat.</p>
         </div>
         <div className="flex items-center justify-between gap-3 sm:justify-end">
           <p className="text-xs text-[#68756e]" aria-live="polite">
             {isLoading ? "Memuat produk..." : `${products.length} produk`}
           </p>
-          <Link
-            href="/inventory/tambah"
-            className="inline-flex h-9 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-xs sm:text-sm font-bold text-white shadow-sm transition-all hover:brightness-105 active:scale-[0.99]"
-          >
-            + Tambah Produk
-          </Link>
+          <AddProductModal
+            onSuccess={async () => {
+              try {
+                const refreshed = await fetchProducts(search, category);
+                setProducts(refreshed);
+                setSuccessMessage("Produk berhasil ditambahkan.");
+              } catch {
+                // ignore
+              }
+            }}
+          />
+
+
+
+
+
         </div>
       </header>
 
@@ -210,6 +221,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
             onClick={() => setSuccessMessage("")}
             className="font-medium underline underline-offset-2 hover:text-[#9d5c4c]"
           >
+
             Tutup
           </button>
         </div>
@@ -248,6 +260,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
             defaultValue={category || "all"}
             className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
           >
+
             <option value="all">Semua kategori</option>
             <option value="Pashmina">Pashmina</option>
             <option value="Segi empat">Segi empat</option>
@@ -279,6 +292,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                 role="alert"
                 className="border-b border-[#f1dfc5] bg-[#fff9ef] px-4 py-2.5 text-xs sm:text-sm text-[#765a36]"
               >
+    
                 Produk gagal dimuat dari Supabase: {errorMessage}
               </div>
             )}
@@ -334,6 +348,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                               aria-hidden="true"
                               className="flex size-9 shrink-0 items-center justify-center rounded border border-[#e1e7e0] bg-[#f7f9f6] text-[10px] font-medium text-[#7b877f]"
                             >
+                  
                               Foto
                             </span>
                           )}
@@ -367,8 +382,10 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                             title={`Edit ${productName}`}
                             className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-[#f7f9f6] text-[#576071] transition-all hover:border-[#cc9787]/50 hover:bg-[#fdf5f1] hover:text-[#9d5c4c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cc9787] active:scale-95"
                           >
+                
                             <Pencil size={14} strokeWidth={2} />
                           </Link>
+                
                           <button
                             type="button"
                             onClick={() => void handleDelete(product)}
@@ -377,6 +394,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                             title={`Hapus ${productName}`}
                             className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#ead5cf] bg-[#fff5f1] text-[#c0665a] transition-all hover:border-[#c0665a]/60 hover:bg-[#fdecea] hover:text-[#9b4936] active:scale-95 disabled:cursor-wait disabled:opacity-40"
                           >
+                
                             {deletingId === getText(product, ["id"], "") ? (
                               <Loader2 size={14} className="animate-spin text-[#c0665a]" />
                             ) : (

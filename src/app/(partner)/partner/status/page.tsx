@@ -49,11 +49,11 @@ export default async function PartnerStatusPage() {
           Status Verifikasi Toko
         </span>
 
-        <h1 className="mt-4 text-xl sm:text-2xl font-black tracking-tight text-gray-900">
+        <h1 className="mt-4 text-2xl font-bold tracking-tight text-gray-900">
           {isPending ? "Akun Mitra Sedang Ditinjau" : "Akun Mitra Dinonaktifkan"}
         </h1>
 
-        <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-gray-500 max-w-md mx-auto">
+        <p className="mt-2 text-sm leading-relaxed text-gray-500 max-w-md mx-auto">
           {store?.status_message?.trim() ||
             (isPending
               ? "Pendaftaran toko Mitra Anda berhasil diterima dan saat ini sedang dalam proses peninjauan & verifikasi oleh Administrator. Fitur Kasir (POS) akan otomatis aktif setelah toko Anda disetujui."
@@ -61,7 +61,7 @@ export default async function PartnerStatusPage() {
         </p>
 
         {store && (
-          <div className="mt-5 inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-xs sm:text-sm text-gray-800">
+          <div className="mt-5 inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-700">
             <span className="font-semibold text-gray-500">Toko:</span>
             <span className="font-bold text-gray-900">{store.name}</span>
             <span className="text-gray-300">&bull;</span>

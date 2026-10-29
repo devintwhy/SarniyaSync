@@ -100,29 +100,13 @@ export default function LoginPage() {
     }
   }
 
-  const neuInputInset = {
-    boxShadow:
-      "inset 6px 6px 12px rgba(163, 177, 198, 0.7), inset -6px -6px 12px rgba(255, 255, 255, 0.85)",
-  };
-
-  const neuButtonRaised = {
-    boxShadow:
-      "8px 8px 18px rgba(163, 177, 198, 0.6), -8px -8px 18px rgba(255, 255, 255, 0.9)",
-  };
-
-  const neuTagRaised = {
-    boxShadow:
-      "4px 4px 10px rgba(163, 177, 198, 0.5), -4px -4px 10px rgba(255, 255, 255, 0.8)",
-  };
-
   return (
-    <main className="relative flex h-screen min-h-screen w-screen overflow-hidden bg-[#e0e5ec]">
+    <main className="relative flex h-screen min-h-screen w-screen overflow-hidden bg-gray-50">
       <div className="flex h-full w-full lg:w-[48%] flex-col justify-between overflow-y-auto px-8 py-10 sm:px-14 lg:px-16 xl:px-24">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
-              className="flex size-12 items-center justify-center rounded-2xl bg-[#e0e5ec] p-2"
-              style={neuTagRaised}
+              className="flex size-12 items-center justify-center rounded-2xl bg-white border border-gray-200 shadow-sm p-2"
             >
               <Image
                 src="/logo-sarniya.png"
@@ -146,8 +130,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => setIsRightPanelActive(!isRightPanelActive)}
-            className="rounded-xl bg-[#e0e5ec] px-3.5 py-1.5 text-xs font-bold text-[#C89F91] lg:hidden"
-            style={neuTagRaised}
+            className="rounded-xl bg-white border border-gray-200 shadow-sm px-3.5 py-1.5 text-xs font-bold text-[#C89F91] lg:hidden"
           >
             {isRightPanelActive ? "Ke Form Sign In" : "Daftar Mitra"}
           </button>
@@ -160,10 +143,10 @@ export default function LoginPage() {
             >
               Otentikasi Pengguna
             </span>
-            <h1 className="mt-3 text-3xl sm:text-4xl xl:text-5xl font-black tracking-tight text-[#2d3440]">
+            <h1 className="mt-3 text-2xl font-bold tracking-tight text-gray-900">
               Masuk ke Akun
             </h1>
-            <p className="mt-2 text-sm sm:text-base text-[#6d7687]">
+            <p className="mt-2 text-sm text-gray-500">
               Kelola stok terpusat, operasional kasir toko, dan analisa transaksi penjualan Anda.
             </p>
           </div>
@@ -172,7 +155,7 @@ export default function LoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#576071]"
+                className="mb-2 block text-xs font-medium uppercase tracking-wider text-gray-600"
               >
                 Alamat Email
               </label>
@@ -183,8 +166,7 @@ export default function LoginPage() {
                 required
                 autoComplete="email"
                 placeholder="mitratoko@gmail.com"
-                style={neuInputInset}
-                className="h-14 sm:h-16 w-full rounded-2xl border-none bg-[#e0e5ec] px-5 text-base text-[#2d3440] placeholder-[#8f98a8] outline-none transition-all focus:ring-2 focus:ring-[#C89F91]/50"
+                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-gray-800 placeholder-gray-400 outline-none shadow-sm transition-all focus:ring-2 focus:ring-[#C89F91]/50 focus:border-[#C89F91]"
               />
             </div>
 
@@ -192,11 +174,11 @@ export default function LoginPage() {
               <div className="mb-2 flex items-center justify-between">
                 <label
                   htmlFor="password"
-                  className="block text-xs font-bold uppercase tracking-wider text-[#576071]"
+                  className="block text-xs font-medium uppercase tracking-wider text-gray-600"
                 >
                   Kata Sandi
                 </label>
-                <span className="text-xs text-[#8f98a8]">Min. 8 Karakter</span>
+                <span className="text-xs text-gray-500">Min. 8 Karakter</span>
               </div>
               <input
                 id="password"
@@ -205,8 +187,7 @@ export default function LoginPage() {
                 required
                 autoComplete="current-password"
                 placeholder="••••••••••••"
-                style={neuInputInset}
-                className="h-14 sm:h-16 w-full rounded-2xl border-none bg-[#e0e5ec] px-5 text-base text-[#2d3440] placeholder-[#8f98a8] outline-none transition-all focus:ring-2 focus:ring-[#C89F91]/50"
+                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-gray-800 placeholder-gray-400 outline-none shadow-sm transition-all focus:ring-2 focus:ring-[#C89F91]/50 focus:border-[#C89F91]"
               />
             </div>
 
@@ -225,8 +206,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              style={neuButtonRaised}
-              className="mt-4 inline-flex h-14 sm:h-16 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-[#C89F91] via-[#c09485] to-[#b38274] px-6 text-base sm:text-lg font-bold tracking-wide text-white transition-all duration-300 hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#C89F91] via-[#c09485] to-[#b38274] px-6 text-sm font-semibold tracking-wide text-white shadow-sm transition-all duration-300 hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? "Memproses..." : "Masuk"}
             </button>
@@ -258,16 +238,15 @@ export default function LoginPage() {
         </div>
 
         <div className="my-auto max-w-lg py-8 space-y-6">
-          <h2 className="text-3xl xl:text-4xl font-black tracking-tight text-[#2d3440]">
+          <h2 className="text-2xl font-bold tracking-tight text-gray-900">
             Buka Peluang Bisnis Bersama Sarniya
           </h2>
-          <p className="text-base text-[#6d7687] leading-relaxed">
+          <p className="text-sm text-gray-500 leading-relaxed">
             Daftarkan gerai toko Anda dalam jaringan resmi SarniyaSync untuk mendapatkan suplai stok langsung dari gudang pusat dan sistem kasir modern terintegrasi.
           </p>
 
           <div
-            className="space-y-4 rounded-3xl bg-[#e0e5ec] p-6 text-sm text-[#525a6b]"
-            style={neuInputInset}
+            className="space-y-4 rounded-3xl bg-gray-50 border border-gray-200 shadow-sm p-6 text-sm text-[#525a6b]"
           >
             <div className="flex items-start gap-3">
               <span className="flex size-7 shrink-0 items-center justify-center rounded-xl bg-[#C89F91] text-xs font-bold text-white shadow-sm">
@@ -300,8 +279,7 @@ export default function LoginPage() {
 
           <Link
             href="/register"
-            style={neuButtonRaised}
-            className="inline-flex h-14 sm:h-16 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-[#C89F91] via-[#c09485] to-[#b38274] px-6 text-base font-bold text-white tracking-wide transition-all duration-300 hover:brightness-105 active:scale-[0.99]"
+            className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#C89F91] via-[#c09485] to-[#b38274] px-6 text-sm font-semibold text-white tracking-wide shadow-sm transition-all duration-300 hover:brightness-105 active:scale-[0.99]"
           >
             Buka Halaman Pendaftaran Lengkap
           </Link>

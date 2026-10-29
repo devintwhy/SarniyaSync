@@ -9,19 +9,13 @@ export const metadata: Metadata = {
 };
 
 export default function RegisterPage() {
-  const neuTagRaised = {
-    boxShadow:
-      "4px 4px 10px rgba(163, 177, 198, 0.5), -4px -4px 10px rgba(255, 255, 255, 0.8)",
-  };
-
   return (
-    <main className="relative flex h-screen min-h-screen w-screen overflow-hidden bg-[#e0e5ec]">
+    <main className="relative flex h-screen min-h-screen w-screen overflow-hidden bg-gray-50">
       <div className="flex h-full w-full lg:w-[50%] flex-col justify-between overflow-y-auto px-8 py-10 sm:px-14 lg:px-16 xl:px-24">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
-              className="flex size-12 items-center justify-center rounded-2xl bg-[#e0e5ec] p-2"
-              style={neuTagRaised}
+              className="flex size-12 items-center justify-center rounded-2xl bg-white border border-gray-200 shadow-sm p-2"
             >
               <Image
                 src="/logo-sarniya.png"
@@ -44,8 +38,7 @@ export default function RegisterPage() {
 
           <Link
             href="/login"
-            style={neuTagRaised}
-            className="inline-flex items-center gap-2 rounded-2xl bg-[#e0e5ec] px-4 py-2 text-xs font-bold text-[#576071] transition-all hover:text-[#2d3440] active:scale-95"
+            className="inline-flex items-center gap-2 rounded-2xl bg-white border border-gray-200 shadow-sm px-4 py-2 text-xs font-bold text-[#576071] transition-all hover:text-[#2d3440] active:scale-95"
           >
             <span>&larr;</span> Ke Form Sign In
           </Link>
@@ -56,10 +49,10 @@ export default function RegisterPage() {
             <span className="inline-block rounded-full bg-[#C89F91]/15 px-3.5 py-1 text-xs font-bold text-[#a46e5f]">
               Pendaftaran Mitra Mandiri
             </span>
-            <h1 className="mt-3 text-3xl sm:text-4xl xl:text-5xl font-black tracking-tight text-[#2d3440]">
+            <h1 className="mt-3 text-2xl font-bold tracking-tight text-gray-900">
               Daftar Mitra Baru
             </h1>
-            <p className="mt-2 text-sm sm:text-base text-[#6d7687]">
+            <p className="mt-2 text-sm text-gray-500">
               Lengkapi informasi akun pemilik dan profil toko Anda untuk mulai mengelola stok serta kasir POS.
             </p>
           </div>

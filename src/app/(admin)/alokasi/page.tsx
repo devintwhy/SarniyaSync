@@ -12,6 +12,21 @@ export const metadata = {
 
 const PAGE_SIZE = 1000;
 
+interface PartnerStoreInventoryQueryResult {
+  id: string;
+  partner_store_id: string;
+  product_id: string;
+  stock_quantity: number;
+  partner_stores:
+    | { name: string | null; city: string | null; is_active: boolean | null }
+    | Array<{ name: string | null; city: string | null; is_active: boolean | null }>
+    | null;
+  products:
+    | { name: string | null; sku: string | null; category: string | null }
+    | Array<{ name: string | null; sku: string | null; category: string | null }>
+    | null;
+}
+
 export default async function StockAllocationPage() {
   const supabase = await createSupabaseServerClient();
   const {
@@ -58,7 +73,6 @@ export default async function StockAllocationPage() {
     if (page.length < PAGE_SIZE) break;
   }
 
-  // 3. Ambil data inventaris + join info toko mitra (tanpa filter is_active) agar toko yang sudah dinonaktifkan tetap muncul dengan datanya.
   const allocations: Array<{
     id: string;
     partner_store_id: string;
@@ -67,27 +81,36 @@ export default async function StockAllocationPage() {
     store_name: string | null;
     store_city: string | null;
     store_is_active: boolean | null;
+    product_name?: string | null;
+    product_sku?: string | null;
+    product_category?: string | null;
   }> = [];
   let allocationError = "";
 
   for (let offset = 0; ; offset += PAGE_SIZE) {
-    const { data, error } = await supabase
+    const { data, error } = (await supabase
       .from("partner_store_inventory")
       .select(
-        "id, partner_store_id, product_id, stock_quantity, partner_stores(name, city, is_active)"
+        "id, partner_store_id, product_id, stock_quantity, partner_stores(name, city, is_active), products(name, sku, category)"
       )
       .order("updated_at", { ascending: false })
-      .range(offset, offset + PAGE_SIZE - 1);
+      .range(offset, offset + PAGE_SIZE - 1)) as unknown as {
+      data: PartnerStoreInventoryQueryResult[] | null;
+      error: { message: string } | null;
+    };
 
     if (error) {
       allocationError = error.message;
       break;
     }
 
-    const page = (data ?? []).map((row) => {
+    const page = (data ?? []).map((row: PartnerStoreInventoryQueryResult) => {
       const storeJoin = Array.isArray(row.partner_stores)
         ? row.partner_stores[0]
         : row.partner_stores;
+      const productJoin = Array.isArray(row.products)
+        ? row.products[0]
+        : row.products;
       return {
         id: row.id,
         partner_store_id: row.partner_store_id,
@@ -96,6 +119,9 @@ export default async function StockAllocationPage() {
         store_name: storeJoin?.name ?? null,
         store_city: storeJoin?.city ?? null,
         store_is_active: storeJoin?.is_active ?? null,
+        product_name: productJoin?.name ?? null,
+        product_sku: productJoin?.sku ?? null,
+        product_category: productJoin?.category ?? null,
       };
     });
 
@@ -112,10 +138,10 @@ export default async function StockAllocationPage() {
           <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 text-xs font-black text-terracotta-clay">
             Gudang Pusat & Logistik
           </span>
-          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">
             Alokasi Stok Massal
           </h1>
-          <p className="mt-0.5 text-xs sm:text-sm text-[#7a8394]">
+          <p className="mt-0.5 text-sm text-gray-500">
             Pilih multi-produk dari gudang pusat dan kirimkan stok sekaligus ke toko mitra pilihan.
           </p>
         </div>

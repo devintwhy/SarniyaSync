@@ -11,6 +11,7 @@ const partnerRoutes = {
   dashboard: "/dashboard-mitra",
   katalog: "/partner/katalog",
   stock: "/partner/stok",
+  stockOpname: "/partner/stock-opname",
   penerimaan: "/partner/penerimaan",
   kasir: "/partner/kasir",
   transactions: "/partner/transaksi",
@@ -21,6 +22,7 @@ const navigationItems = [
   { label: "Dashboard", href: partnerRoutes.dashboard },
   { label: "Katalog", href: partnerRoutes.katalog },
   { label: "Stok Toko", href: partnerRoutes.stock },
+  { label: "Stock Opname", href: partnerRoutes.stockOpname },
   { label: "Penerimaan Paket", href: partnerRoutes.penerimaan },
   { label: "Kasir", href: partnerRoutes.kasir },
   { label: "Riwayat Transaksi", href: partnerRoutes.transactions },
@@ -57,6 +59,16 @@ function getPartnerNavIcon(label: string) {
         <path d="M21 8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16Z" />
         <path d="m3.3 7 8.7 5 8.7-5" />
         <path d="M12 22V12" />
+      </svg>
+    );
+  }
+
+  if (l.includes("opname")) {
+    return (
+      <svg className="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+        <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+        <path d="m9 14 2 2 4-4" />
       </svg>
     );
   }

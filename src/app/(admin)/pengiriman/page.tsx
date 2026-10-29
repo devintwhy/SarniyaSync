@@ -46,10 +46,10 @@ export default async function PengirimanPage() {
           <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 text-xs font-bold text-terracotta-clay">
             Logistik & Supply Chain
           </span>
-          <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-gray-900">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">
             Status Pengiriman
           </h1>
-          <p className="mt-0.5 text-xs sm:text-sm text-gray-500">
+          <p className="mt-0.5 text-sm text-gray-500">
             Pantau seluruh status kiriman stok dari Gudang Pusat ke Toko Mitra secara real-time.
           </p>
         </div>

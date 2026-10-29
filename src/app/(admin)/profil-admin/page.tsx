@@ -40,8 +40,8 @@ export default async function ProfilPage() {
         <span className="inline-block rounded-full bg-[#f7e4d4] px-2.5 py-0.5 text-xs font-bold text-[#9d5c4c]">
           Akun Saya
         </span>
-        <h1 className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-[#2d3440]">Pengaturan Akun</h1>
-        <p className="mt-0.5 text-xs sm:text-sm text-[#6d7687]">Kelola informasi profil dan keamanan akun Anda.</p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">Pengaturan Akun</h1>
+        <p className="mt-0.5 text-sm text-gray-500">Kelola informasi profil dan keamanan akun Anda.</p>
       </header>
 
       <ProfileForms

@@ -11,11 +11,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      style={{
-        boxShadow:
-          "8px 8px 18px rgba(163, 177, 198, 0.6), -8px -8px 18px rgba(255, 255, 255, 0.9)",
-      }}
-      className="mt-4 inline-flex h-14 sm:h-16 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-[#C89F91] via-[#c09485] to-[#b38274] px-6 text-base sm:text-lg font-bold tracking-wide text-white transition-all duration-300 hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+      className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#C89F91] via-[#c09485] to-[#b38274] px-6 text-sm font-semibold tracking-wide text-white shadow-sm transition-all duration-300 hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {pending ? "Memproses Kredensial & Toko..." : "Daftar Sebagai Mitra"}
     </button>
@@ -28,28 +24,23 @@ export default function RegisterForm() {
     {},
   );
 
-  const neuInputInset = {
-    boxShadow:
-      "inset 6px 6px 12px rgba(163, 177, 198, 0.7), inset -6px -6px 12px rgba(255, 255, 255, 0.85)",
-  };
-
   return (
     <form action={formAction} className="space-y-6">
       {state.error && (
         <div
           role="alert"
-          className="rounded-2xl border border-rose-300 bg-rose-50/95 p-4 text-xs sm:text-sm font-medium text-rose-800 shadow-sm"
+          className="rounded-xl border border-rose-300 bg-rose-50/95 p-4 text-xs sm:text-sm font-medium text-rose-800 shadow-sm"
         >
           {state.error}
         </div>
       )}
 
-      <div className="space-y-5">
-        <div className="flex items-center gap-2.5 border-b border-[#cbd3df]/50 pb-2.5">
+      <div className="space-y-4">
+        <div className="flex items-center gap-2.5 border-b border-gray-200 pb-2">
           <span className="flex size-6 items-center justify-center rounded-full bg-[#C89F91] text-xs font-bold text-white shadow-sm">
             1
           </span>
-          <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#a46e5f]">
+          <h2 className="text-sm font-semibold text-gray-800">
             Informasi Akun Login
           </h2>
         </div>
@@ -57,7 +48,7 @@ export default function RegisterForm() {
         <div>
           <label
             htmlFor="email"
-            className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#576071]"
+            className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-gray-600"
           >
             Alamat Email <span className="text-[#a46e5f]">*</span>
           </label>
@@ -68,20 +59,19 @@ export default function RegisterForm() {
             required
             autoComplete="email"
             placeholder="nama@emailmitra.com"
-            style={neuInputInset}
-            className="h-14 sm:h-16 w-full rounded-2xl border-none bg-[#e0e5ec] px-5 text-base text-[#2d3440] placeholder-[#8f98a8] outline-none transition-all focus:ring-2 focus:ring-[#C89F91]/50"
+            className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-gray-800 placeholder-gray-400 outline-none shadow-sm transition-all focus:ring-2 focus:ring-[#C89F91]/50 focus:border-[#C89F91]"
           />
         </div>
 
         <div>
-          <div className="mb-2 flex items-center justify-between">
+          <div className="mb-1.5 flex items-center justify-between">
             <label
               htmlFor="password"
-              className="block text-xs font-bold uppercase tracking-wider text-[#576071]"
+              className="block text-xs font-medium uppercase tracking-wider text-gray-600"
             >
               Kata Sandi <span className="text-[#a46e5f]">*</span>
             </label>
-            <span className="text-xs text-[#8f98a8]">Min. 8 Karakter</span>
+            <span className="text-xs text-gray-500">Min. 8 Karakter</span>
           </div>
           <input
             id="password"
@@ -91,27 +81,26 @@ export default function RegisterForm() {
             minLength={8}
             autoComplete="new-password"
             placeholder="••••••••••••"
-            style={neuInputInset}
-            className="h-14 sm:h-16 w-full rounded-2xl border-none bg-[#e0e5ec] px-5 text-base text-[#2d3440] placeholder-[#8f98a8] outline-none transition-all focus:ring-2 focus:ring-[#C89F91]/50"
+            className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-gray-800 placeholder-gray-400 outline-none shadow-sm transition-all focus:ring-2 focus:ring-[#C89F91]/50 focus:border-[#C89F91]"
           />
         </div>
       </div>
 
-      <div className="space-y-5 pt-2">
-        <div className="flex items-center gap-2.5 border-b border-[#cbd3df]/50 pb-2.5">
+      <div className="space-y-4 pt-1">
+        <div className="flex items-center gap-2.5 border-b border-gray-200 pb-2">
           <span className="flex size-6 items-center justify-center rounded-full bg-[#C89F91] text-xs font-bold text-white shadow-sm">
             2
           </span>
-          <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#a46e5f]">
+          <h2 className="text-sm font-semibold text-gray-800">
             Identitas Pemilik & Toko Mitra
           </h2>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label
               htmlFor="fullName"
-              className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#576071]"
+              className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-gray-600"
             >
               Nama Lengkap Pemilik <span className="text-[#a46e5f]">*</span>
             </label>
@@ -122,15 +111,14 @@ export default function RegisterForm() {
               required
               autoComplete="name"
               placeholder="Nama pemilik toko"
-              style={neuInputInset}
-              className="h-14 sm:h-16 w-full rounded-2xl border-none bg-[#e0e5ec] px-5 text-base text-[#2d3440] placeholder-[#8f98a8] outline-none transition-all focus:ring-2 focus:ring-[#C89F91]/50"
+              className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-gray-800 placeholder-gray-400 outline-none shadow-sm transition-all focus:ring-2 focus:ring-[#C89F91]/50 focus:border-[#C89F91]"
             />
           </div>
 
           <div>
             <label
               htmlFor="phone"
-              className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#576071]"
+              className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-gray-600"
             >
               No. WhatsApp / Telp
             </label>
@@ -140,8 +128,7 @@ export default function RegisterForm() {
               type="tel"
               autoComplete="tel"
               placeholder="08xxxxxxxxxx"
-              style={neuInputInset}
-              className="h-14 sm:h-16 w-full rounded-2xl border-none bg-[#e0e5ec] px-5 text-base text-[#2d3440] placeholder-[#8f98a8] outline-none transition-all focus:ring-2 focus:ring-[#C89F91]/50"
+              className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-gray-800 placeholder-gray-400 outline-none shadow-sm transition-all focus:ring-2 focus:ring-[#C89F91]/50 focus:border-[#C89F91]"
             />
           </div>
         </div>
@@ -149,7 +136,7 @@ export default function RegisterForm() {
         <div>
           <label
             htmlFor="storeName"
-            className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#576071]"
+            className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-gray-600"
           >
             Nama Toko Mitra <span className="text-[#a46e5f]">*</span>
           </label>
@@ -159,15 +146,14 @@ export default function RegisterForm() {
             type="text"
             required
             placeholder="Contoh: Toko Sarniya Cabang Melati"
-            style={neuInputInset}
-            className="h-14 sm:h-16 w-full rounded-2xl border-none bg-[#e0e5ec] px-5 text-base text-[#2d3440] placeholder-[#8f98a8] outline-none transition-all focus:ring-2 focus:ring-[#C89F91]/50"
+            className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-gray-800 placeholder-gray-400 outline-none shadow-sm transition-all focus:ring-2 focus:ring-[#C89F91]/50 focus:border-[#C89F91]"
           />
         </div>
 
         <div>
           <label
             htmlFor="address"
-            className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#576071]"
+            className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-gray-600"
           >
             Alamat Lengkap Toko
           </label>
@@ -176,8 +162,7 @@ export default function RegisterForm() {
             name="address"
             rows={3}
             placeholder="Jl. Raya No. 123, Kelurahan, Kecamatan, Kota"
-            style={neuInputInset}
-            className="w-full resize-none rounded-2xl border-none bg-[#e0e5ec] p-5 text-base text-[#2d3440] placeholder-[#8f98a8] outline-none transition-all focus:ring-2 focus:ring-[#C89F91]/50"
+            className="w-full resize-none rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-800 placeholder-gray-400 outline-none shadow-sm transition-all focus:ring-2 focus:ring-[#C89F91]/50 focus:border-[#C89F91]"
           />
         </div>
       </div>
@@ -186,11 +171,11 @@ export default function RegisterForm() {
         <SubmitButton />
       </div>
 
-      <div className="pt-2 text-center text-xs sm:text-sm text-[#6d7687]">
+      <div className="pt-1 text-center text-xs text-gray-500">
         Sudah memiliki akun Mitra?{" "}
         <Link
           href="/login"
-          className="font-bold text-[#a46e5f] underline hover:text-[#2d3440] transition-colors"
+          className="font-semibold text-[#a46e5f] underline hover:text-gray-900 transition-colors"
         >
           Masuk ke akun Anda
         </Link>
