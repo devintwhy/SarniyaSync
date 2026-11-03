@@ -5,7 +5,6 @@ Sistem Manajemen Inventaris Multicabang dan Kasir Digital (Point of Sales)
 ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=3ECF8E)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)
 ![Issues](https://img.shields.io/github/issues/devintwhy/SarniyaSync?style=for-the-badge)
 
 ## Deskripsi Proyek
