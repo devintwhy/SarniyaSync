@@ -4,9 +4,9 @@ import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import { getProfileRole } from "@/utils/supabase/auth";
 
-// Proses Perubahan Status Mitra
 export type MitraStatus = "aktif" | "nonaktif" | "pending";
 
+// Proses Perubahan Status Mitra
 export async function updateMitraStatus(
   storeId: string,
   newStatus: string,

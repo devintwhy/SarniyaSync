@@ -171,6 +171,7 @@ export default function BulkAllocationClient({
     setSuccessMessage("");
   }
 
+  // Pengelolaan Form dan Data Alokasi Stok
   async function handleBulkAllocationSubmit() {
     if (!selectedStoreId) {
       setErrorMessage("Silakan pilih Toko Mitra tujuan terlebih dahulu.");
@@ -201,7 +202,6 @@ export default function BulkAllocationClient({
     setErrorMessage("");
     setSuccessMessage("");
 
-    // Pengelolaan Form dan Data Alokasi Stok
     try {
       const items = selectedProducts.map((item) => ({
         productId: item.product.id,

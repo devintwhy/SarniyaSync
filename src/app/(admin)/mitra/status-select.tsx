@@ -10,6 +10,7 @@ type StatusSelectProps = {
   initialMessage?: string | null;
 };
 
+// Dropdown Pengaturan Status Mitra 
 export default function StatusSelect({
   storeId,
   initialStatus,
@@ -19,7 +20,6 @@ export default function StatusSelect({
     ? initialStatus
     : "pending") as MitraStatus;
 
-  // Dropdown Pengaturan Status Mitra
   const [status, setStatus] = useState<MitraStatus>(normalizedInitial);
   const [message, setMessage] = useState(initialMessage ?? "");
   const [isPending, startTransition] = useTransition();

@@ -200,6 +200,7 @@ export default function AdminTransactionClient({
     [filteredTransactions]
   );
 
+  // Perhitungan Ringkasan Penjualan
   const summaryMetrics = useMemo(() => {
     let totalOmzet = 0;
     let totalItems = 0;
