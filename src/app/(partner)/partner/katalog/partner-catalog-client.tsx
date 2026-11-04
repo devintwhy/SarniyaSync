@@ -24,7 +24,6 @@ type StoreOption = {
 };
 
 type PartnerCatalogClientProps = {
-  a
   products: PartnerCatalogProduct[];
   stores: StoreOption[];
   errorMessage?: string;

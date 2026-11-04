@@ -129,7 +129,7 @@ export async function submitStockAdjustment(
       };
     }
 
-    const rpcResult = rpcData as { success?: boolean; message?: string; error?: string } | null;
+    const rpcResult = (rpcData as unknown) as { success?: boolean; message?: string; error?: string } | null;
     if (!rpcResult || !rpcResult.success) {
       return {
         success: false,
