@@ -98,7 +98,7 @@ export default function AddProductModal({
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-add-product-title"
-          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/40 p-4 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-[999] flex items-center justify-center overflow-y-auto bg-black/40 p-4 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget && !isPending) {
               handleClose();

@@ -28,6 +28,7 @@ interface StockAdjustmentRecord {
   products: StockAdjustmentProductRelation | StockAdjustmentProductRelation[] | null;
 }
 
+// Pengambilan Data dan Perhitungan Laporan Penyesuaian
 export default async function AdminStockAdjustmentReportPage() {
   const supabase = await createSupabaseServerClient();
   const {
@@ -43,7 +44,7 @@ export default async function AdminStockAdjustmentReportPage() {
 
   const { data: storesData } = await supabase
     .from("partner_stores")
-    .select("id, name, city, owner_id")
+    .select("id, name, owner_id")
     .order("name", { ascending: true });
 
   const stores = storesData ?? [];
@@ -78,14 +79,13 @@ export default async function AdminStockAdjustmentReportPage() {
         const matchedStore = storeMapByOwner.get(item.mitra_id) || storeMapById.get(item.mitra_id);
 
         const storeName = matchedStore ? matchedStore.name : "Toko Mitra";
-        const storeCity = matchedStore?.city ? `(${matchedStore.city})` : "";
         const costPrice = Number(prod?.cost_price || 0);
         const qtyChanged = Number(item.quantity_changed || 0);
 
         return {
           id: item.id,
           storeId: matchedStore?.id || item.mitra_id,
-          storeName: `${storeName} ${storeCity}`.trim(),
+          storeName,
           date: new Intl.DateTimeFormat("id-ID", {
             dateStyle: "medium",
             timeStyle: "short",
@@ -122,7 +122,7 @@ export default async function AdminStockAdjustmentReportPage() {
       </header>
 
       <LaporanPenyesuaianClient
-        stores={stores.map((s) => ({ id: s.id, name: s.name, city: s.city }))}
+        stores={stores.map((s) => ({ id: s.id, name: s.name }))}
         adjustments={adjustments}
       />
     </div>

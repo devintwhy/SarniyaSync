@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Loader2, Pencil, Trash2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AddProductModal from "@/components/admin/AddProductModal";
 
 type Product = Record<string, unknown>;
@@ -17,6 +18,7 @@ type ProductActionResponse = {
   error?: string;
 };
 
+// Pengambilan Data dan Pengelolaan Inventaris Produk
 async function fetchProducts(search: string, category: string, signal?: AbortSignal) {
   const params = new URLSearchParams();
   if (search) params.set("search", search);
@@ -103,8 +105,40 @@ type InventoryPageProps = {
 };
 
 export default function InventoryPage({ searchParams = {} }: InventoryPageProps) {
-  const search = typeof searchParams.search === "string" ? searchParams.search : "";
-  const category = typeof searchParams.category === "string" ? searchParams.category : "all";
+  const router = useRouter();
+  const searchParamsHook = useSearchParams();
+
+  const search = searchParamsHook?.get("search") ?? (typeof searchParams?.search === "string" ? searchParams.search : "");
+  const category = searchParamsHook?.get("category") ?? (typeof searchParams?.category === "string" ? searchParams.category : "all");
+
+  function handleCategoryChange(newCategory: string) {
+    const searchInput = (document.getElementById("inventory-search") as HTMLInputElement)?.value.trim() ?? search;
+    const params = new URLSearchParams();
+    if (searchInput) {
+      params.set("search", searchInput);
+    }
+    if (newCategory && newCategory !== "all") {
+      params.set("category", newCategory);
+    }
+    const query = params.toString();
+    router.push(`/inventory${query ? `?${query}` : ""}`);
+  }
+
+  function handleSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const searchVal = String(formData.get("search") || "").trim();
+    const categoryVal = String(formData.get("category") || "all");
+    const params = new URLSearchParams();
+    if (searchVal) {
+      params.set("search", searchVal);
+    }
+    if (categoryVal && categoryVal !== "all") {
+      params.set("category", categoryVal);
+    }
+    const query = params.toString();
+    router.push(`/inventory${query ? `?${query}` : ""}`);
+  }
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -130,6 +164,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
   useEffect(() => {
     const controller = new AbortController();
 
+    // Pengambilan Data dan Pengelolaan Inventaris Produk
     async function loadProducts() {
       setIsLoading(true);
       setErrorMessage("");
@@ -232,8 +267,8 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
       )}
 
       <form
-        action="/inventory"
-        method="get"
+        onSubmit={handleSearchSubmit}
+
         className="flex flex-col gap-2.5 rounded-xl border border-slate-200/80 bg-white p-3 sm:flex-row sm:items-end shadow-sm"
       >
         <div className="min-w-0 flex-1">
@@ -244,6 +279,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
             id="inventory-search"
             name="search"
             type="search"
+            key={search}
             defaultValue={search}
             placeholder="Contoh: Pashmina atau HJ-001"
             className="h-9 w-full rounded-lg border border-slate-200 px-3 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
@@ -256,7 +292,8 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
           <select
             id="inventory-category"
             name="category"
-            defaultValue={category || "all"}
+            value={category || "all"}
+            onChange={(e) => handleCategoryChange(e.target.value)}
             className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs sm:text-sm text-[#2d3440] outline-none focus:border-[#cc9787] focus:ring-2 focus:ring-[#cc9787]/25"
           >
 

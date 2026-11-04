@@ -1,3 +1,4 @@
+-- RLS Pembatasan Pembaruan Status Transaksi Admin
 grant update on table public.sales_transactions to authenticated;
 
 -- Kebijakan RLS transaksi penjualan: Membatasi izin pembaruan status (seperti pembatalan transaksi)

@@ -29,6 +29,7 @@ function parseSaleItems(items: Json): SaleItem[] | null {
   return Array.from(quantities, ([productId, quantity]) => ({ productId, quantity }));
 }
 
+// Proses Pembatalan Transaksi dan Pengembalian Stok
 export async function cancelPartnerSale(transactionId: string): Promise<CancelResult> {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(transactionId)) {
     return { error: "ID transaksi tidak valid." };

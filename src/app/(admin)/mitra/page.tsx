@@ -22,7 +22,7 @@ export default async function PartnerManagementPage() {
 
   const { data: storesData, error: storeError } = await supabase
     .from("partner_stores")
-    .select("id, owner_id, name, address, city, phone, is_active, status, status_message")
+    .select("id, owner_id, name, address, phone, is_active, status, status_message")
     .order("name", { ascending: true });
 
   const ownerIds = Array.from(new Set((storesData ?? []).map((s) => s.owner_id).filter(Boolean)));
@@ -44,7 +44,7 @@ export default async function PartnerManagementPage() {
     owner_id: s.owner_id,
     name: s.name,
     address: s.address,
-    city: s.city,
+
     phone: s.phone,
     is_active: Boolean(s.is_active),
     status: s.status,

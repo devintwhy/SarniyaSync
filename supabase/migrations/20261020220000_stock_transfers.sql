@@ -31,6 +31,7 @@ create index if not exists idx_stock_transfers_store_status
 create index if not exists idx_stock_transfers_product
   on public.stock_transfers(product_id);
 
+-- RLS dan Fungsi Penerimaan Barang
 alter table public.stock_transfers enable row level security;
 
 -- Kebijakan isolasi multi-tenant stock_transfers:
@@ -77,6 +78,7 @@ grant update (status, received_at, updated_at) on table public.stock_transfers t
 
 -- Prosedur atomik penerimaan paket barang oleh mitra:
 -- Menjamin verifikasi kepemilikan toko dan transisi status kiriman bersamaan dengan pembaruan stok inventaris toko mitra.
+-- RLS dan Fungsi Penerimaan Barang
 create or replace function public.receive_stock_transfer(p_transfer_id uuid)
 returns jsonb
 language plpgsql

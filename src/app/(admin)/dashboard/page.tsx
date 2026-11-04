@@ -219,11 +219,6 @@ export default async function AdminDashboardPage() {
         .sort((a, b) => a.timestamp - b.timestamp)
         .map(({ date, total }) => ({ date, total }));
 
-    const topPartners = Object.entries(salesByPartner)
-        .map(([storeName, totalSales]) => ({ storeName, totalSales }))
-        .sort((a, b) => b.totalSales - a.totalSales)
-        .slice(0, 5);
-
     const bestSellers = Object.entries(salesByProduct)
         .map(([productName, quantity]) => ({ productName, quantity }))
         .sort((a, b) => b.quantity - a.quantity)
@@ -350,6 +345,8 @@ export default async function AdminDashboardPage() {
       value: string;
       detail: string;
       valueClass: string;
+      badgeText?: string;
+      badgeClass?: string;
       isProfit?: boolean;
       isLoss?: boolean;
     }> = [
@@ -358,6 +355,8 @@ export default async function AdminDashboardPage() {
         value: loadError ? "—" : currencyFormatter.format(totalOmzet),
         detail: "Pendapatan dari seluruh transaksi",
         valueClass: "text-[#9d5c4c]",
+        badgeText: "Bulan Ini",
+        badgeClass: "bg-gray-100 border-gray-200 text-gray-700",
       },
       {
         label: "Estimasi Laba Kotor",
@@ -378,12 +377,16 @@ export default async function AdminDashboardPage() {
         value: loadError ? "—" : numberFormatter.format(totalItemsSold),
         detail: "Unit terjual bulan ini",
         valueClass: "text-[#cc8c7d]",
+        badgeText: "Total",
+        badgeClass: "bg-gray-100 border-gray-200 text-gray-700",
       },
       {
         label: "Total Mitra Aktif",
         value: loadError ? "—" : numberFormatter.format(activePartnersCount),
         detail: "Toko mitra yang beroperasi",
         valueClass: "text-[#cc8c7d]",
+        badgeText: "Aktif",
+        badgeClass: "bg-emerald-50 border-emerald-200 text-emerald-700",
       },
     ];
 
@@ -435,7 +438,7 @@ export default async function AdminDashboardPage() {
                     <span className="text-[11px] font-bold uppercase tracking-wider text-white/90">
                       Pendapatan Hari Ini
                     </span>
-                    <span className="inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold text-white border border-white/30 backdrop-blur-sm">
+                    <span className="inline-flex items-center rounded-full bg-white/20 px-2.5 py-0.5 text-[10px] font-bold text-white border border-white/30 backdrop-blur-sm">
                       Live
                     </span>
                   </div>
@@ -452,7 +455,7 @@ export default async function AdminDashboardPage() {
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Metode QRIS</span>
-                    <span className="inline-flex items-center rounded-md bg-blue-50 border border-blue-200 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+                    <span className="inline-flex items-center rounded-full bg-blue-50 border border-blue-200 px-2.5 py-0.5 text-[10px] font-bold text-blue-700">
                       QRIS
                     </span>
                   </div>
@@ -461,7 +464,7 @@ export default async function AdminDashboardPage() {
                   </p>
                 </div>
                 <div className="mt-2 flex items-center justify-between border-t border-gray-100 pt-1.5 text-[11px] text-gray-500">
-                  <span>Porsi hari ini</span>
+                  <span>Kontribusi</span>
                   <span className="font-bold text-gray-900">
                     {todayRevenue > 0 ? Math.round((todayQris / todayRevenue) * 100) : 0}%
                   </span>
@@ -472,7 +475,7 @@ export default async function AdminDashboardPage() {
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Metode Transfer</span>
-                    <span className="inline-flex items-center rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                    <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700">
                       Transfer
                     </span>
                   </div>
@@ -481,7 +484,7 @@ export default async function AdminDashboardPage() {
                   </p>
                 </div>
                 <div className="mt-2 flex items-center justify-between border-t border-gray-100 pt-1.5 text-[11px] text-gray-500">
-                  <span>Porsi hari ini</span>
+                  <span>Kontribusi</span>
                   <span className="font-bold text-gray-900">
                     {todayRevenue > 0 ? Math.round((todayTransfer / todayRevenue) * 100) : 0}%
                   </span>
@@ -492,7 +495,7 @@ export default async function AdminDashboardPage() {
                 <div>
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500">Metode Tunai</span>
-                    <span className="inline-flex items-center rounded-md bg-gray-100 border border-gray-200 px-2 py-0.5 text-[10px] font-bold text-gray-700">
+                    <span className="inline-flex items-center rounded-full bg-gray-100 border border-gray-200 px-2.5 py-0.5 text-[10px] font-bold text-gray-700">
                       Tunai
                     </span>
                   </div>
@@ -501,7 +504,7 @@ export default async function AdminDashboardPage() {
                   </p>
                 </div>
                 <div className="mt-2 flex items-center justify-between border-t border-gray-100 pt-1.5 text-[11px] text-gray-500">
-                  <span>Porsi hari ini</span>
+                  <span>Kontribusi</span>
                   <span className="font-bold text-gray-900">
                     {todayRevenue > 0 ? Math.round((todayTunai / todayRevenue) * 100) : 0}%
                   </span>
@@ -527,7 +530,7 @@ export default async function AdminDashboardPage() {
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-semibold text-gray-500">{metric.label}</p>
                   {metric.isProfit && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700">
                       <svg className="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
                         <polyline points="17 6 23 6 23 12" />
@@ -536,8 +539,13 @@ export default async function AdminDashboardPage() {
                     </span>
                   )}
                   {metric.isLoss && (
-                    <span className="inline-flex items-center rounded-full bg-rose-50 border border-rose-200 px-2 py-0.5 text-[10px] font-bold text-rose-700">
+                    <span className="inline-flex items-center rounded-full bg-rose-50 border border-rose-200 px-2.5 py-0.5 text-[10px] font-bold text-rose-700">
                       Penyusutan
+                    </span>
+                  )}
+                  {metric.badgeText && (
+                    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${metric.badgeClass}`}>
+                      {metric.badgeText}
                     </span>
                   )}
                 </div>
@@ -551,67 +559,16 @@ export default async function AdminDashboardPage() {
         </section>
 
         <div className="mb-4">
-          <DashboardCharts 
-            dailySales={dailySales} 
-            topPartners={topPartners} 
+          <DashboardCharts
+            dailySales={dailySales}
+            bestSellers={bestSellers}
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
-          <section
-            aria-label="Produk Terlaris"
-            className="h-full flex flex-col rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden"
-          >
-            <div className="border-b border-gray-100 px-4 py-3 flex items-center justify-between flex-shrink-0">
-              <div>
-                <h2 className="text-base font-semibold text-gray-800">Produk Terlaris</h2>
-                <p className="text-[11px] text-gray-500">Top 5 produk terfavorit bulan ini.</p>
-              </div>
-              <span className="inline-flex items-center rounded-full bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 text-[10px] font-bold text-terracotta-clay">
-                Top 5
-              </span>
-            </div>
-
-            <div className="flex-1 flex flex-col p-4">
-              {bestSellers.length === 0 ? (
-                <p className="text-center text-xs text-gray-500 py-6 my-auto">
-                  Belum ada data penjualan produk.
-                </p>
-              ) : (
-                <div
-                  className={`flex flex-col flex-1 ${
-                    bestSellers.length >= 4 ? "justify-between" : "justify-start gap-2.5"
-                  }`}
-                >
-                  {bestSellers.map((item, index) => (
-                    <div
-                      key={item.productName}
-                      className="flex items-center justify-between gap-2 py-1.5 px-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="flex size-5 shrink-0 items-center justify-center rounded-md bg-gray-100 text-[11px] font-bold text-gray-700">
-                          #{index + 1}
-                        </span>
-                        <p
-                          className="truncate text-xs font-bold text-gray-800"
-                          title={item.productName}
-                        >
-                          {item.productName}
-                        </p>
-                      </div>
-                      <span className="shrink-0 rounded-full bg-orange-50 border border-orange-200/60 px-2 py-0.5 text-[11px] font-bold tabular-nums text-terracotta-clay">
-                        {numberFormatter.format(item.quantity)} pcs
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
-
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
           <section
             aria-label="Transaksi Terbaru"
-            className="h-full flex flex-col rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden"
+            className="flex flex-col h-full rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden"
           >
             <div className="border-b border-gray-100 px-4 py-3 flex items-center justify-between flex-shrink-0">
               <div>
@@ -636,24 +593,23 @@ export default async function AdminDashboardPage() {
                   Belum ada transaksi.
                 </p>
               ) : (
-                <div
-                  className={`flex flex-col flex-1 divide-y divide-gray-100 ${
-                    displayRecentTransactions.length >= 4 ? "justify-between" : "justify-start gap-2"
-                  }`}
-                >
+                <div className="flex flex-col divide-y divide-gray-100">
                   {displayRecentTransactions.map((tx) => (
                     <div
                       key={tx.id}
                       className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-gray-50 transition-colors rounded-lg"
                     >
-                      <div className="min-w-0">
+                      <div className="min-w-0 max-w-[150px] sm:max-w-[180px]">
                         <p
-                          className="font-bold text-gray-800 truncate max-w-[130px]"
+                          className="font-bold text-gray-800 truncate"
                           title={tx.store_name}
                         >
                           {tx.store_name}
                         </p>
-                        <p className="text-[10px] text-gray-500 font-mono">
+                        <p
+                          className="text-[10px] text-gray-500 font-mono truncate"
+                          title={tx.transaction_number}
+                        >
                           {tx.transaction_number}
                         </p>
                       </div>
@@ -674,11 +630,11 @@ export default async function AdminDashboardPage() {
 
           <section
             aria-label="Peringatan stok menipis"
-            className="h-full flex flex-col rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden"
+            className="flex flex-col h-full rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden"
           >
             <div className="border-b border-gray-100 px-4 py-3 flex items-center justify-between flex-shrink-0">
               <div>
-                <h2 className="text-base font-semibold text-terracotta-clay">Stok Menipis</h2>
+                <h2 className="text-base font-semibold text-gray-800">Stok Menipis</h2>
                 <p className="text-[11px] text-gray-500">Maksimal 5 item kritis (&lt; 10 unit).</p>
               </div>
               <span className="inline-flex items-center rounded-full bg-rose-50 border border-rose-200 px-2.5 py-0.5 text-[10px] font-bold text-rose-800">
@@ -696,24 +652,20 @@ export default async function AdminDashboardPage() {
                   Tidak ada produk menipis.
                 </p>
               ) : (
-                <div
-                  className={`flex flex-col flex-1 divide-y divide-gray-100 ${
-                    displayLowStockItems.length >= 4 ? "justify-between" : "justify-start gap-2"
-                  }`}
-                >
+                <div className="flex flex-col divide-y divide-gray-100">
                   {displayLowStockItems.map((item) => (
                     <div
                       key={item.id}
                       className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-gray-50 transition-colors rounded-lg"
                     >
-                      <div className="min-w-0">
+                      <div className="min-w-0 max-w-[150px] sm:max-w-[180px]">
                         <p
-                          className="font-bold text-gray-800 truncate max-w-[140px]"
+                          className="font-bold text-gray-800 truncate"
                           title={item.name}
                         >
                           {item.name}
                         </p>
-                        <p className="text-[10px] text-gray-500 truncate">
+                        <p className="text-[10px] text-gray-500 truncate" title={item.location}>
                           {item.location}
                         </p>
                       </div>

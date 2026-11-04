@@ -144,7 +144,7 @@ export default function PartnerNavigation() {
 
   return (
     <aside
-      className={`relative flex flex-col h-screen lg:sticky lg:top-0 border-b border-gray-200 bg-white text-gray-800 shadow-sm transition-all duration-300 ease-in-out lg:shrink-0 lg:border-b-0 lg:border-r ${
+      className={`relative z-40 flex flex-col h-screen lg:sticky lg:top-0 border-b border-gray-200 bg-white text-gray-800 shadow-sm transition-all duration-300 ease-in-out lg:shrink-0 lg:border-b-0 lg:border-r ${
         isSidebarOpen ? "w-full lg:w-64" : "w-full lg:w-20"
       }`}
     >
@@ -277,9 +277,9 @@ export default function PartnerNavigation() {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+              <polyline points="10 17 5 12 10 7" />
+              <line x1="15" y1="12" x2="5" y2="12" />
             </svg>
           </span>
 

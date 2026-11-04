@@ -27,6 +27,7 @@ const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const VALID_PAYMENT = new Set(["cash", "transfer", "qris"]);
 
+// Proses Checkout dan Penyimpanan Transaksi
 export async function recordCartTransaction(
   input: CartTransactionInput,
 ): Promise<CartTransactionResult> {
@@ -185,8 +186,7 @@ export async function recordCartTransaction(
   } catch (error) {
     console.error("Failed to record cart transaction:", error);
     return {
-      error:
-        error instanceof Error ? error.message : "Transaksi gagal dicatat.",
+      error: "Terjadi kesalahan internal pada server saat mencatat transaksi penjualan.",
     };
   }
 }

@@ -7,6 +7,7 @@ export const metadata = {
   description: "Kelola seluruh produk katalog SarniyaSync — tambah, lihat harga modal, harga jual, dan stok pusat.",
 };
 
+// Pengambilan Data dan Tampilan Katalog Produk
 export default async function ProdukPage() {
   const supabase = await createSupabaseServerClient();
   const { data: products, error } = await supabase

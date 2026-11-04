@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { MessageSquare, X, Send, AlertCircle, Check, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { MessageSquare, X, Send, AlertCircle, Check, Loader2, Trash2 } from "lucide-react";
+import { createSupabaseBrowserClient } from "@/utils/supabase/client";
 import { updateMitraStatus, type MitraStatus } from "./actions";
 
 export type StoreItem = {
@@ -9,7 +11,7 @@ export type StoreItem = {
   owner_id: string;
   name: string;
   address: string | null;
-  city: string | null;
+
   phone: string | null;
   is_active: boolean;
   status: string;
@@ -22,9 +24,11 @@ type MitraTableClientProps = {
 };
 
 export default function MitraTableClient({ stores }: MitraTableClientProps) {
+  const router = useRouter();
   const [storesList, setStoresList] = useState<StoreItem[]>(stores);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [deletingStoreId, setDeletingStoreId] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMitra, setSelectedMitra] = useState<StoreItem | null>(null);
@@ -63,7 +67,7 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
       const matchName = store.name.toLowerCase().includes(q);
       const matchOwner = ownerName.toLowerCase().includes(q);
       const matchPhone = (store.phone ?? "").toLowerCase().includes(q);
-      const matchLocation = `${store.address ?? ""} ${store.city ?? ""}`.toLowerCase().includes(q);
+      const matchLocation = (store.address ?? "").toLowerCase().includes(q);
 
       return matchName || matchOwner || matchPhone || matchLocation;
     });
@@ -98,6 +102,41 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
       alert(`Terjadi kesalahan: ${err instanceof Error ? err.message : "Gagal memperbarui status"}`);
     } finally {
       setUpdatingStoreId(null);
+    }
+  }
+
+  async function handleDelete(id: string, name: string) {
+    const confirmed = window.confirm(
+      `Apakah Anda yakin ingin menghapus mitra "${name}"? Tindakan ini tidak dapat dibatalkan.`
+    );
+    if (!confirmed) return;
+
+    setDeletingStoreId(id);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase.from("partner_stores").delete().eq("id", id);
+
+      if (error) {
+        if (
+          error.code === "23503" ||
+          error.message.toLowerCase().includes("foreign key") ||
+          error.message.toLowerCase().includes("violates") ||
+          error.message.toLowerCase().includes("constraint")
+        ) {
+          alert("Gagal menghapus mitra karena masih memiliki data transaksi/pengiriman yang terkait.");
+        } else {
+          alert("Gagal menghapus mitra: " + error.message);
+        }
+        return;
+      }
+
+      setStoresList((prev) => prev.filter((store) => store.id !== id));
+      router.refresh();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan sistem saat menghapus mitra.";
+      alert("Gagal menghapus mitra: " + msg);
+    } finally {
+      setDeletingStoreId(null);
     }
   }
 
@@ -163,7 +202,7 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Cari nama toko, pemilik, kota, no telepon..."
+            placeholder="Cari nama toko, pemilik, alamat, no telepon..."
             className="w-full h-9 rounded-lg border border-gray-200 bg-gray-50 py-1.5 pl-9 pr-8 text-xs font-medium text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
           />
           {searchTerm && (
@@ -234,14 +273,14 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                     <td className="px-4 py-2.5 font-semibold text-gray-900">{ownerName}</td>
                     <td className="px-4 py-2.5 font-medium text-gray-600">{store.phone || "—"}</td>
                     <td className="px-4 py-2.5 font-medium text-gray-600 max-w-xs">
-                      <p className="line-clamp-2 text-xs text-gray-900" title={store.address || store.city || "—"}>
-                        {store.address || store.city || "—"}
+                      <p className="line-clamp-2 text-xs text-gray-900" title={store.address || "—"}>
+                        {store.address || "—"}
                       </p>
-                      {store.address && store.city && !store.address.toLowerCase().includes(store.city.toLowerCase()) && (
-                        <span className="text-[10px] text-gray-500 font-normal block mt-0.5">
-                          Kota: {store.city}
-                        </span>
-                      )}
+
+
+
+
+
                     </td>
                     
                     <td className="px-4 py-2.5">
@@ -269,7 +308,24 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                           {isRowUpdating && (
                             <Loader2 className="pointer-events-none absolute right-2 h-3 w-3 text-terracotta-clay animate-spin" />
                           )}
+    
                         </div>
+
+                        <button
+                          type="button"
+                          onClick={() => void handleDelete(store.id, store.name)}
+                          disabled={deletingStoreId === store.id || isRowUpdating}
+                          title={`Hapus mitra "${store.name}"`}
+                          aria-label={`Hapus mitra "${store.name}"`}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-600 transition-colors hover:bg-rose-100 hover:text-rose-700 disabled:opacity-50 active:scale-95"
+                        >
+                          {deletingStoreId === store.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
+    
+                        </button>
 
                         <button
                           type="button"
@@ -289,6 +345,8 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-terracotta-clay border border-white" />
                             </span>
                           )}
+    
+    
                         </button>
                       </div>
                     </td>
@@ -305,7 +363,7 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-headline"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm transition-all animate-in fade-in duration-200"
+          className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm transition-all animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget && !isSaving) {
               setIsModalOpen(false);
@@ -320,7 +378,7 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                     Pesan Toko Mitra
                   </span>
                   <span className="text-[11px] font-semibold text-gray-500">
-                    {selectedMitra.city || "SarniyaSync"}
+                    SarniyaSync
                   </span>
                 </div>
                 <h3

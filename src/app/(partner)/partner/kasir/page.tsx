@@ -11,6 +11,7 @@ export const metadata = {
 
 const PAGE_SIZE = 1000;
 
+// Halaman Utama Kasir (Point of Sale)
 export default async function PartnerKasirPage() {
   const supabase = await createSupabaseServerClient();
   const {

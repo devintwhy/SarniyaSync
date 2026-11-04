@@ -25,6 +25,7 @@ function invalidId(id: string) {
   return !uuidPattern.test(id);
 }
 
+// API Detail Produk (GET, PATCH, DELETE)
 export async function GET(_request: Request, { params }: ProductRouteContext) {
   if (invalidId(params.id)) {
     return Response.json({ error: "ID produk tidak valid." }, { status: 400 });
@@ -54,6 +55,7 @@ export async function GET(_request: Request, { params }: ProductRouteContext) {
   }
 }
 
+// API Detail Produk (GET, PATCH, DELETE)
 export async function PATCH(request: Request, { params }: ProductRouteContext) {
   if (invalidId(params.id)) {
     return Response.json({ error: "ID produk tidak valid." }, { status: 400 });
@@ -123,6 +125,7 @@ export async function PATCH(request: Request, { params }: ProductRouteContext) {
   }
 }
 
+// API Detail Produk (GET, PATCH, DELETE)
 export async function DELETE(_request: Request, { params }: ProductRouteContext) {
   if (invalidId(params.id)) {
     return Response.json({ error: "ID produk tidak valid." }, { status: 400 });

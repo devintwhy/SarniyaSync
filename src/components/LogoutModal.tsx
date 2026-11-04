@@ -22,7 +22,7 @@ export default function LogoutModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="logout-modal-title"
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 transition-all animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 transition-all animate-in fade-in duration-200"
       onClick={(e) => {
         if (e.target === e.currentTarget && !isLoggingOut) {
           onClose();

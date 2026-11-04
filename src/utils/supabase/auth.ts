@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/utils/supabase/database.types";
 
+// Pengambilan dan Normalisasi Role Pengguna
 export type AppRole = "pemilik" | "admin" | "mitra";
 
 export function normalizeAppRole(role: string | null | undefined): AppRole | null {

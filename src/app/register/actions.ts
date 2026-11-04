@@ -7,6 +7,7 @@ export type RegisterState = {
   error?: string;
 };
 
+// Proses Registrasi Akun dan Toko Mitra
 export async function registerMitraAction(
   prevState: RegisterState,
   formData: FormData,

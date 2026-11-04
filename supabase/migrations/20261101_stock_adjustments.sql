@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.stock_adjustments (
 CREATE INDEX IF NOT EXISTS idx_stock_adjustments_mitra_id ON public.stock_adjustments(mitra_id);
 CREATE INDEX IF NOT EXISTS idx_stock_adjustments_product_id ON public.stock_adjustments(product_id);
 
+-- RLS dan Fungsi Database Penyesuaian Stok
 ALTER TABLE public.stock_adjustments ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "stock_adjustments_select_policy" ON public.stock_adjustments;
@@ -51,9 +52,23 @@ CREATE POLICY "stock_adjustments_insert_policy"
         )
     );
 
+DROP POLICY IF EXISTS "stock_adjustments_delete_policy" ON public.stock_adjustments;
+CREATE POLICY "stock_adjustments_delete_policy"
+    ON public.stock_adjustments
+    FOR DELETE
+    TO authenticated
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles
+            WHERE profiles.id = auth.uid()
+            AND profiles.role IN ('admin', 'pemilik')
+        )
+    );
+
 DROP FUNCTION IF EXISTS public.adjust_physical_stock(UUID, UUID, INTEGER, TEXT, TEXT);
 DROP FUNCTION IF EXISTS public.adjust_physical_stock(TEXT, TEXT, INTEGER, TEXT, TEXT);
 
+-- RLS dan Fungsi Database Penyesuaian Stok
 CREATE OR REPLACE FUNCTION public.adjust_physical_stock(
     p_mitra_id TEXT,
     p_product_id TEXT,
@@ -64,35 +79,62 @@ CREATE OR REPLACE FUNCTION public.adjust_physical_stock(
 RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = ''
 AS $$
 DECLARE
+    v_user_id UUID := auth.uid();
+    v_caller_role TEXT;
     v_target_store_id UUID;
     v_resolved_user_id UUID;
     v_parsed_product_id UUID;
     v_current_stock INTEGER;
     v_new_stock INTEGER;
 BEGIN
+    IF v_user_id IS NULL THEN
+        RETURN jsonb_build_object(
+            'success', false,
+            'error', 'Autentikasi diperlukan.'
+        );
+    END IF;
+
+    SELECT LOWER(role) INTO v_caller_role
+    FROM public.profiles
+    WHERE id = v_user_id;
+
     v_parsed_product_id := p_product_id::UUID;
 
-    -- Validasi target gerai mitra berdasarkan ID toko atau owner akun
-    SELECT id, owner_id INTO v_target_store_id, v_resolved_user_id
-    FROM public.partner_stores
-    WHERE id = p_mitra_id::UUID
-    LIMIT 1;
-
-    IF v_target_store_id IS NULL THEN
+    IF v_caller_role IN ('admin', 'administrator', 'pemilik', 'pemilik_toko', 'owner') THEN
         SELECT id, owner_id INTO v_target_store_id, v_resolved_user_id
         FROM public.partner_stores
-        WHERE owner_id = p_mitra_id::UUID
+        WHERE id = p_mitra_id::UUID
         LIMIT 1;
+
+        IF v_target_store_id IS NULL THEN
+            SELECT id, owner_id INTO v_target_store_id, v_resolved_user_id
+            FROM public.partner_stores
+            WHERE owner_id = p_mitra_id::UUID
+            LIMIT 1;
+        END IF;
+
+        IF v_target_store_id IS NULL THEN
+            v_target_store_id := p_mitra_id::UUID;
+            v_resolved_user_id := v_user_id;
+        END IF;
+    ELSE
+        SELECT id, owner_id INTO v_target_store_id, v_resolved_user_id
+        FROM public.partner_stores
+        WHERE (id = p_mitra_id::UUID OR owner_id = v_user_id)
+          AND owner_id = v_user_id
+        LIMIT 1;
+
+        IF v_target_store_id IS NULL THEN
+            RETURN jsonb_build_object(
+                'success', false,
+                'error', 'Akses ditolak: Anda hanya dapat menyesuaikan stok toko milik Anda sendiri.'
+            );
+        END IF;
     END IF;
 
-    IF v_target_store_id IS NULL THEN
-        v_target_store_id := p_mitra_id::UUID;
-        v_resolved_user_id := p_mitra_id::UUID;
-    END IF;
-
-    -- Penyesuaian stok gerai mitra secara atomik
     SELECT stock_quantity INTO v_current_stock
     FROM public.partner_store_inventory
     WHERE partner_store_id = v_target_store_id
@@ -124,7 +166,6 @@ BEGIN
           AND product_id = v_parsed_product_id;
     END IF;
 
-    -- Pencatatan riwayat audit stock opname
     INSERT INTO public.stock_adjustments (
         mitra_id,
         product_id,
@@ -150,7 +191,7 @@ BEGIN
 EXCEPTION WHEN OTHERS THEN
     RETURN jsonb_build_object(
         'success', false,
-        'error', SQLERRM
+        'error', 'Gagal memperbarui stok fisik di sistem database.'
     );
 END;
 $$;

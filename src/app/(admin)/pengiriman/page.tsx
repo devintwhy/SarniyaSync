@@ -10,6 +10,7 @@ export const metadata = {
   description: "Monitoring status pengiriman stok dari Gudang Pusat ke Toko Mitra.",
 };
 
+// Pengambilan Data dan Monitoring Pengiriman Stok
 export default async function PengirimanPage() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -28,7 +29,7 @@ export default async function PengirimanPage() {
       received_at,
       notes,
       product:products(id, name, sku),
-      store:partner_stores(id, name, city)
+      store:partner_stores(id, name)
     `)
     .order("sent_at", { ascending: false })
     .limit(200);

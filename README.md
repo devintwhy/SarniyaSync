@@ -1,53 +1,111 @@
-Markdown
-# SarniyaSync
-Sistem Manajemen Inventaris Multicabang dan Kasir Digital (Point of Sales)
+# SarniyaSync - Sistem Manajemen Inventaris & POS Terpadu
 
-![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-181818?style=for-the-badge&logo=supabase&logoColor=3ECF8E)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Issues](https://img.shields.io/github/issues/devintwhy/SarniyaSync?style=for-the-badge)
-
-## Deskripsi Proyek
-SarniyaSync merupakan aplikasi berbasis web yang dirancang untuk mengelola inventaris multi-cabang secara terpusat sekaligus menyediakan sistem kasir digital (Point of Sales / POS). Aplikasi ini dikembangkan secara mandiri sebagai solusi untuk mengatasi permasalahan pencatatan manual, disparitas data stok barang, dan pemantauan distribusi logistik pada bisnis ritel yang memiliki satu gudang pusat dan beberapa cabang mitra.
-
-Alasan Pemilihan Teknologi:
-* Next.js: Digunakan karena kapabilitasnya dalam mengelola Server-Side Rendering (SSR) untuk mengoptimalkan performa dan keamanan, serta menyediakan arsitektur Full-stack yang menyederhanakan manajemen antarmuka dan rute API.
-* Supabase: Berfungsi sebagai Backend as a Service (BaaS) yang menyediakan fitur Basis Data Real-time dan Autentikasi bawaan, yang esensial untuk sinkronisasi stok antara pusat dan cabang secara instan.
+Sistem Enterprise Resource Planning (ERP) dan Point of Sale (POS) multi-tenant berbasis web yang dirancang untuk mengelola dan mengintegrasikan rantai pasok (supply chain) dari gudang pusat ke jaringan gerai toko mitra retail secara terpusat, terisolasi, dan real-time.
 
 ---
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## Latar Belakang & Ruang Lingkup
 
-First, run the development server:
+Pengelolaan operasional rantai pasok dari distributor pusat ke cabang retail sering menghadapi kendala desentralisasi data inventaris, ketidaksesuaian pencatatan stok fisik (penyusutan/rusak), serta lambatnya rekonsiliasi transaksi penjualan harian. 
 
+SarniyaSync dibangun untuk menjawab permasalahan tersebut dengan memfasilitasi:
+1. Sentralisasi data persediaan barang dari gudang utama ke seluruh cabang mitra.
+2. Isolasi data ketat antar gerai mitra guna menjaga privasi komersial dan keamanan data inventaris masing-masing pihak.
+3. Pencatatan transaksi penjualan kasir (Point of Sale) secara real-time yang langsung memperbarui kuantitas inventaris gerai yang bersangkutan.
+
+### Batasan Hak Akses (Role-Based Access Control)
+Sistem membatasi hak operasional ke dalam dua peran utama tanpa peran perantara:
+- Admin Utama (Pusat): Bertanggung jawab atas pengelolaan katalog master produk, otorisasi akun mitra, alokasi pasokan barang, pengawasan status pengiriman logistik, audit stock opname, serta analisis performa finansial global.
+- Mitra (Pemilik Gerai): Bertanggung jawab atas operasional gerai masing-masing, meliputi kasir POS, konfirmasi penerimaan barang fisik yang dikirim pusat, pengajuan laporan penyesuaian stok fisik (stock opname), serta pemantauan arus kas harian toko.
+
+---
+
+## Arsitektur & Teknologi (Tech Stack)
+
+### Frontend
+- Next.js 14 (App Router, Server Components, dan Server Actions)
+- React 18
+- Tailwind CSS (Desain antarmuka modular, responsif, dan standar enterprise)
+
+### Backend & Basis Data
+- Supabase (BaaS berbasis PostgreSQL)
+- Supabase Authentication (Autentikasi berbasis sesi terenkripsi)
+- PostgreSQL Row Level Security (RLS untuk penegakan keamanan tingkat basis data)
+- PostgreSQL Stored Procedures / Remote Procedure Calls (RPC untuk mutasi transaksi atomik)
+
+### Pustaka Pendukung
+- Lucide React (Sistem ikonografi antarmuka)
+- Recharts (Visualisasi grafik tren omzet harian dan performa produk)
+- XLSX / SheetJS (Pembangkitan dan ekspor laporan transaksi penjualan dalam format spreadsheet)
+
+---
+
+## Fitur Utama Berdasarkan Peran
+
+### 1. Admin Pusat
+- Manajemen Master Katalog: Penambahan, pembaruan, dan pengaturan status produk, termasuk penetapan Harga Pokok Penjualan (HPP), harga jual, kategori hijab/busana, dan dokumentasi visual produk.
+- Alokasi Stok Massal (Bulk Allocation): Mekanisme pengiriman multi-item dari gudang pusat ke gerai mitra target dengan validasi ketersediaan stok fisik pusat.
+- Monitoring Pengiriman Stok: Pelacakan status logistik secara terstruktur (DIKIRIM, DITERIMA, DIBATALKAN) dilengkapi prosedur pengembalian kuantitas otomatis ke pusat jika pengiriman dibatalkan oleh Admin.
+- Verifikasi & Manajemen Mitra: Otorisasi aktivasi toko mitra baru, penonaktifan outlet, serta pengiriman pesan status operasional.
+- Audit Laporan Penyesuaian: Rekapitulasi laporan kerusakan, kehilangan, atau penyusutan stok fisik dari seluruh mitra beserta kalkulasi estimasi kerugian nominal berdasarkan HPP.
+- Analisis Penjualan Global: Dasbor agregasi pendapatan harian lintas metode (QRIS, Transfer Bank, Tunai), identifikasi produk terlaris keseluruhan, riwayat struk, serta pembatalan transaksi dengan mekanisme pemulihan stok.
+
+### 2. Mitra Gerai
+- Point of Sale (POS) Kasir: Antarmuka kasir cepat dengan fitur pencarian produk, kalkulator kembalian pembayaran tunai, pemilihan metode bayar instan, dan pratinjau struk belanja thermal.
+- Konfirmasi Penerimaan Barang: Verifikasi penerimaan paket kiriman dari pusat secara atomik yang langsung memasukkan kuantitas ke dalam saldo inventaris toko mitra.
+- Pelaporan Penyesuaian Stok (Stock Opname): Formulir pencatatan selisih stok fisik yang langsung memutasi saldo inventaris dan mencatat log audit ke sistem secara aman.
+- Dasbor Kinerja Toko: Ringkasan pendapatan hari ini, omzet bulanan, kuantitas produk etalase aktif, grafik tren 30 hari lokal gerai, serta daftar produk dengan stok kritis (kurang dari atau sama dengan 10 unit).
+
+---
+
+## Keamanan & Isolasi Data
+
+Keamanan dan pemisahan data antar mitra (multi-tenancy isolation) diimplementasikan melalui pendekatan berlapis (defense-in-depth). Pada lapisan aplikasi, Middleware Next.js memvalidasi status autentikasi sesi dan membatasi akses rute berdasarkan role pengguna yang dinormalisasi dari tabel profil. Pada lapisan basis data, Row Level Security (RLS) pada PostgreSQL diterapkan secara ketat pada tabel transaksi, transfer logistik, inventaris, dan penyesuaian stok. Setiap kueri mutasi maupun pembacaan data oleh mitra secara otomatis dibatasi hanya pada baris yang memiliki relasi kepemilikan yang sah (`owner_id = auth.uid()`), sehingga mencegah secara mutlak kebocoran data maupun manipulasi ID silang antar gerai mitra. Seluruh mutasi kritis (penerimaan kiriman dan penyesuaian fisik) dikunci dalam Stored Procedure database dengan parameter transaksi atomik.
+
+---
+
+## Panduan Instalasi Lokal (Bagi Penguji / Dosen)
+
+Berikut adalah panduan langkah demi langkah untuk menjalankan proyek SarniyaSync pada lingkungan pengujian lokal:
+
+### 1. Kloning Repositori
+Buka terminal dan jalankan perintah berikut untuk mengunduh kode sumber proyek:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/username/sarniyasync.git
+cd sarniyasync
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Instalasi Dependensi
+Pastikan Node.js (versi 18.17.0 atau lebih baru) telah terpasang pada komputer Anda. Pasang seluruh pustaka dependensi proyek:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Konfigurasi Environment Variables
+Salin berkas template environment ke berkas `.env.local`:
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Buka berkas `.env.local` dan masukkan kredensial proyek Supabase yang valid:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
 
-## Learn More
+### 4. Menjalankan Server Pengembangan
+Jalankan server Next.js pada mode development:
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Buka peramban web (browser) dan akses alamat:
+```
+http://localhost:3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 5. Pengujian Kompilasi Produksi (Opsional)
+Untuk memastikan tidak terdapat kendala tipe data (TypeScript) atau proses build produksi, jalankan perintah:
+```bash
+npm run build
+```

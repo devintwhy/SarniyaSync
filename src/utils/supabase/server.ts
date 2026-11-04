@@ -15,6 +15,7 @@ function asSessionCookie(options: CookieOptions): CookieOptions {
   };
 }
 
+// Inisialisasi Supabase Server Client
 export async function createSupabaseServerClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

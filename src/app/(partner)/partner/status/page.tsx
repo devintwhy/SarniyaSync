@@ -10,6 +10,7 @@ export const metadata = {
   description: "Status verifikasi dan peninjauan akun toko mitra Anda.",
 };
 
+// Halaman Status Akun Mitra
 export default async function PartnerStatusPage() {
   const supabase = await createSupabaseServerClient();
   const {

@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search, PackageX, DollarSign, ClipboardList } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Search, PackageX, DollarSign, ClipboardList, Trash2, Loader2 } from "lucide-react";
+import { createSupabaseBrowserClient } from "@/utils/supabase/client";
 
 export interface AdjustmentReportItem {
   id: string;
@@ -21,7 +23,7 @@ export interface AdjustmentReportItem {
 interface StoreOption {
   id: string;
   name: string;
-  city?: string | null;
+
 }
 
 interface LaporanPenyesuaianClientProps {
@@ -41,12 +43,46 @@ export default function LaporanPenyesuaianClient({
   stores,
   adjustments,
 }: LaporanPenyesuaianClientProps) {
+  const router = useRouter();
+  const [adjustmentsList, setAdjustmentsList] = useState<AdjustmentReportItem[]>(adjustments);
   const [selectedStore, setSelectedStore] = useState<string>("all");
   const [selectedReason, setSelectedReason] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setAdjustmentsList(adjustments);
+  }, [adjustments]);
+
+  async function handleDelete(id: string) {
+    const confirmed = window.confirm("Apakah Anda yakin ingin menghapus data penyesuaian ini?");
+    if (!confirmed) return;
+
+    setDeletingId(id);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase
+        .from("stock_adjustments")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        alert("Gagal menghapus data: " + error.message);
+        return;
+      }
+
+      setAdjustmentsList((prev) => prev.filter((item) => item.id !== id));
+      router.refresh();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan sistem.";
+      alert("Gagal menghapus data: " + msg);
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   const filteredAdjustments = useMemo(() => {
-    return adjustments.filter((item) => {
+    return adjustmentsList.filter((item) => {
       if (selectedStore !== "all" && item.storeId !== selectedStore && !item.storeName.toLowerCase().includes(selectedStore.toLowerCase())) {
         return false;
       }
@@ -65,7 +101,7 @@ export default function LaporanPenyesuaianClient({
       }
       return true;
     });
-  }, [adjustments, selectedStore, selectedReason, searchQuery]);
+  }, [adjustmentsList, selectedStore, selectedReason, searchQuery]);
 
   const stats = useMemo(() => {
     let units = 0;
@@ -170,7 +206,7 @@ export default function LaporanPenyesuaianClient({
                 <option value="all">Semua Toko Mitra</option>
                 {stores.map((s) => (
                   <option key={s.id} value={s.id}>
-                    {s.name} {s.city ? `(${s.city})` : ""}
+                    {s.name}
                   </option>
                 ))}
               </select>
@@ -233,12 +269,13 @@ export default function LaporanPenyesuaianClient({
                 <th scope="col" className="px-4 py-3 text-right">Est. Kerugian</th>
                 <th scope="col" className="px-4 py-3">Alasan</th>
                 <th scope="col" className="px-4 py-3">Catatan</th>
+                <th scope="col" className="px-4 py-3 text-center">AKSI</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filteredAdjustments.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-xs text-gray-500">
+                  <td colSpan={8} className="px-4 py-12 text-center text-xs text-gray-500">
                     <ClipboardList className="mx-auto size-9 text-gray-300 mb-2" />
                     Tidak ada catatan penyesuaian stok yang cocok dengan kriteria filter.
                   </td>
@@ -250,7 +287,7 @@ export default function LaporanPenyesuaianClient({
                       {row.date}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="font-semibold text-gray-900">{row.storeName}</span>
+                      <span className="font-semibold text-gray-900">{row.storeName.replace(/\s*\([^)]*\)$/, "")}</span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-medium text-gray-900">{row.productName}</div>
@@ -277,6 +314,22 @@ export default function LaporanPenyesuaianClient({
                     </td>
                     <td className="max-w-xs truncate px-4 py-3 text-xs text-gray-600" title={row.notes}>
                       {row.notes}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">
+                      <button
+                        type="button"
+                        onClick={() => void handleDelete(row.id)}
+                        disabled={deletingId === row.id}
+                        title="Hapus data penyesuaian"
+                        aria-label={`Hapus data penyesuaian ${row.productName}`}
+                        className="inline-flex items-center justify-center rounded-lg p-1.5 text-rose-600 transition-colors hover:bg-rose-50 hover:text-rose-700 disabled:opacity-50"
+                      >
+                        {deletingId === row.id ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                          <Trash2 size={16} />
+                        )}
+                      </button>
                     </td>
                   </tr>
                 ))

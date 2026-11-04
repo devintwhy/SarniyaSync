@@ -8,7 +8,7 @@ import { Package, ShoppingCart, Store, ClipboardList, AlertCircle, CheckCircle }
 export type StoreOption = {
   id: string;
   name: string;
-  city?: string | null;
+
 };
 
 export type WarehouseProduct = {
@@ -26,7 +26,7 @@ export type ExistingAllocation = {
   stock_quantity: number;
   // Data toko di-join langsung dari query (tanpa filter is_active)
   store_name: string | null;
-  store_city: string | null;
+
   store_is_active: boolean | null;
   product_name?: string | null;
   product_sku?: string | null;
@@ -55,6 +55,7 @@ function getCategoryBadgeClass(category: string | null | undefined): string {
   return "bg-gray-100 text-gray-700";
 }
 
+// Pengelolaan Form dan Data Alokasi Stok
 export default function BulkAllocationClient({
   stores,
   products,
@@ -200,6 +201,7 @@ export default function BulkAllocationClient({
     setErrorMessage("");
     setSuccessMessage("");
 
+    // Pengelolaan Form dan Data Alokasi Stok
     try {
       const items = selectedProducts.map((item) => ({
         productId: item.product.id,

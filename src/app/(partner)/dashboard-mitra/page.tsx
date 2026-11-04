@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Store, CheckCircle2 } from "lucide-react";
+import { Store } from "lucide-react";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import PartnerDashboardCharts from "@/components/partner-dashboard-charts";
 
@@ -43,7 +43,7 @@ type LowStockInventoryRow = {
   id: string;
   stock_quantity: number | string;
   partner_stores: { name: string | null } | { name: string | null }[] | null;
-  products: { sku: string | null; name: string | null; category: string | null; price: number | null } | { sku: string | null; name: string | null; category: string | null; price: number | null }[] | null;
+  products: { sku: string | null; name: string | null; category: string | null; selling_price: number | null } | { sku: string | null; name: string | null; category: string | null; selling_price: number | null }[] | null;
 };
 
 type RecentTransactionRow = {
@@ -66,20 +66,6 @@ const dateFormatter = new Intl.DateTimeFormat("id-ID", {
   timeStyle: "short",
 });
 
-function getCategoryBadgeClass(category: string | null | undefined): string {
-  const cat = String(category || "").toLowerCase().trim();
-  if (cat.includes("pashmina")) {
-    return "bg-purple-100 text-purple-700";
-  }
-  if (cat.includes("bergo")) {
-    return "bg-orange-100 text-orange-700";
-  }
-  if (cat.includes("segi empat") || cat.includes("segiempat") || cat.includes("square")) {
-    return "bg-teal-100 text-teal-700";
-  }
-  return "bg-gray-100 text-gray-700";
-}
-
 export default async function PartnerDashboardPage() {
   const supabase = await createSupabaseServerClient();
   const {
@@ -92,7 +78,7 @@ export default async function PartnerDashboardPage() {
 
   const { data: stores, error: storesError } = await supabase
     .from("partner_stores")
-    .select("id, name, city, is_active, status")
+    .select("id, name, is_active, status")
     .eq("owner_id", user.id)
     .order("name", { ascending: true });
 
@@ -106,9 +92,11 @@ export default async function PartnerDashboardPage() {
     );
   }
 
-  const activeStores = (stores ?? []).filter((store) =>
-    store.status ? store.status === "aktif" : store.is_active
-  );
+  const activeStores = (stores ?? []).filter((store) => {
+    // Inklusif: tampilkan stok semua toko milik user, termasuk jika status belum diset
+    if (store.status) return store.status === "aktif" || store.status === "active";
+    return store.is_active !== false;
+  });
   const activeStoreIds = activeStores.map((s) => s.id);
 
   if (activeStoreIds.length === 0) {
@@ -236,10 +224,10 @@ export default async function PartnerDashboardPage() {
       id,
       stock_quantity,
       partner_stores ( name ),
-      products ( sku, name, category, price )
+      products ( sku, name, category, selling_price )
     `)
     .in("partner_store_id", activeStoreIds)
-    .lt("stock_quantity", 10)
+    .lte("stock_quantity", 10)
     .order("stock_quantity", { ascending: true })) as unknown as {
     data: LowStockInventoryRow[] | null;
   };
@@ -262,6 +250,13 @@ export default async function PartnerDashboardPage() {
       }
     });
   }
+
+  // Hitung total produk unik yang ada di etalase toko mitra
+  const { count: totalUniqueProducts } = await supabase
+    .from("partner_store_inventory")
+    .select("product_id", { count: "exact", head: true })
+    .in("partner_store_id", activeStoreIds)
+    .gt("stock_quantity", 0);
 
   const { data: recentData } = (await supabase
     .from("sales_transactions")
@@ -307,10 +302,10 @@ export default async function PartnerDashboardPage() {
       valueClass: "text-gray-900",
     },
     {
-      label: "Peringatan Stok Menipis",
-      value: `${numberFormatter.format(lowStockItems.length)} produk`,
-      detail: "Stok sisa < 10 unit",
-      valueClass: lowStockItems.length > 0 ? "text-amber-700" : "text-gray-900",
+      label: "Total Produk Etalase",
+      value: `${numberFormatter.format(totalUniqueProducts ?? 0)} variasi`,
+      detail: "Produk dengan stok tersedia di toko",
+      valueClass: "text-gray-900",
     },
   ];
 
@@ -396,7 +391,7 @@ export default async function PartnerDashboardPage() {
                 </p>
               </div>
               <div className="mt-2 flex items-center justify-between border-t border-gray-200/60 pt-1.5 text-[11px] text-gray-500">
-                <span>Porsi hari ini</span>
+                <span>Kontribusi</span>
                 <span className="font-bold text-gray-900">
                   {todayRevenue > 0 ? Math.round((todayQris / todayRevenue) * 100) : 0}%
                 </span>
@@ -416,7 +411,7 @@ export default async function PartnerDashboardPage() {
                 </p>
               </div>
               <div className="mt-2 flex items-center justify-between border-t border-gray-200/60 pt-1.5 text-[11px] text-gray-500">
-                <span>Porsi hari ini</span>
+                <span>Kontribusi</span>
                 <span className="font-bold text-gray-900">
                   {todayRevenue > 0 ? Math.round((todayTransfer / todayRevenue) * 100) : 0}%
                 </span>
@@ -436,7 +431,7 @@ export default async function PartnerDashboardPage() {
                 </p>
               </div>
               <div className="mt-2 flex items-center justify-between border-t border-gray-200/60 pt-1.5 text-[11px] text-gray-500">
-                <span>Porsi hari ini</span>
+                <span>Kontribusi</span>
                 <span className="font-bold text-gray-900">
                   {todayRevenue > 0 ? Math.round((todayTunai / todayRevenue) * 100) : 0}%
                 </span>
@@ -465,117 +460,115 @@ export default async function PartnerDashboardPage() {
         <PartnerDashboardCharts dailySales={dailySales} bestSellers={bestSellers} />
       </div>
 
-      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
         <section
           aria-label="Peringatan stok menipis toko saya"
-          className="overflow-hidden rounded-xl border border-amber-200 bg-white shadow-sm flex flex-col"
+          className="flex flex-col h-full rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden"
         >
-          <div className="flex flex-col gap-1 border-b border-amber-100 bg-amber-50/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="border-b border-gray-100 px-4 py-3 flex items-center justify-between flex-shrink-0">
             <div>
-              <h2 className="text-base font-semibold text-amber-900">Peringatan Stok Toko Saya</h2>
-              <p className="text-xs text-amber-700">Produk di inventaris toko dengan stok &lt; 10 unit.</p>
+              <h2 className="text-base font-semibold text-gray-800">Stok Menipis Toko Saya</h2>
+              <p className="text-[11px] text-gray-500">Produk dengan sisa stok &le; 10 unit di toko Anda.</p>
             </div>
-            <span className="text-[11px] font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-full self-start sm:self-auto">
-              {lowStockItems.length} produk menipis
+            <span className="inline-flex items-center rounded-full bg-rose-50 border border-rose-200 px-2.5 py-0.5 text-[10px] font-bold text-rose-800">
+              {lowStockItems.length} item
             </span>
           </div>
 
-          {lowStockItems.length === 0 ? (
-            <div className="px-4 py-8 text-center">
-              <CheckCircle2 className="size-8 mx-auto text-emerald-600 mb-1" />
-              <p className="mt-1.5 text-xs sm:text-sm font-bold text-emerald-700">Semua stok toko Anda dalam kondisi aman!</p>
-              <p className="text-[11px] text-gray-500">Tidak ada produk dengan sisa stok &lt; 10 unit.</p>
-            </div>
-          ) : (
-            <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar flex-1">
-              <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="sticky top-0 z-10 bg-gray-50 text-[11px] font-bold uppercase tracking-wider text-gray-600 border-b border-gray-200 shadow-sm">
-                  <tr>
-                    <th scope="col" className="px-3.5 py-2.5">Produk</th>
-                    <th scope="col" className="px-3.5 py-2.5">Kategori</th>
-                    <th scope="col" className="px-3.5 py-2.5 text-right">Sisa Stok</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {lowStockItems.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                      <th scope="row" className="px-3.5 py-2 font-semibold text-gray-900">
-                        <div>{item.name}</div>
-                        <div className="text-[10px] font-mono font-normal text-gray-500">{item.sku}</div>
-                      </th>
-                      <td className="px-3.5 py-2">
-                        <span className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${getCategoryBadgeClass(item.category)}`}>
-                          {item.category || "Hijab"}
-                        </span>
-                      </td>
-                      <td className="px-3.5 py-2 text-right">
-                        <span
-                          className={`inline-flex min-w-[2rem] justify-center rounded px-1.5 py-0.5 text-xs font-bold ${
-                            item.stock === 0
-                              ? "bg-red-100 text-red-700"
-                              : "bg-amber-100 text-amber-800"
-                          }`}
-                        >
-                          {numberFormatter.format(item.stock)} pcs
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <div className="flex-1 flex flex-col p-4">
+            {lowStockItems.length === 0 ? (
+              <p className="px-3 py-6 text-center text-xs text-gray-500 my-auto">
+                Stok aman. Tidak ada produk di bawah 10 unit.
+              </p>
+            ) : (
+              <div className="flex flex-col divide-y divide-gray-100">
+                {lowStockItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-gray-50 transition-colors rounded-lg"
+                  >
+                    <div className="min-w-0 max-w-[150px] sm:max-w-[180px]">
+                      <p
+                        className="font-bold text-gray-800 truncate"
+                        title={item.name}
+                      >
+                        {item.name}
+                      </p>
+                      <p className="text-[10px] font-mono text-gray-500 truncate">
+                        {item.sku}
+                      </p>
+                    </div>
+                    <div className="text-right whitespace-nowrap">
+                      <span
+                        className={`inline-flex min-w-[2.2rem] justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold ${
+                          item.stock === 0
+                            ? "bg-rose-50 text-rose-700 border border-rose-200"
+                            : "bg-orange-50 text-terracotta-clay border border-orange-200/60"
+                        }`}
+                      >
+                        {numberFormatter.format(item.stock)} pcs
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </section>
 
         <section
           aria-label="Transaksi terbaru toko saya"
-          className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm flex flex-col"
+          className="flex flex-col h-full rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden"
         >
-          <div className="flex flex-col gap-1 border-b border-gray-100 bg-gray-50/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="border-b border-gray-100 px-4 py-3 flex items-center justify-between flex-shrink-0">
             <div>
               <h2 className="text-base font-semibold text-gray-800">Penjualan Terbaru Toko Saya</h2>
-              <p className="text-xs text-gray-500">5 transaksi kasir terakhir.</p>
+              <p className="text-[11px] text-gray-500">5 transaksi kasir terakhir di toko Anda.</p>
             </div>
-            <Link href="/partner/transaksi" className="text-xs font-bold text-terracotta-clay hover:underline self-start sm:self-auto">
-              Lihat Semua &rarr;
+            <Link
+              href="/partner/transaksi"
+              className="text-[11px] font-bold text-terracotta-clay hover:underline"
+            >
+              Semua &rarr;
             </Link>
           </div>
 
-          {recentTransactions.length === 0 ? (
-            <div className="px-4 py-8 text-center text-xs sm:text-sm text-gray-500">
-              Belum ada transaksi penjualan yang tercatat.
-            </div>
-          ) : (
-            <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar flex-1">
-              <table className="w-full text-left text-xs sm:text-sm">
-                <thead className="sticky top-0 z-10 bg-gray-50 text-[11px] font-bold uppercase tracking-wider text-gray-600 border-b border-gray-200 shadow-sm">
-                  <tr>
-                    <th scope="col" className="px-3.5 py-2.5">Tanggal</th>
-                    <th scope="col" className="px-3.5 py-2.5">No. Struk</th>
-                    <th scope="col" className="px-3.5 py-2.5 text-right">Total</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {recentTransactions.map((tx) => (
-                    <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-3.5 py-2 text-gray-600 whitespace-nowrap text-[11px]">
-                        {dateFormatter.format(new Date(tx.sold_at))}
-                      </td>
-                      <th scope="row" className="px-3.5 py-2 font-semibold text-gray-900">
-                        <div>{tx.transaction_number}</div>
-                        <span className="inline-block rounded bg-gray-100 px-1 py-0.2 text-[9px] font-bold uppercase text-gray-600">
-                          {tx.payment_method}
-                        </span>
-                      </th>
-                      <td className="px-3.5 py-2 text-right font-black text-gray-900 whitespace-nowrap text-xs sm:text-sm">
+          <div className="flex-1 flex flex-col p-4">
+            {recentTransactions.length === 0 ? (
+              <p className="px-3 py-6 text-center text-xs text-gray-500 my-auto">
+                Belum ada transaksi penjualan yang tercatat.
+              </p>
+            ) : (
+              <div className="flex flex-col divide-y divide-gray-100">
+                {recentTransactions.map((tx) => (
+                  <div
+                    key={tx.id}
+                    className="flex items-center justify-between gap-2 py-1.5 px-2 hover:bg-gray-50 transition-colors rounded-lg"
+                  >
+                    <div className="min-w-0 max-w-[150px] sm:max-w-[180px]">
+                      <p
+                        className="font-bold text-gray-800 truncate"
+                        title={tx.transaction_number}
+                      >
+                        {tx.transaction_number}
+                      </p>
+                      <p className="text-[10px] text-gray-500 font-mono truncate">
+                        {tx.store_name}
+                      </p>
+                    </div>
+                    <div className="text-right whitespace-nowrap">
+                      <p className="font-black text-terracotta-clay text-xs">
                         {currencyFormatter.format(tx.total)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                      </p>
+                      <p className="text-[10px] text-gray-400">
+                        {dateFormatter.format(new Date(tx.sold_at))}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </section>
       </div>
     </div>

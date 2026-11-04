@@ -2,11 +2,13 @@
   "name": "sarniyasync",
   "version": "0.1.0",
   "private": true,
+  "description": "Bookmark: Konfigurasi Dependencies dan Scripts",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "echo \"Belum ada tes yang dikonfigurasi\" && exit 0"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

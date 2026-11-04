@@ -9,6 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import TopSellingProducts from "./top-selling-products";
 
 type DailySales = {
   date: string;
@@ -31,25 +32,32 @@ const currencyFormatter = new Intl.NumberFormat("id-ID", {
   maximumFractionDigits: 0,
 });
 
-const numberFormatter = new Intl.NumberFormat("id-ID");
+function formatDayOnly(dateStr: string): string {
+  if (!dateStr) return "";
+  const match = dateStr.match(/^\d{1,2}/);
+  return match ? match[0].padStart(2, "0") : dateStr;
+}
 
 export default function PartnerDashboardCharts({
   dailySales,
   bestSellers,
 }: PartnerDashboardChartsProps) {
-  const maxQty = bestSellers.length > 0 ? bestSellers[0].quantity || 1 : 1;
-
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
       <section
-        aria-label="Grafik tren penjualan harian"
-        className="col-span-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm lg:col-span-2 flex flex-col"
+        aria-label="Grafik Tren Penjualan Toko Saya"
+        className="lg:col-span-7 rounded-xl bg-white shadow-sm overflow-hidden flex flex-col justify-between h-full border border-gray-200"
       >
-        <div className="border-b border-gray-100 px-6 py-5">
-          <h2 className="font-bold text-gray-900">Tren Penjualan Toko Saya (30 Hari Terakhir)</h2>
-          <p className="mt-1 text-sm text-gray-500">Akumulasi pendapatan harian dari penjualan di toko Anda.</p>
+        <div className="border-b border-gray-100 px-4 py-3 sm:px-5 flex flex-col gap-0.5">
+          <h2 className="text-sm sm:text-base font-black text-gray-900">
+            Tren Penjualan Toko Saya (30 Hari Terakhir)
+          </h2>
+          <p className="text-xs text-gray-500">
+            Akumulasi pendapatan harian dari penjualan di toko Anda.
+          </p>
         </div>
-        <div className="h-72 w-full px-6 py-6 sm:h-80 flex-1">
+
+        <div className="h-72 w-full p-3 sm:p-4 flex-1 flex flex-col justify-center">
           {dailySales.length === 0 ? (
             <div className="flex h-full items-center justify-center text-sm text-gray-500">
               Belum ada data transaksi dalam 30 hari terakhir.
@@ -58,91 +66,55 @@ export default function PartnerDashboardCharts({
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={dailySales}
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f2f5" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                 <XAxis
                   dataKey="date"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 12, fill: "#6b7280" }}
-                  dy={10}
+                  tick={{ fontSize: 11, fill: "#6B7280" }}
+                  tickFormatter={formatDayOnly}
+                  dy={6}
                 />
                 <YAxis
+                  width={60}
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 12, fill: "#6b7280" }}
-                  tickFormatter={(value) => `Rp ${value >= 1000 ? value / 1000 + "K" : value}`}
+                  tick={{ fontSize: 11, fill: "#6B7280" }}
+                  tickFormatter={(value) => `Rp ${value >= 1000000 ? `${(value / 1000000).toFixed(1)}M` : `${value / 1000}K`}`}
                 />
                 <Tooltip
-                  cursor={{ fill: "#f9fafb" }}
+                  cursor={{ fill: "rgba(204, 151, 135, 0.08)" }}
                   contentStyle={{
-                    borderRadius: "12px",
+                    backgroundColor: "#ffffff",
+                    borderRadius: "8px",
                     border: "1px solid #e5e7eb",
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+                    fontSize: "12px",
                   }}
+                  labelFormatter={(label) => String(label)}
                   formatter={(value: unknown) => [currencyFormatter.format(Number(value) || 0), "Pendapatan"]}
-                  labelStyle={{ color: "#111827", fontWeight: "bold", marginBottom: "4px" }}
+                  labelStyle={{ color: "#111827", fontWeight: "bold", marginBottom: "3px" }}
                 />
-                <Bar dataKey="total" fill="#9d5c4c" radius={[6, 6, 0, 0]} maxBarSize={44} />
+                <Bar
+                  dataKey="total"
+                  fill="#cc9787"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={40}
+                />
               </BarChart>
             </ResponsiveContainer>
           )}
         </div>
       </section>
 
-      <section
-        aria-label="Produk terlaris toko saya"
-        className="col-span-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm flex flex-col"
-      >
-        <div className="border-b border-gray-100 px-6 py-5">
-          <h2 className="font-bold text-gray-900">Produk Terlaris di Toko Saya</h2>
-          <p className="mt-1 text-sm text-gray-500">Top produk paling laku bulan ini.</p>
-        </div>
-        <div className="flex-1 p-6">
-          {bestSellers.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-center text-sm text-gray-500">
-              Belum ada data barang terjual bulan ini.
-            </div>
-          ) : (
-            <ul className="flex flex-col gap-4">
-              {bestSellers.map((item, index) => {
-                const percentage = Math.max(8, Math.round((item.quantity / maxQty) * 100));
-
-                return (
-                  <li key={item.productName} className="group flex flex-col gap-1.5">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span
-                          className={`flex size-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
-                            index === 0
-                              ? "bg-terracotta-clay text-white"
-                              : index === 1
-                              ? "bg-orange-50 text-terracotta-clay border border-orange-200/60"
-                              : "bg-gray-100 text-gray-600"
-                          }`}
-                        >
-                          #{index + 1}
-                        </span>
-                        <p className="truncate text-sm font-semibold text-gray-900">{item.productName}</p>
-                      </div>
-                      <span className="shrink-0 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-bold tabular-nums text-gray-900">
-                        {numberFormatter.format(item.quantity)} pcs
-                      </span>
-                    </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
-                      <div
-                        className="h-full rounded-full bg-terracotta-clay transition-all duration-700 ease-out"
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      </section>
+      <TopSellingProducts
+        items={bestSellers}
+        title="Produk Terlaris di Toko Saya"
+        subtitle="Top produk paling laku bulan ini."
+        emptyMessage="Belum ada data barang terjual bulan ini."
+      />
     </div>
   );
 }

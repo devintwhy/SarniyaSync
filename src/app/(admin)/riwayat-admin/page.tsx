@@ -42,6 +42,7 @@ function parseTransactionItems(items: Json): AdminTransactionItem[] {
   });
 }
 
+// Pengambilan Riwayat Transaksi Penjualan
 export default async function AdminRiwayatPage() {
   const supabase = await createSupabaseServerClient();
   const {

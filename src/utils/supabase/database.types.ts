@@ -64,7 +64,7 @@ export type Database = {
           owner_id: string;
           name: string;
           address: string | null;
-          city: string | null;
+
           phone: string | null;
           is_active: boolean;
           status: string;
@@ -77,7 +77,7 @@ export type Database = {
           owner_id: string;
           name: string;
           address?: string | null;
-          city?: string | null;
+
           phone?: string | null;
           is_active?: boolean;
           status?: string;
@@ -89,7 +89,7 @@ export type Database = {
           owner_id?: string;
           name?: string;
           address?: string | null;
-          city?: string | null;
+
           phone?: string | null;
           is_active?: boolean;
           status?: string;
@@ -206,6 +206,31 @@ export type Database = {
           updated_at?: string;
         }
       >;
+      stock_adjustments: Table<
+        {
+          id: string;
+          mitra_id: string;
+          product_id: string;
+          quantity_changed: number;
+          reason: string;
+          notes: string | null;
+          created_at: string;
+        },
+        {
+          id?: string;
+          mitra_id: string;
+          product_id: string;
+          quantity_changed: number;
+          reason: string;
+          notes?: string | null;
+          created_at?: string;
+        },
+        {
+          quantity_changed?: number;
+          reason?: string;
+          notes?: string | null;
+        }
+      >;
     };
     Views: Record<string, never>;
     Functions: {
@@ -223,6 +248,16 @@ export type Database = {
           p_transfer_id: string;
         };
         Returns: Json;
+      };
+      adjust_physical_stock: {
+        Args: {
+          p_mitra_id: string;
+          p_product_id: string;
+          p_qty_changed: number;
+          p_reason: string;
+          p_notes?: string | null;
+        };
+        Returns: void;
       };
     };
     Enums: Record<string, never>;

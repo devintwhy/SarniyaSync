@@ -160,6 +160,7 @@ export default function AdminTransactionClient({
     return getLocalDateString(y);
   }, []);
 
+  // Filter, Ringkasan, dan Ekspor Laporan Penjualan
   const filteredTransactions = useMemo(() => {
     const q = searchTerm.toLowerCase().trim();
 
@@ -237,6 +238,7 @@ export default function AdminTransactionClient({
     };
   }, [activeForMetrics]);
 
+  // Filter, Ringkasan, dan Ekspor Laporan Penjualan
   function handleExportExcel() {
     if (filteredTransactions.length === 0) {
       alert("Tidak ada data transaksi untuk diekspor pada filter ini.");
@@ -245,8 +247,7 @@ export default function AdminTransactionClient({
 
     setIsExporting(true);
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const excelRows: any[] = [];
+      const excelRows: Record<string, string | number>[] = [];
 
       filteredTransactions.forEach((tx) => {
         const txDateFormatted = new Date(tx.soldAt).toLocaleString("id-ID", {

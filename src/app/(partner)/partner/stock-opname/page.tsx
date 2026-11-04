@@ -35,6 +35,7 @@ interface StockAdjustmentQueryRow {
   products: StockAdjustmentProductRelation | StockAdjustmentProductRelation[] | null;
 }
 
+// Pengambilan Data Stok dan Riwayat Stock Opname
 export default async function PartnerStockOpnamePage() {
   const supabase = await createSupabaseServerClient();
   const {

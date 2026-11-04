@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { cancelStockTransfer } from "./actions";
 
 export type TransferRow = {
   id: string;
@@ -11,7 +12,7 @@ export type TransferRow = {
   received_at: string | null;
   notes: string | null;
   product: { id: string; name: string; sku: string } | null;
-  store: { id: string; name: string; city: string | null } | null;
+  store: { id: string; name: string } | null;
 };
 
 const dateFormatter = new Intl.DateTimeFormat("id-ID", {
@@ -42,6 +43,17 @@ function StatusBadge({ status }: { status: string }) {
       </span>
     );
   }
+  if (status === "DIBATALKAN" || status === "BATAL" || status === "CANCELLED") {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-300 bg-rose-50 px-2.5 py-1 text-[11px] font-bold text-rose-700">
+        <svg className="size-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+        Dibatalkan
+      </span>
+    );
+  }
   return (
     <span className="inline-flex items-center gap-1 rounded-full border border-gray-300 bg-gray-100 px-2.5 py-1 text-[11px] font-bold text-gray-600">
       {status}
@@ -55,21 +67,55 @@ export default function PengirimanClient({
   initialTransfers: TransferRow[];
 }) {
   const router = useRouter();
+  const [transfers, setTransfers] = useState<TransferRow[]>(initialTransfers);
+  const [processingId, setProcessingId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterStore, setFilterStore] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  useEffect(() => {
+    setTransfers(initialTransfers);
+  }, [initialTransfers]);
+
+  async function handleCancel(t: TransferRow) {
+    const productName = t.product?.name ?? "Produk";
+    const confirmed = window.confirm(
+      `Batalkan pengiriman produk "${productName}" (${numFormatter.format(t.quantity)} pcs) ke ${t.store?.name ?? "Toko Mitra"}?\n\nKuantitas barang akan dikembalikan ke inventaris Gudang Pusat secara utuh.`
+    );
+    if (!confirmed) return;
+
+    setProcessingId(t.id);
+    try {
+      const res = await cancelStockTransfer(t.id);
+      if (res.error) {
+        alert("Gagal membatalkan pengiriman: " + res.error);
+      } else {
+        setTransfers((prev) =>
+          prev.map((item) =>
+            item.id === t.id ? { ...item, status: "DIBATALKAN" } : item
+          )
+        );
+        router.refresh();
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan sistem.";
+      alert("Gagal membatalkan pengiriman: " + msg);
+    } finally {
+      setProcessingId(null);
+    }
+  }
+
   const stores = useMemo(() => {
     const map = new Map<string, string>();
-    for (const t of initialTransfers) {
+    for (const t of transfers) {
       if (t.store) map.set(t.store.id, t.store.name);
     }
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
-  }, [initialTransfers]);
+  }, [transfers]);
 
   const filtered = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    return initialTransfers.filter((t) => {
+    return transfers.filter((t) => {
       if (filterStatus !== "all" && t.status !== filterStatus) return false;
       if (filterStore !== "all" && t.store?.id !== filterStore) return false;
       if (q) {
@@ -79,7 +125,7 @@ export default function PengirimanClient({
       }
       return true;
     });
-  }, [initialTransfers, filterStatus, filterStore, searchQuery]);
+  }, [transfers, filterStatus, filterStore, searchQuery]);
 
   return (
     <div className="space-y-4">
@@ -164,6 +210,7 @@ export default function PengirimanClient({
                   <th scope="col" className="px-4 py-3">Produk & Qty</th>
                   <th scope="col" className="px-4 py-3">Status</th>
                   <th scope="col" className="px-4 py-3">Tanggal Diterima</th>
+                  <th scope="col" className="px-4 py-3 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -179,9 +226,6 @@ export default function PengirimanClient({
                       <p className="font-bold text-[#2d3440] truncate max-w-[160px]">
                         {t.store?.name ?? "—"}
                       </p>
-                      {t.store?.city && (
-                        <p className="text-[10px] text-[#7a8394]">{t.store.city}</p>
-                      )}
                     </td>
 
                     <td className="px-4 py-3">
@@ -209,6 +253,27 @@ export default function PengirimanClient({
                         </span>
                       ) : (
                         <span className="text-[11px] text-[#a3b1c6]">—</span>
+                      )}
+                    </td>
+
+                    <td className="px-4 py-3 text-center whitespace-nowrap">
+                      {t.status === "DIKIRIM" ? (
+                        <button
+                          type="button"
+                          onClick={() => void handleCancel(t)}
+                          disabled={processingId === t.id}
+                          className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-bold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50"
+                        >
+                          {processingId === t.id ? "Membatalkan..." : "Batalkan"}
+                        </button>
+                      ) : t.status === "DIBATALKAN" || t.status === "BATAL" || t.status === "CANCELLED" ? (
+                        <span className="text-[11px] font-medium text-rose-500">
+                          Dibatalkan
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-medium text-gray-400">
+                          Selesai
+                        </span>
                       )}
                     </td>
                   </tr>

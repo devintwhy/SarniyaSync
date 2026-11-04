@@ -51,6 +51,13 @@ function StatusBadge({ status }: { status: string }) {
       </span>
     );
   }
+  if (status === "DIBATALKAN" || status === "BATAL" || status === "CANCELLED") {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-300 bg-rose-50 px-2.5 py-1 text-[11px] font-bold text-rose-700 whitespace-nowrap">
+        Dibatalkan
+      </span>
+    );
+  }
   return (
     <span className="inline-flex items-center gap-1 rounded-full border border-gray-300 bg-gray-100 px-2.5 py-1 text-[11px] font-bold text-gray-600 whitespace-nowrap">
       {status}
@@ -110,6 +117,7 @@ export default function PenerimaanClient({
     setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4500);
   }
 
+  // Interaksi dan Konfirmasi Penerimaan Barang Mitra
   const handleReceive = useCallback(
     async (transfer: StockTransferItem) => {
       const productName = transfer.product?.name ?? "Produk";
@@ -255,6 +263,10 @@ export default function PenerimaanClient({
                               </>
                             )}
                           </button>
+                        ) : t.status === "DIBATALKAN" || t.status === "BATAL" || t.status === "CANCELLED" ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600">
+                            Dibatalkan Pusat
+                          </span>
                         ) : (
                           <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-400">
                             <Check size={12} className="shrink-0 text-emerald-500" strokeWidth={3} />

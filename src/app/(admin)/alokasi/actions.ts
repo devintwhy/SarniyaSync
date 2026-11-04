@@ -159,6 +159,7 @@ export type BulkAllocationResult = {
   allocatedCount?: number;
 };
 
+// Proses Alokasi Stok dari Gudang Pusat
 export async function bulkAllocatePartnerStock(
   input: BulkAllocationInput,
 ): Promise<BulkAllocationResult> {

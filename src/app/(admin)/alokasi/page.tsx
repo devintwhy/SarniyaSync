@@ -18,8 +18,8 @@ interface PartnerStoreInventoryQueryResult {
   product_id: string;
   stock_quantity: number;
   partner_stores:
-    | { name: string | null; city: string | null; is_active: boolean | null }
-    | Array<{ name: string | null; city: string | null; is_active: boolean | null }>
+    | { name: string | null; is_active: boolean | null }
+    | Array<{ name: string | null; is_active: boolean | null }>
     | null;
   products:
     | { name: string | null; sku: string | null; category: string | null }
@@ -27,6 +27,7 @@ interface PartnerStoreInventoryQueryResult {
     | null;
 }
 
+// Pengambilan Data Produk, Mitra, dan Alokasi Stok
 export default async function StockAllocationPage() {
   const supabase = await createSupabaseServerClient();
   const {
@@ -39,7 +40,7 @@ export default async function StockAllocationPage() {
 
   const { data: storesData, error: storesError } = await supabase
     .from("partner_stores")
-    .select("id, name, city")
+    .select("id, name")
     .eq("is_active", true)
     .order("name", { ascending: true });
 
@@ -73,13 +74,14 @@ export default async function StockAllocationPage() {
     if (page.length < PAGE_SIZE) break;
   }
 
+  // Pengambilan Data Produk, Mitra, dan Alokasi Stok
   const allocations: Array<{
     id: string;
     partner_store_id: string;
     product_id: string;
     stock_quantity: number;
     store_name: string | null;
-    store_city: string | null;
+
     store_is_active: boolean | null;
     product_name?: string | null;
     product_sku?: string | null;
@@ -91,7 +93,7 @@ export default async function StockAllocationPage() {
     const { data, error } = (await supabase
       .from("partner_store_inventory")
       .select(
-        "id, partner_store_id, product_id, stock_quantity, partner_stores(name, city, is_active), products(name, sku, category)"
+        "id, partner_store_id, product_id, stock_quantity, partner_stores(name, is_active), products(name, sku, category)"
       )
       .order("updated_at", { ascending: false })
       .range(offset, offset + PAGE_SIZE - 1)) as unknown as {
@@ -117,7 +119,7 @@ export default async function StockAllocationPage() {
         product_id: row.product_id,
         stock_quantity: row.stock_quantity,
         store_name: storeJoin?.name ?? null,
-        store_city: storeJoin?.city ?? null,
+
         store_is_active: storeJoin?.is_active ?? null,
         product_name: productJoin?.name ?? null,
         product_sku: productJoin?.sku ?? null,

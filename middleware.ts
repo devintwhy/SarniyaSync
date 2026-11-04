@@ -14,12 +14,6 @@ const adminRoutePrefixes = [
   "/api/admin",
 ];
 
-/**
- * Hilangkan maxAge dan expires dari opsi cookie agar cookie menjadi
- * session cookie murni — terhapus otomatis saat browser ditutup.
- * Penting: panggil ini pada SETIAP cookie yang di-set oleh middleware
- * agar proses token-refresh tidak "mengembalikan" persistensi.
- */
 function asSessionCookie(options: CookieOptions): CookieOptions {
   const { maxAge: _maxAge, expires: _expires, ...rest } = options;
   return {
@@ -40,11 +34,10 @@ export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const isApiRoute = pathname.startsWith("/api/");
 
-// Izinkan halaman login dan registrasi publik
+  // Middleware Autentikasi dan Pembatasan Role
   if (pathname.startsWith("/login") || pathname.startsWith("/register")) {
     return NextResponse.next();
   }
-
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -118,7 +111,7 @@ export async function middleware(request: NextRequest) {
     if (pathname === "/transaksi" || pathname.startsWith("/transaksi/")) {
       return copyCookies(response, NextResponse.redirect(new URL("/partner/transaksi", request.url)));
     }
-    if (pathname.startsWith("/profil")) return response; // profil diakses semua role
+    if (pathname.startsWith("/profil")) return response;
     if (pathname === "/dashboard" || pathname.startsWith("/dashboard/")) {
       return copyCookies(response, NextResponse.redirect(new URL("/dashboard-mitra", request.url)));
     }

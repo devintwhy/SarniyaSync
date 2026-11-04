@@ -10,6 +10,7 @@ export const metadata = {
   description: "Pantau seluruh riwayat pengiriman stok dari Gudang Pusat ke toko Anda.",
 };
 
+// Pengambilan Data Riwayat Penerimaan Barang
 export default async function PenerimaanPage() {
   const supabase = await createSupabaseServerClient();
 

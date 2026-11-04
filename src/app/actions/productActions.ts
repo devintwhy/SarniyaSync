@@ -8,6 +8,7 @@ export type ProductActionResult = {
   success?: boolean;
 };
 
+// Proses Penambahan Produk dan Upload Gambar
 export async function addProduct(formData: FormData): Promise<ProductActionResult> {
   try {
     const name = (formData.get("name") as string | null)?.trim() ?? "";

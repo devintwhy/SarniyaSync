@@ -18,6 +18,7 @@ interface StockAdjustmentModalProps {
   onSuccess?: () => void;
 }
 
+// Form Penyesuaian Stok (Stock Opname)
 export default function StockAdjustmentModal({
   isOpen,
   onClose,
@@ -49,6 +50,7 @@ export default function StockAdjustmentModal({
     onClose();
   }
 
+  // Form Penyesuaian Stok (Stock Opname)
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErrorMessage("");
@@ -97,7 +99,7 @@ export default function StockAdjustmentModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
       <div
         className="fixed inset-0 bg-black/50 transition-opacity"
         onClick={handleClose}
