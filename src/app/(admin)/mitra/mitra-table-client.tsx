@@ -88,10 +88,10 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
           prev.map((s) =>
             s.id === storeId
               ? {
-                  ...s,
-                  status: newStatus,
-                  is_active: newStatus === "aktif",
-                }
+                ...s,
+                status: newStatus,
+                is_active: newStatus === "aktif",
+              }
               : s
           )
         );
@@ -282,7 +282,7 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
 
 
                     </td>
-                    
+
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
                         <div className="relative inline-flex items-center">
@@ -291,9 +291,8 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                             disabled={isRowUpdating}
                             onChange={(e) => handleStatusChange(store.id, e.target.value as MitraStatus)}
                             aria-label={`Ubah status untuk toko ${store.name}`}
-                            className={`cursor-pointer rounded-xl border px-2.5 py-1 text-xs font-bold shadow-sm outline-none transition-all focus:ring-1 focus:ring-dusty-rose/40 disabled:cursor-wait disabled:opacity-60 ${
-                              statusStyles[currentStatus] || statusStyles.pending
-                            }`}
+                            className={`cursor-pointer rounded-xl border px-2.5 py-1 text-xs font-bold shadow-sm outline-none transition-all focus:ring-1 focus:ring-dusty-rose/40 disabled:cursor-wait disabled:opacity-60 ${statusStyles[currentStatus] || statusStyles.pending
+                              }`}
                           >
                             <option value="aktif" className="bg-[#e0e5ec] text-emerald-800">
                               ● Aktif
@@ -308,7 +307,7 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                           {isRowUpdating && (
                             <Loader2 className="pointer-events-none absolute right-2 h-3 w-3 text-terracotta-clay animate-spin" />
                           )}
-    
+
                         </div>
 
                         <button
@@ -324,7 +323,7 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                           ) : (
                             <Trash2 className="h-3.5 w-3.5" />
                           )}
-    
+
                         </button>
 
                         <button
@@ -345,8 +344,8 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
                               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-terracotta-clay border border-white" />
                             </span>
                           )}
-    
-    
+
+
                         </button>
                       </div>
                     </td>
@@ -428,11 +427,10 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
             {modalFeedback && (
               <div
                 role={modalFeedback.type === "error" ? "alert" : "status"}
-                className={`flex items-center gap-2 rounded-lg p-2.5 text-xs font-bold ${
-                  modalFeedback.type === "error"
+                className={`flex items-center gap-2 rounded-lg p-2.5 text-xs font-bold ${modalFeedback.type === "error"
                     ? "bg-rose-50 text-rose-700 border border-rose-200"
                     : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                }`}
+                  }`}
               >
                 {modalFeedback.type === "error" ? (
                   <AlertCircle className="h-4 w-4 shrink-0" />

@@ -191,8 +191,8 @@ export default function PartnerTransactionClient({
           String(tx.paymentMethod || "cash").toLowerCase() === "qris"
             ? "QRIS"
             : String(tx.paymentMethod || "cash").toLowerCase() === "transfer"
-            ? "Transfer"
-            : "Tunai";
+              ? "Transfer"
+              : "Tunai";
 
         if (tx.items.length === 0) {
           excelRows.push({
@@ -257,7 +257,7 @@ export default function PartnerTransactionClient({
     <div className="space-y-3 sm:space-y-4">
       <div className="rounded-xl bg-white border border-gray-200 p-3 sm:p-4 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          
+
           <div className="flex flex-1 flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
             <div className="relative flex-1 min-w-[200px]">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
@@ -314,22 +314,20 @@ export default function PartnerTransactionClient({
                 <button
                   type="button"
                   onClick={() => setSelectedDate(todayStr)}
-                  className={`h-9 px-2.5 rounded-lg text-[11px] font-semibold transition-all ${
-                    selectedDate === todayStr
+                  className={`h-9 px-2.5 rounded-lg text-[11px] font-semibold transition-all ${selectedDate === todayStr
                       ? "bg-terracotta-clay text-white shadow-sm"
                       : "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   Hari Ini
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedDate(yesterdayStr)}
-                  className={`h-9 px-2.5 rounded-lg text-[11px] font-semibold transition-all ${
-                    selectedDate === yesterdayStr
+                  className={`h-9 px-2.5 rounded-lg text-[11px] font-semibold transition-all ${selectedDate === yesterdayStr
                       ? "bg-terracotta-clay text-white shadow-sm"
                       : "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   Kemarin
                 </button>

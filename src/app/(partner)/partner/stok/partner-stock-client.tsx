@@ -197,11 +197,10 @@ export default function PartnerStockClient({ initialInventory }: PartnerStockCli
                       {product.category || "Hijab"}
                     </span>
                   </td>
-                  <td className={`whitespace-nowrap px-3.5 py-2.5 text-right ${
-                    product.stock_quantity <= 10
+                  <td className={`whitespace-nowrap px-3.5 py-2.5 text-right ${product.stock_quantity <= 10
                       ? "text-red-600 font-bold"
                       : "text-gray-900 font-semibold"
-                  }`}>
+                    }`}>
                     {numberFormatter.format(product.stock_quantity)}
                   </td>
                   <td className="whitespace-nowrap px-3.5 py-2.5 text-right font-black text-gray-900">

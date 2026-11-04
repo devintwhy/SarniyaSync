@@ -73,11 +73,10 @@ function ToastContainer({ toasts }: { toasts: Toast[] }) {
         <div
           key={toast.id}
           role="alert"
-          className={`pointer-events-auto flex items-start gap-3 rounded-2xl border px-4 py-3 text-xs font-semibold shadow-sm max-w-sm ${
-            toast.type === "success"
+          className={`pointer-events-auto flex items-start gap-3 rounded-2xl border px-4 py-3 text-xs font-semibold shadow-sm max-w-sm ${toast.type === "success"
               ? "border-emerald-200 bg-emerald-50 text-emerald-800"
               : "border-rose-200 bg-rose-50 text-rose-800"
-          }`}
+            }`}
         >
           <span className="shrink-0 mt-0.5">
             {toast.type === "success" ? (
@@ -202,11 +201,10 @@ export default function PenerimaanClient({
                   return (
                     <tr
                       key={t.id}
-                      className={`transition-colors ${
-                        t.status === "DIKIRIM"
+                      className={`transition-colors ${t.status === "DIKIRIM"
                           ? "hover:bg-amber-50/40"
                           : "hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       <td className="px-4 py-3 whitespace-nowrap">
                         <span className="text-xs font-semibold text-gray-900">

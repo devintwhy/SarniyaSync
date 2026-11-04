@@ -56,32 +56,32 @@ export default function LoginPage() {
           : null;
       const nextIsAdmin = Boolean(
         safeNextPath &&
-          (safeNextPath.startsWith("/dashboard") ||
-            safeNextPath.startsWith("/inventory") ||
-            safeNextPath.startsWith("/mitra") ||
-            safeNextPath.startsWith("/penjualan") ||
-            safeNextPath.startsWith("/riwayat") ||
-            safeNextPath.startsWith("/riwayat-admin") ||
-            safeNextPath.startsWith("/produk") ||
-            safeNextPath.startsWith("/alokasi") ||
-            safeNextPath.startsWith("/katalog") ||
-            safeNextPath.startsWith("/profil") ||
-            safeNextPath.startsWith("/profil-admin") ||
-            safeNextPath.startsWith("/admin/") ||
-            safeNextPath.startsWith("/api/products")),
+        (safeNextPath.startsWith("/dashboard") ||
+          safeNextPath.startsWith("/inventory") ||
+          safeNextPath.startsWith("/mitra") ||
+          safeNextPath.startsWith("/penjualan") ||
+          safeNextPath.startsWith("/riwayat") ||
+          safeNextPath.startsWith("/riwayat-admin") ||
+          safeNextPath.startsWith("/produk") ||
+          safeNextPath.startsWith("/alokasi") ||
+          safeNextPath.startsWith("/katalog") ||
+          safeNextPath.startsWith("/profil") ||
+          safeNextPath.startsWith("/profil-admin") ||
+          safeNextPath.startsWith("/admin/") ||
+          safeNextPath.startsWith("/api/products")),
       );
       const nextIsPartner = Boolean(
         safeNextPath &&
-          (safeNextPath === "/partner" ||
-            safeNextPath.startsWith("/partner/") ||
-            safeNextPath.startsWith("/riwayat") ||
-            safeNextPath.startsWith("/riwayat-mitra") ||
-            safeNextPath.startsWith("/katalog") ||
-            safeNextPath === "/dashboard-mitra" ||
-            safeNextPath.startsWith("/dashboard-mitra/") ||
-            safeNextPath.startsWith("/profil-mitra") ||
-            safeNextPath.startsWith("/store/") ||
-            safeNextPath.startsWith("/api/partner/")),
+        (safeNextPath === "/partner" ||
+          safeNextPath.startsWith("/partner/") ||
+          safeNextPath.startsWith("/riwayat") ||
+          safeNextPath.startsWith("/riwayat-mitra") ||
+          safeNextPath.startsWith("/katalog") ||
+          safeNextPath === "/dashboard-mitra" ||
+          safeNextPath.startsWith("/dashboard-mitra/") ||
+          safeNextPath.startsWith("/profil-mitra") ||
+          safeNextPath.startsWith("/store/") ||
+          safeNextPath.startsWith("/api/partner/")),
       );
       const nextMatchesRole = role === "mitra" ? nextIsPartner : nextIsAdmin;
       const redirectPath =
@@ -292,11 +292,10 @@ export default function LoginPage() {
 
       <aside
         aria-label="Panel Visual Asimetris Sarniya"
-        className={`pointer-events-auto absolute top-0 hidden h-full w-[52%] flex-col items-center justify-center p-12 lg:p-16 xl:p-20 text-center text-white bg-gradient-to-br from-[#D8A899] via-[#C89F91] to-[#B08072] shadow-2xl transition-all duration-700 ease-in-out lg:flex z-30 ${
-          isRightPanelActive
+        className={`pointer-events-auto absolute top-0 hidden h-full w-[52%] flex-col items-center justify-center p-12 lg:p-16 xl:p-20 text-center text-white bg-gradient-to-br from-[#D8A899] via-[#C89F91] to-[#B08072] shadow-2xl transition-all duration-700 ease-in-out lg:flex z-30 ${isRightPanelActive
             ? "left-0 translate-x-0 rounded-r-[160px] xl:rounded-r-[220px] rounded-l-none"
             : "left-[48%] translate-x-0 rounded-l-[160px] xl:rounded-l-[220px] rounded-r-none"
-        }`}
+          }`}
       >
         <div className="pointer-events-none absolute -top-24 -right-24 size-96 rounded-full bg-white/15 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 -left-24 size-96 rounded-full bg-black/15 blur-3xl" />

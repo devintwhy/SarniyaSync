@@ -67,11 +67,10 @@ export default async function PartnerStatusPage() {
             <span className="font-bold text-gray-900">{store.name}</span>
             <span className="text-gray-300">&bull;</span>
             <span
-              className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${
-                isPending
+              className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide ${isPending
                   ? "bg-amber-50 text-amber-700 border border-amber-200/60"
                   : "bg-rose-50 text-rose-700 border border-rose-200/60"
-              }`}
+                }`}
             >
               {status}
             </span>

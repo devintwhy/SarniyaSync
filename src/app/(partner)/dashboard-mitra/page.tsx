@@ -157,8 +157,8 @@ export default async function PartnerDashboardPage() {
     .in("partner_store_id", activeStoreIds)
     .gte("sold_at", thirtyDaysAgo)
     .order("sold_at", { ascending: true })) as unknown as {
-    data: PartnerTransactionRow[] | null;
-  };
+      data: PartnerTransactionRow[] | null;
+    };
 
   if (transactions) {
     for (const tx of transactions) {
@@ -229,8 +229,8 @@ export default async function PartnerDashboardPage() {
     .in("partner_store_id", activeStoreIds)
     .lte("stock_quantity", 10)
     .order("stock_quantity", { ascending: true })) as unknown as {
-    data: LowStockInventoryRow[] | null;
-  };
+      data: LowStockInventoryRow[] | null;
+    };
 
   const lowStockItems: LowStockItem[] = [];
   if (lowStockData) {
@@ -271,8 +271,8 @@ export default async function PartnerDashboardPage() {
     .in("partner_store_id", activeStoreIds)
     .order("sold_at", { ascending: false })
     .limit(5)) as unknown as {
-    data: RecentTransactionRow[] | null;
-  };
+      data: RecentTransactionRow[] | null;
+    };
 
   const recentTransactions: RecentTransaction[] = (recentData ?? []).map((tx) => {
     const store = Array.isArray(tx.partner_stores) ? tx.partner_stores[0] : tx.partner_stores;
@@ -500,11 +500,10 @@ export default async function PartnerDashboardPage() {
                     </div>
                     <div className="text-right whitespace-nowrap">
                       <span
-                        className={`inline-flex min-w-[2.2rem] justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold ${
-                          item.stock === 0
+                        className={`inline-flex min-w-[2.2rem] justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold ${item.stock === 0
                             ? "bg-rose-50 text-rose-700 border border-rose-200"
                             : "bg-orange-50 text-terracotta-clay border border-orange-200/60"
-                        }`}
+                          }`}
                       >
                         {numberFormatter.format(item.stock)} pcs
                       </span>

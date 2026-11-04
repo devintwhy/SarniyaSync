@@ -10,8 +10,8 @@ type SidebarContextType = {
 
 const SidebarContext = createContext<SidebarContextType>({
   isSidebarOpen: true,
-  setIsSidebarOpen: () => {},
-  toggleSidebar: () => {},
+  setIsSidebarOpen: () => { },
+  toggleSidebar: () => { },
 });
 
 export function SidebarProvider({ children }: { children: ReactNode }) {

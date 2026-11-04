@@ -302,11 +302,10 @@ export default function BulkAllocationClient({
                           className="sr-only"
                         />
                         <span
-                          className={`size-4.5 rounded-md flex items-center justify-center transition-all ${
-                            isAllSelected
+                          className={`size-4.5 rounded-md flex items-center justify-center transition-all ${isAllSelected
                               ? "bg-terracotta-clay text-white shadow-sm"
                               : "bg-white border border-gray-300 text-transparent"
-                          }`}
+                            }`}
                         >
                           <svg
                             className="size-3"
@@ -347,11 +346,10 @@ export default function BulkAllocationClient({
                         <tr
                           key={product.id}
                           onClick={() => handleSelectProduct(product)}
-                          className={`cursor-pointer transition-colors ${
-                            isSelected
+                          className={`cursor-pointer transition-colors ${isSelected
                               ? "bg-almond-cream/40"
                               : "hover:bg-almond-cream/15"
-                          }`}
+                            }`}
                         >
                           <td
                             className="px-3 py-2.5 text-center"
@@ -366,11 +364,10 @@ export default function BulkAllocationClient({
                                 className="sr-only"
                               />
                               <span
-                                className={`size-4.5 rounded-md flex items-center justify-center transition-all ${
-                                  isSelected
+                                className={`size-4.5 rounded-md flex items-center justify-center transition-all ${isSelected
                                     ? "bg-terracotta-clay text-white"
                                     : "bg-white border border-gray-300 text-transparent hover:border-terracotta-clay/60"
-                                }`}
+                                  }`}
                               >
                                 <svg
                                   className="size-3"
@@ -404,11 +401,10 @@ export default function BulkAllocationClient({
 
                           <td className="px-3 py-2.5 text-right whitespace-nowrap">
                             <span
-                              className={`inline-flex min-w-[2.5rem] justify-center rounded-lg px-2 py-0.5 text-xs font-black border ${
-                                product.stock_quantity <= 5
+                              className={`inline-flex min-w-[2.5rem] justify-center rounded-lg px-2 py-0.5 text-xs font-black border ${product.stock_quantity <= 5
                                   ? "bg-rose-50 border-rose-200/60 text-rose-800"
                                   : "bg-orange-50 border-orange-200/60 text-terracotta-clay"
-                              }`}
+                                }`}
                             >
                               {numberFormatter.format(product.stock_quantity)} pcs
                             </span>
@@ -421,11 +417,10 @@ export default function BulkAllocationClient({
                             <button
                               type="button"
                               onClick={() => handleSelectProduct(product)}
-                              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${
-                                isSelected
+                              className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${isSelected
                                   ? "bg-terracotta-clay text-white hover:opacity-90 active:scale-95"
                                   : "bg-gray-100 border border-gray-200 text-gray-600 hover:text-terracotta-clay hover:border-terracotta-clay/30 active:scale-95"
-                              }`}
+                                }`}
                             >
                               {isSelected ? `${currentQty} pcs` : "+ Pilih"}
                             </button>
@@ -566,11 +561,10 @@ export default function BulkAllocationClient({
                               max={maxStock}
                               value={qty}
                               onChange={(e) => handleDirectQuantityChange(prod.id, Number(e.target.value))}
-                              className={`w-16 h-7 rounded-lg bg-gray-50 border text-center text-xs font-black outline-none focus:ring-2 transition-all ${
-                                qty >= maxStock
+                              className={`w-16 h-7 rounded-lg bg-gray-50 border text-center text-xs font-black outline-none focus:ring-2 transition-all ${qty >= maxStock
                                   ? "border-rose-300 text-rose-600 focus:ring-rose-400/20"
                                   : "border-gray-200 text-gray-800 focus:ring-terracotta-clay/20 focus:border-terracotta-clay"
-                              }`}
+                                }`}
                             />
 
                             <button
@@ -753,4 +747,3 @@ export default function BulkAllocationClient({
     </div>
   );
 }
-

@@ -69,11 +69,11 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
     const baseList = !q
       ? [...availableForStore]
       : availableForStore.filter(
-          (item) =>
-            item.name.toLowerCase().includes(q) ||
-            item.sku.toLowerCase().includes(q) ||
-            (item.category && item.category.toLowerCase().includes(q)),
-        );
+        (item) =>
+          item.name.toLowerCase().includes(q) ||
+          item.sku.toLowerCase().includes(q) ||
+          (item.category && item.category.toLowerCase().includes(q)),
+      );
 
     return baseList.sort((a, b) => {
       const aKosong = a.stock <= 0;
@@ -135,10 +135,10 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
         prev.map((row, i) =>
           i === existingIndex
             ? {
-                ...row,
-                quantity: row.quantity + 1,
-                subtotal: (row.quantity + 1) * row.price,
-              }
+              ...row,
+              quantity: row.quantity + 1,
+              subtotal: (row.quantity + 1) * row.price,
+            }
             : row,
         ),
       );
@@ -373,11 +373,10 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                       if (!isOutOfStock) handleCardClick(item);
                     }
                   }}
-                  className={`group relative flex flex-col justify-between rounded-xl bg-white border border-gray-200 p-2 sm:p-2.5 text-left transition-all duration-150 select-none shadow-sm ${
-                    isOutOfStock
+                  className={`group relative flex flex-col justify-between rounded-xl bg-white border border-gray-200 p-2 sm:p-2.5 text-left transition-all duration-150 select-none shadow-sm ${isOutOfStock
                       ? "opacity-60 cursor-not-allowed"
                       : "cursor-pointer hover:border-gray-300 hover:shadow-md active:scale-[0.98]"
-                  }`}
+                    }`}
                 >
                   <div>
                     <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-gray-50 p-1 flex items-center justify-center border border-gray-100">
@@ -402,13 +401,12 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                       )}
 
                       <span
-                        className={`absolute top-1.5 right-1.5 rounded-full px-1.5 py-0.2 text-[8px] sm:text-[9px] font-black tracking-wide ${
-                          isOutOfStock
+                        className={`absolute top-1.5 right-1.5 rounded-full px-1.5 py-0.2 text-[8px] sm:text-[9px] font-black tracking-wide ${isOutOfStock
                             ? "bg-rose-100 text-rose-800"
                             : item.stock <= 5
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-orange-50 border border-orange-100 text-terracotta-clay"
-                        }`}
+                              ? "bg-amber-100 text-amber-800"
+                              : "bg-orange-50 border border-orange-100 text-terracotta-clay"
+                          }`}
                       >
                         {isOutOfStock ? "Habis" : `${item.stock}`}
                       </span>
@@ -612,11 +610,10 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
                       setPaymentMethod(method);
                       setErrorMessage("");
                     }}
-                    className={`h-9 rounded-lg text-xs font-bold transition-all ${
-                      isSelected
+                    className={`h-9 rounded-lg text-xs font-bold transition-all ${isSelected
                         ? "bg-terracotta-clay text-white shadow-sm"
                         : "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100"
-                    }`}
+                      }`}
                   >
                     {labels[method]}
                   </button>
@@ -674,19 +671,18 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
               <div className="border-t border-gray-200 pt-1.5 flex items-center justify-between text-xs">
                 <span className="font-bold text-gray-600">Kembalian:</span>
                 <span
-                  className={`text-xs sm:text-sm font-black ${
-                    parsedCashReceived === 0
+                  className={`text-xs sm:text-sm font-black ${parsedCashReceived === 0
                       ? "text-gray-400"
                       : isCashInsufficient
-                      ? "text-rose-600"
-                      : "text-emerald-700"
-                  }`}
+                        ? "text-rose-600"
+                        : "text-emerald-700"
+                    }`}
                 >
                   {parsedCashReceived === 0
                     ? idr.format(0)
                     : isCashInsufficient
-                    ? `Kurang ${idr.format(Math.abs(cashChange))}`
-                    : idr.format(cashChange)}
+                      ? `Kurang ${idr.format(Math.abs(cashChange))}`
+                      : idr.format(cashChange)}
                 </span>
               </div>
             </div>

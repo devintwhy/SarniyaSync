@@ -96,7 +96,7 @@ export default async function AdminDashboardPage() {
     const thirtyDaysAgoDate = new Date();
     thirtyDaysAgoDate.setDate(now.getDate() - 30);
     const thirtyDaysAgo = thirtyDaysAgoDate.toISOString();
-    
+
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
     const { data: recentMonthTransactions, error: txError } = (await supabase
@@ -110,9 +110,9 @@ export default async function AdminDashboardPage() {
       `)
       .gte("sold_at", thirtyDaysAgo)
       .order("sold_at", { ascending: true })) as unknown as {
-      data: MonthlyTransactionRow[] | null;
-      error: { message: string } | null;
-    };
+        data: MonthlyTransactionRow[] | null;
+        error: { message: string } | null;
+      };
 
     if (txError) throw txError;
 
@@ -149,27 +149,27 @@ export default async function AdminDashboardPage() {
 
         if (isThisMonth) {
           totalOmzet += total;
-          
+
           const rawStore = Array.isArray(tx.partner_stores)
             ? tx.partner_stores[0]
             : tx.partner_stores;
           const storeName: string = rawStore?.name?.trim() || "Unknown Store";
-             
+
           salesByPartner[storeName] = (salesByPartner[storeName] || 0) + total;
 
           if (Array.isArray(tx.items)) {
             for (const item of tx.items) {
-               const record = item as TransactionItem;
-               if (record && typeof record === 'object' && record.quantity && record.name) {
-                   const qty = Number(record.quantity);
-                   totalItemsSold += qty;
-                   salesByProduct[record.name] = (salesByProduct[record.name] || 0) + qty;
-                   
-                   // Kalkulasi HPP dan laba kotor transaksi berjalan
-                   if (isThisMonth && record.cost_price) {
-                     totalHPP += qty * Number(record.cost_price);
-                   }
-               }
+              const record = item as TransactionItem;
+              if (record && typeof record === 'object' && record.quantity && record.name) {
+                const qty = Number(record.quantity);
+                totalItemsSold += qty;
+                salesByProduct[record.name] = (salesByProduct[record.name] || 0) + qty;
+
+                // Kalkulasi HPP dan laba kotor transaksi berjalan
+                if (isThisMonth && record.cost_price) {
+                  totalHPP += qty * Number(record.cost_price);
+                }
+              }
             }
           }
         }
@@ -216,13 +216,13 @@ export default async function AdminDashboardPage() {
     totalLabaKotor = totalOmzet - totalHPP;
 
     const dailySales = Object.values(salesByDate)
-        .sort((a, b) => a.timestamp - b.timestamp)
-        .map(({ date, total }) => ({ date, total }));
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .map(({ date, total }) => ({ date, total }));
 
     const bestSellers = Object.entries(salesByProduct)
-        .map(([productName, quantity]) => ({ productName, quantity }))
-        .sort((a, b) => b.quantity - a.quantity)
-        .slice(0, 5);
+      .map(([productName, quantity]) => ({ productName, quantity }))
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
 
     const { count: partnersCount, error: partnersError } = await supabase
       .from("partner_stores")
@@ -262,25 +262,25 @@ export default async function AdminDashboardPage() {
       `)
       .lt("stock_quantity", 10)
       .order("stock_quantity", { ascending: true })) as unknown as {
-      data: AdminMitraInventoryRow[] | null;
-      error: { message: string } | null;
-    };
+        data: AdminMitraInventoryRow[] | null;
+        error: { message: string } | null;
+      };
 
     if (mitraError) throw mitraError;
     if (mitraInventory) {
       mitraInventory.forEach((inv) => {
         const product = Array.isArray(inv.products) ? inv.products[0] : inv.products;
         const store = Array.isArray(inv.partner_stores) ? inv.partner_stores[0] : inv.partner_stores;
-        
+
         if (product && store) {
-            lowStockItems.push({
+          lowStockItems.push({
             id: `mitra-${inv.id}`,
             sku: product.sku || "-",
             name: product.name || "-",
             category: product.category || "-",
             stock: inv.stock_quantity,
             location: `Mitra: ${store.name}`,
-            });
+          });
         }
       });
     }
@@ -299,20 +299,20 @@ export default async function AdminDashboardPage() {
       `)
       .order("sold_at", { ascending: false })
       .limit(5)) as unknown as {
-      data: AdminRecentTxRow[] | null;
-      error: { message: string } | null;
-    };
-      
+        data: AdminRecentTxRow[] | null;
+        error: { message: string } | null;
+      };
+
     if (recentError) throw recentError;
     if (recentData) {
       recentTransactions = recentData.map((tx) => {
         const store = Array.isArray(tx.partner_stores) ? tx.partner_stores[0] : tx.partner_stores;
         return {
-            id: tx.id,
-            transaction_number: tx.transaction_number,
-            sold_at: tx.sold_at,
-            total: tx.total,
-            store_name: store?.name || "Unknown Store",
+          id: tx.id,
+          transaction_number: tx.transaction_number,
+          sold_at: tx.sold_at,
+          total: tx.total,
+          store_name: store?.name || "Unknown Store",
         };
       });
     }
@@ -350,45 +350,45 @@ export default async function AdminDashboardPage() {
       isProfit?: boolean;
       isLoss?: boolean;
     }> = [
-      {
-        label: "Total Omzet Bulan Ini",
-        value: loadError ? "—" : currencyFormatter.format(totalOmzet),
-        detail: "Pendapatan dari seluruh transaksi",
-        valueClass: "text-[#9d5c4c]",
-        badgeText: "Bulan Ini",
-        badgeClass: "bg-gray-100 border-gray-200 text-gray-700",
-      },
-      {
-        label: "Estimasi Laba Kotor",
-        value: loadError ? "—" : currencyFormatter.format(totalLabaKotor),
-        detail: "Omzet dikurangi total harga modal",
-        valueClass: totalLabaKotor >= 0 ? "text-emerald-700" : "text-rose-700",
-        isProfit: true,
-      },
-      {
-        label: "Kerugian Penyusutan",
-        value: loadError ? "—" : currencyFormatter.format(totalKerugianPenyusutan),
-        detail: `${numberFormatter.format(totalUnitPenyusutan)} unit rusak/hilang`,
-        valueClass: "text-rose-700",
-        isLoss: true,
-      },
-      {
-        label: "Total Barang Terjual",
-        value: loadError ? "—" : numberFormatter.format(totalItemsSold),
-        detail: "Unit terjual bulan ini",
-        valueClass: "text-[#cc8c7d]",
-        badgeText: "Total",
-        badgeClass: "bg-gray-100 border-gray-200 text-gray-700",
-      },
-      {
-        label: "Total Mitra Aktif",
-        value: loadError ? "—" : numberFormatter.format(activePartnersCount),
-        detail: "Toko mitra yang beroperasi",
-        valueClass: "text-[#cc8c7d]",
-        badgeText: "Aktif",
-        badgeClass: "bg-emerald-50 border-emerald-200 text-emerald-700",
-      },
-    ];
+        {
+          label: "Total Omzet Bulan Ini",
+          value: loadError ? "—" : currencyFormatter.format(totalOmzet),
+          detail: "Pendapatan dari seluruh transaksi",
+          valueClass: "text-[#9d5c4c]",
+          badgeText: "Bulan Ini",
+          badgeClass: "bg-gray-100 border-gray-200 text-gray-700",
+        },
+        {
+          label: "Estimasi Laba Kotor",
+          value: loadError ? "—" : currencyFormatter.format(totalLabaKotor),
+          detail: "Omzet dikurangi total harga modal",
+          valueClass: totalLabaKotor >= 0 ? "text-emerald-700" : "text-rose-700",
+          isProfit: true,
+        },
+        {
+          label: "Kerugian Penyusutan",
+          value: loadError ? "—" : currencyFormatter.format(totalKerugianPenyusutan),
+          detail: `${numberFormatter.format(totalUnitPenyusutan)} unit rusak/hilang`,
+          valueClass: "text-rose-700",
+          isLoss: true,
+        },
+        {
+          label: "Total Barang Terjual",
+          value: loadError ? "—" : numberFormatter.format(totalItemsSold),
+          detail: "Unit terjual bulan ini",
+          valueClass: "text-[#cc8c7d]",
+          badgeText: "Total",
+          badgeClass: "bg-gray-100 border-gray-200 text-gray-700",
+        },
+        {
+          label: "Total Mitra Aktif",
+          value: loadError ? "—" : numberFormatter.format(activePartnersCount),
+          detail: "Toko mitra yang beroperasi",
+          valueClass: "text-[#cc8c7d]",
+          badgeText: "Aktif",
+          badgeClass: "bg-emerald-50 border-emerald-200 text-emerald-700",
+        },
+      ];
 
     return (
       <div className="w-full px-2 py-3 sm:px-4 sm:py-4">
@@ -518,13 +518,12 @@ export default async function AdminDashboardPage() {
           {metrics.map((metric) => (
             <article
               key={metric.label}
-              className={`rounded-xl p-3.5 shadow-sm border border-gray-200 flex flex-col justify-between ${
-                metric.isProfit
+              className={`rounded-xl p-3.5 shadow-sm border border-gray-200 flex flex-col justify-between ${metric.isProfit
                   ? "bg-gradient-to-br from-emerald-50/50 to-white"
                   : metric.isLoss
-                  ? "bg-gradient-to-br from-rose-50/40 to-white"
-                  : "bg-white"
-              }`}
+                    ? "bg-gradient-to-br from-rose-50/40 to-white"
+                    : "bg-white"
+                }`}
             >
               <div>
                 <div className="flex items-center justify-between">
@@ -671,11 +670,10 @@ export default async function AdminDashboardPage() {
                       </div>
                       <div className="text-right whitespace-nowrap">
                         <span
-                          className={`inline-flex min-w-[2.2rem] justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold ${
-                            item.stock === 0
+                          className={`inline-flex min-w-[2.2rem] justify-center rounded-md px-1.5 py-0.5 text-[11px] font-bold ${item.stock === 0
                               ? "bg-rose-50 text-rose-700 border border-rose-200"
                               : "bg-orange-50 text-terracotta-clay border border-orange-200/60"
-                          }`}
+                            }`}
                         >
                           {numberFormatter.format(item.stock)} pcs
                         </span>
@@ -692,9 +690,9 @@ export default async function AdminDashboardPage() {
   } catch (error) {
     void error;
     return (
-        <div className="p-8">
-            <p className="text-red-500">Gagal memuat dashboard. Periksa koneksi ke database.</p>
-        </div>
+      <div className="p-8">
+        <p className="text-red-500">Gagal memuat dashboard. Periksa koneksi ke database.</p>
+      </div>
     );
   }
 }

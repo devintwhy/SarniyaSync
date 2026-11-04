@@ -66,10 +66,10 @@ export async function cancelPartnerSale(transactionId: string): Promise<CancelRe
     const productIds = (saleItems ?? []).map((item) => item.productId);
     const { data: allocations, error: allocationError } = productIds.length
       ? await supabase
-          .from("partner_store_inventory")
-          .select("id, product_id, stock_quantity")
-          .eq("partner_store_id", transaction.partner_store_id)
-          .in("product_id", productIds)
+        .from("partner_store_inventory")
+        .select("id, product_id, stock_quantity")
+        .eq("partner_store_id", transaction.partner_store_id)
+        .in("product_id", productIds)
       : { data: [], error: null };
 
     if (allocationError) {

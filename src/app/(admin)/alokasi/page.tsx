@@ -18,13 +18,13 @@ interface PartnerStoreInventoryQueryResult {
   product_id: string;
   stock_quantity: number;
   partner_stores:
-    | { name: string | null; is_active: boolean | null }
-    | Array<{ name: string | null; is_active: boolean | null }>
-    | null;
+  | { name: string | null; is_active: boolean | null }
+  | Array<{ name: string | null; is_active: boolean | null }>
+  | null;
   products:
-    | { name: string | null; sku: string | null; category: string | null }
-    | Array<{ name: string | null; sku: string | null; category: string | null }>
-    | null;
+  | { name: string | null; sku: string | null; category: string | null }
+  | Array<{ name: string | null; sku: string | null; category: string | null }>
+  | null;
 }
 
 // Pengambilan Data Produk, Mitra, dan Alokasi Stok
@@ -97,9 +97,9 @@ export default async function StockAllocationPage() {
       )
       .order("updated_at", { ascending: false })
       .range(offset, offset + PAGE_SIZE - 1)) as unknown as {
-      data: PartnerStoreInventoryQueryResult[] | null;
-      error: { message: string } | null;
-    };
+        data: PartnerStoreInventoryQueryResult[] | null;
+        error: { message: string } | null;
+      };
 
     if (error) {
       allocationError = error.message;

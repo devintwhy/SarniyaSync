@@ -76,11 +76,10 @@ export default function StockAdjustmentForm({
       {feedback.type && (
         <div
           role="alert"
-          className={`mb-5 rounded-lg border px-4 py-3 text-xs font-medium ${
-            feedback.type === "success"
+          className={`mb-5 rounded-lg border px-4 py-3 text-xs font-medium ${feedback.type === "success"
               ? "border-emerald-200 bg-emerald-50 text-emerald-800"
               : "border-rose-200 bg-rose-50 text-rose-800"
-          }`}
+            }`}
         >
           {feedback.message}
         </div>
@@ -194,4 +193,3 @@ export default function StockAdjustmentForm({
     </div>
   );
 }
-

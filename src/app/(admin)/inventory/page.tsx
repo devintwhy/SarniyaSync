@@ -328,7 +328,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                 role="alert"
                 className="border-b border-[#f1dfc5] bg-[#fff9ef] px-4 py-2.5 text-xs sm:text-sm text-[#765a36]"
               >
-    
+
                 Produk gagal dimuat dari Supabase: {errorMessage}
               </div>
             )}
@@ -337,114 +337,114 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
                 Belum ada produk di inventaris.
               </div>
             )}
-          <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar">
-            <table className="w-full min-w-[700px] text-left text-xs sm:text-sm">
-              <thead className="sticky top-0 z-10 bg-[#f7f9f6] backdrop-blur-md text-[11px] uppercase tracking-wider text-[#68756e] shadow-sm">
-                <tr>
-                  <th scope="col" className="px-3.5 py-2.5 font-bold">SKU</th>
-                  <th scope="col" className="px-3.5 py-2.5 font-bold">Nama produk</th>
-                  <th scope="col" className="px-3.5 py-2.5 font-bold">Kategori</th>
-                  <th scope="col" className="px-3.5 py-2.5 text-right font-bold">Stok</th>
-                  <th scope="col" className="px-3.5 py-2.5 text-right font-bold">Harga</th>
-                  <th scope="col" className="px-3.5 py-2.5 font-bold">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#edf0ec]">
-                {products.map((product, index) => {
-                  const stock = getStock(product);
-                  const productName = getText(product, ["name", "nama", "nama_produk", "product_name"]);
-                  const imageUrl = getText(product, ["image_url"], "");
+            <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar">
+              <table className="w-full min-w-[700px] text-left text-xs sm:text-sm">
+                <thead className="sticky top-0 z-10 bg-[#f7f9f6] backdrop-blur-md text-[11px] uppercase tracking-wider text-[#68756e] shadow-sm">
+                  <tr>
+                    <th scope="col" className="px-3.5 py-2.5 font-bold">SKU</th>
+                    <th scope="col" className="px-3.5 py-2.5 font-bold">Nama produk</th>
+                    <th scope="col" className="px-3.5 py-2.5 font-bold">Kategori</th>
+                    <th scope="col" className="px-3.5 py-2.5 text-right font-bold">Stok</th>
+                    <th scope="col" className="px-3.5 py-2.5 text-right font-bold">Harga</th>
+                    <th scope="col" className="px-3.5 py-2.5 font-bold">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#edf0ec]">
+                  {products.map((product, index) => {
+                    const stock = getStock(product);
+                    const productName = getText(product, ["name", "nama", "nama_produk", "product_name"]);
+                    const imageUrl = getText(product, ["image_url"], "");
 
-                  return (
-                    <tr key={getText(product, ["id", "sku", "kode_produk"], String(index))} className="transition-colors hover:bg-[#fafbf9]">
-                      <td className="whitespace-nowrap px-3.5 py-2 text-xs font-mono text-[#7b877f]">
-                        {(() => {
-                          const sku = getText(product, ["sku", "code", "kode_produk", "id"]);
-                          const truncated = truncateSku(sku);
-                          return sku !== truncated ? (
-                            <span title={sku}>{truncated}</span>
-                          ) : (
-                            sku
-                          );
-                        })()}
-                      </td>
-                      <th scope="row" className="whitespace-nowrap px-3.5 py-2 font-medium text-[#2d3440]">
-                        <div className="flex items-center gap-2.5">
-                          {imageUrl ? (
-                            <Image
-                              src={imageUrl}
-                              alt={`Foto ${productName}`}
-                              width={36}
-                              height={36}
-                              sizes="36px"
-                              className="size-9 shrink-0 rounded border border-[#e1e7e0] object-cover"
-                            />
-                          ) : (
-                            <span
-                              aria-hidden="true"
-                              className="flex size-9 shrink-0 items-center justify-center rounded border border-[#e1e7e0] bg-[#f7f9f6] text-[10px] font-medium text-[#7b877f]"
-                            >
-                  
-                              Foto
-                            </span>
-                          )}
-                          <span className="font-semibold">{productName}</span>
-                        </div>
-                      </th>
-                      <td className="whitespace-nowrap px-3.5 py-2">
-                        {(() => {
-                          const categoryName = getText(product, ["category", "kategori", "jenis"], "Hijab");
-                          return (
-                            <span className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${getCategoryBadgeClass(categoryName)}`}>
-                              {categoryName}
-                            </span>
-                          );
-                        })()}
-                      </td>
-                      <td className="whitespace-nowrap px-3.5 py-2 text-right font-bold text-[#2d3440]">
-                        {stock ?? "-"} <span className="font-normal text-[11px] text-[#7b877f]">{getText(product, ["unit", "satuan"], "pcs")}</span>
-                      </td>
-                      <td className="whitespace-nowrap px-3.5 py-2 text-right font-semibold text-[#2d3440]">
-                        {(() => {
-                          const price = getPrice(product);
-                          return price !== null ? currencyFormatter.format(price) : "-";
-                        })()}
-                      </td>
-                      <td className="whitespace-nowrap px-3.5 py-2">
-                        <div className="flex items-center gap-1">
-                          <Link
-                            href={`/inventory/edit/${encodeURIComponent(getText(product, ["id"], ""))}`}
-                            aria-label={`Edit ${productName}`}
-                            title={`Edit ${productName}`}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-[#f7f9f6] text-[#576071] transition-all hover:border-[#cc9787]/50 hover:bg-[#fdf5f1] hover:text-[#9d5c4c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cc9787] active:scale-95"
-                          >
-                
-                            <Pencil size={14} strokeWidth={2} />
-                          </Link>
-                
-                          <button
-                            type="button"
-                            onClick={() => void handleDelete(product)}
-                            disabled={deletingId === getText(product, ["id"], "")}
-                            aria-label={`Hapus ${productName}`}
-                            title={`Hapus ${productName}`}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#ead5cf] bg-[#fff5f1] text-[#c0665a] transition-all hover:border-[#c0665a]/60 hover:bg-[#fdecea] hover:text-[#9b4936] active:scale-95 disabled:cursor-wait disabled:opacity-40"
-                          >
-                
-                            {deletingId === getText(product, ["id"], "") ? (
-                              <Loader2 size={14} className="animate-spin text-[#c0665a]" />
+                    return (
+                      <tr key={getText(product, ["id", "sku", "kode_produk"], String(index))} className="transition-colors hover:bg-[#fafbf9]">
+                        <td className="whitespace-nowrap px-3.5 py-2 text-xs font-mono text-[#7b877f]">
+                          {(() => {
+                            const sku = getText(product, ["sku", "code", "kode_produk", "id"]);
+                            const truncated = truncateSku(sku);
+                            return sku !== truncated ? (
+                              <span title={sku}>{truncated}</span>
                             ) : (
-                              <Trash2 size={14} strokeWidth={2} />
+                              sku
+                            );
+                          })()}
+                        </td>
+                        <th scope="row" className="whitespace-nowrap px-3.5 py-2 font-medium text-[#2d3440]">
+                          <div className="flex items-center gap-2.5">
+                            {imageUrl ? (
+                              <Image
+                                src={imageUrl}
+                                alt={`Foto ${productName}`}
+                                width={36}
+                                height={36}
+                                sizes="36px"
+                                className="size-9 shrink-0 rounded border border-[#e1e7e0] object-cover"
+                              />
+                            ) : (
+                              <span
+                                aria-hidden="true"
+                                className="flex size-9 shrink-0 items-center justify-center rounded border border-[#e1e7e0] bg-[#f7f9f6] text-[10px] font-medium text-[#7b877f]"
+                              >
+
+                                Foto
+                              </span>
                             )}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                            <span className="font-semibold">{productName}</span>
+                          </div>
+                        </th>
+                        <td className="whitespace-nowrap px-3.5 py-2">
+                          {(() => {
+                            const categoryName = getText(product, ["category", "kategori", "jenis"], "Hijab");
+                            return (
+                              <span className={`px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${getCategoryBadgeClass(categoryName)}`}>
+                                {categoryName}
+                              </span>
+                            );
+                          })()}
+                        </td>
+                        <td className="whitespace-nowrap px-3.5 py-2 text-right font-bold text-[#2d3440]">
+                          {stock ?? "-"} <span className="font-normal text-[11px] text-[#7b877f]">{getText(product, ["unit", "satuan"], "pcs")}</span>
+                        </td>
+                        <td className="whitespace-nowrap px-3.5 py-2 text-right font-semibold text-[#2d3440]">
+                          {(() => {
+                            const price = getPrice(product);
+                            return price !== null ? currencyFormatter.format(price) : "-";
+                          })()}
+                        </td>
+                        <td className="whitespace-nowrap px-3.5 py-2">
+                          <div className="flex items-center gap-1">
+                            <Link
+                              href={`/inventory/edit/${encodeURIComponent(getText(product, ["id"], ""))}`}
+                              aria-label={`Edit ${productName}`}
+                              title={`Edit ${productName}`}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-[#f7f9f6] text-[#576071] transition-all hover:border-[#cc9787]/50 hover:bg-[#fdf5f1] hover:text-[#9d5c4c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cc9787] active:scale-95"
+                            >
+
+                              <Pencil size={14} strokeWidth={2} />
+                            </Link>
+
+                            <button
+                              type="button"
+                              onClick={() => void handleDelete(product)}
+                              disabled={deletingId === getText(product, ["id"], "")}
+                              aria-label={`Hapus ${productName}`}
+                              title={`Hapus ${productName}`}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#ead5cf] bg-[#fff5f1] text-[#c0665a] transition-all hover:border-[#c0665a]/60 hover:bg-[#fdecea] hover:text-[#9b4936] active:scale-95 disabled:cursor-wait disabled:opacity-40"
+                            >
+
+                              {deletingId === getText(product, ["id"], "") ? (
+                                <Loader2 size={14} className="animate-spin text-[#c0665a]" />
+                              ) : (
+                                <Trash2 size={14} strokeWidth={2} />
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </>
         )}
       </section>

@@ -227,15 +227,13 @@ export default function SidebarNavigation() {
 
   return (
     <aside
-      className={`relative z-40 flex flex-col h-screen lg:sticky lg:top-0 border-b border-gray-200 bg-white text-gray-800 shadow-sm transition-all duration-300 ease-in-out lg:shrink-0 lg:border-b-0 lg:border-r ${
-        isSidebarOpen ? "w-full lg:w-64" : "w-full lg:w-20"
-      }`}
+      className={`relative z-40 flex flex-col h-screen lg:sticky lg:top-0 border-b border-gray-200 bg-white text-gray-800 shadow-sm transition-all duration-300 ease-in-out lg:shrink-0 lg:border-b-0 lg:border-r ${isSidebarOpen ? "w-full lg:w-64" : "w-full lg:w-20"
+        }`}
     >
       <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col min-h-0">
         <div
-          className={`flex items-center py-5 transition-all duration-300 flex-shrink-0 ${
-            isSidebarOpen ? "justify-between px-5" : "flex-col justify-center gap-3 px-3"
-          }`}
+          className={`flex items-center py-5 transition-all duration-300 flex-shrink-0 ${isSidebarOpen ? "justify-between px-5" : "flex-col justify-center gap-3 px-3"
+            }`}
         >
           <div className={`flex items-center gap-3 ${!isSidebarOpen ? "justify-center" : ""}`}>
             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-orange-50/60 border border-orange-100 p-1.5 shadow-sm">
@@ -310,24 +308,21 @@ export default function SidebarNavigation() {
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 title={!isSidebarOpen ? item.label : undefined}
-                className={`group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-xl h-10 px-3.5 text-xs overflow-hidden transition-all duration-200 ${
-                  isActive
+                className={`group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-xl h-10 px-3.5 text-xs overflow-hidden transition-all duration-200 ${isActive
                     ? "bg-terracotta-clay text-white shadow-sm font-semibold"
                     : "text-gray-700 font-medium hover:bg-gray-100 hover:text-gray-900"
-                }`}
+                  }`}
               >
                 <span
-                  className={`flex size-6 shrink-0 items-center justify-center mr-3 transition-colors ${
-                    isActive ? "text-white" : "text-gray-700 group-hover:text-terracotta-clay"
-                  }`}
+                  className={`flex size-6 shrink-0 items-center justify-center mr-3 transition-colors ${isActive ? "text-white" : "text-gray-700 group-hover:text-terracotta-clay"
+                    }`}
                 >
                   {getNavIcon(item.label)}
                 </span>
 
                 <span
-                  className={`truncate whitespace-nowrap transition-all duration-200 ${
-                    isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"
-                  }`}
+                  className={`truncate whitespace-nowrap transition-all duration-200 ${isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"
+                    }`}
                 >
                   {item.label}
                 </span>
@@ -382,9 +377,8 @@ export default function SidebarNavigation() {
           </span>
 
           <span
-            className={`truncate transition-all duration-200 ${
-              isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"
-            }`}
+            className={`truncate transition-all duration-200 ${isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"
+              }`}
           >
             {isLoggingOut ? "Keluar..." : "Keluar Sesi"}
           </span>

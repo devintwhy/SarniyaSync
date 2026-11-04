@@ -35,8 +35,8 @@ function parseTransactionItems(items: Json): AdminTransactionItem[] {
         lineTotal: Number.isFinite(lineTotal)
           ? lineTotal
           : Number.isFinite(unitPrice)
-          ? unitPrice * quantity
-          : 0,
+            ? unitPrice * quantity
+            : 0,
       },
     ];
   });

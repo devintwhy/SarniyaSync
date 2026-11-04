@@ -46,8 +46,8 @@ export async function GET() {
         paymentRaw === "qris"
           ? "QRIS"
           : paymentRaw === "transfer"
-          ? "Transfer"
-          : "Tunai";
+            ? "Transfer"
+            : "Tunai";
 
       csvRows.push(
         [

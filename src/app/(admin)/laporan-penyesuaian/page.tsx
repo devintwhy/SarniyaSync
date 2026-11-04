@@ -69,9 +69,9 @@ export default async function AdminStockAdjustmentReportPage() {
         )
       `)
       .order("created_at", { ascending: false })) as unknown as {
-      data: StockAdjustmentRecord[] | null;
-      error: { message: string } | null;
-    };
+        data: StockAdjustmentRecord[] | null;
+        error: { message: string } | null;
+      };
 
     if (!adjError && adjustmentsData) {
       adjustments = adjustmentsData.map((item: StockAdjustmentRecord) => {
@@ -128,4 +128,3 @@ export default async function AdminStockAdjustmentReportPage() {
     </div>
   );
 }
-

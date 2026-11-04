@@ -259,8 +259,8 @@ export default function AdminTransactionClient({
           String(tx.paymentMethod || "cash").toLowerCase() === "qris"
             ? "QRIS"
             : String(tx.paymentMethod || "cash").toLowerCase() === "transfer"
-            ? "Transfer"
-            : "Tunai";
+              ? "Transfer"
+              : "Tunai";
 
         if (tx.items.length === 0) {
           excelRows.push({
@@ -332,11 +332,10 @@ export default function AdminTransactionClient({
           <div
             key={toast.id}
             role="alert"
-            className={`pointer-events-auto flex items-start gap-3 rounded-2xl border px-4 py-3 text-xs font-semibold shadow-sm max-w-xs backdrop-blur-sm transition-all animate-in slide-in-from-right ${
-              toast.type === "success"
+            className={`pointer-events-auto flex items-start gap-3 rounded-2xl border px-4 py-3 text-xs font-semibold shadow-sm max-w-xs backdrop-blur-sm transition-all animate-in slide-in-from-right ${toast.type === "success"
                 ? "border-emerald-200 bg-emerald-50 text-emerald-800"
                 : "border-rose-200 bg-rose-50 text-rose-800"
-            }`}
+              }`}
           >
             {toast.type === "success" ? (
               <CheckCircle2 size={16} className="text-emerald-600 shrink-0 mt-0.5" />
@@ -349,7 +348,7 @@ export default function AdminTransactionClient({
       </div>
       <div className="rounded-xl bg-white border border-gray-200 p-3 sm:p-4 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          
+
           <div className="flex flex-1 flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
             <div className="relative flex-1 min-w-[200px]">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
@@ -406,22 +405,20 @@ export default function AdminTransactionClient({
                 <button
                   type="button"
                   onClick={() => setSelectedDate(todayStr)}
-                  className={`h-9 px-2.5 rounded-lg text-[11px] font-semibold transition-all ${
-                    selectedDate === todayStr
+                  className={`h-9 px-2.5 rounded-lg text-[11px] font-semibold transition-all ${selectedDate === todayStr
                       ? "bg-terracotta-clay text-white shadow-sm"
                       : "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   Hari Ini
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedDate(yesterdayStr)}
-                  className={`h-9 px-2.5 rounded-lg text-[11px] font-semibold transition-all ${
-                    selectedDate === yesterdayStr
+                  className={`h-9 px-2.5 rounded-lg text-[11px] font-semibold transition-all ${selectedDate === yesterdayStr
                       ? "bg-terracotta-clay text-white shadow-sm"
                       : "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   Kemarin
                 </button>
@@ -657,11 +654,10 @@ export default function AdminTransactionClient({
                   return (
                     <tr
                       key={tx.id}
-                      className={`align-top transition-colors ${
-                        isCancelled
+                      className={`align-top transition-colors ${isCancelled
                           ? "opacity-60 bg-rose-50/30"
                           : "hover:bg-almond-cream/25"
-                      }`}
+                        }`}
                     >
                       <td className="px-3 py-2 font-mono text-xs font-bold text-[#2d3440]">
                         <div className="flex flex-col gap-1">
@@ -707,9 +703,8 @@ export default function AdminTransactionClient({
                         )}
                       </td>
 
-                      <td className={`whitespace-nowrap px-3 py-2 text-right font-black text-xs sm:text-sm ${
-                        isCancelled ? "text-[#9a9a9a] line-through" : "text-terracotta-clay"
-                      }`}>
+                      <td className={`whitespace-nowrap px-3 py-2 text-right font-black text-xs sm:text-sm ${isCancelled ? "text-[#9a9a9a] line-through" : "text-terracotta-clay"
+                        }`}>
                         {currencyFormatter.format(Number(tx.total || 0))}
                       </td>
 

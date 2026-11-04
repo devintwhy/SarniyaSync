@@ -6,17 +6,17 @@ Sistem Enterprise Resource Planning (ERP) dan Point of Sale (POS) multi-tenant b
 
 ## Latar Belakang & Ruang Lingkup
 
-Pengelolaan operasional rantai pasok dari distributor pusat ke cabang retail sering menghadapi kendala desentralisasi data inventaris, ketidaksesuaian pencatatan stok fisik (penyusutan/rusak), serta lambatnya rekonsiliasi transaksi penjualan harian. 
+Pengelolaan operasional rantai pasok dari distributor pusat ke cabang mitra sering menghadapi kendala desentralisasi data inventaris, ketidaksesuaian pencatatan stok fisik (penyusutan/rusak), serta lambatnya rekonsiliasi transaksi penjualan harian. 
 
 SarniyaSync dibangun untuk menjawab permasalahan tersebut dengan memfasilitasi:
 1. Sentralisasi data persediaan barang dari gudang utama ke seluruh cabang mitra.
 2. Isolasi data ketat antar gerai mitra guna menjaga privasi komersial dan keamanan data inventaris masing-masing pihak.
-3. Pencatatan transaksi penjualan kasir (Point of Sale) secara real-time yang langsung memperbarui kuantitas inventaris gerai yang bersangkutan.
+3. Pencatatan transaksi penjualan kasir (Point of Sale) secara real-time yang langsung memperbarui kuantitas inventaris toko yang bersangkutan.
 
 ### Batasan Hak Akses (Role-Based Access Control)
 Sistem membatasi hak operasional ke dalam dua peran utama tanpa peran perantara:
 - Admin Utama (Pusat): Bertanggung jawab atas pengelolaan katalog master produk, otorisasi akun mitra, alokasi pasokan barang, pengawasan status pengiriman logistik, audit stock opname, serta analisis performa finansial global.
-- Mitra (Pemilik Gerai): Bertanggung jawab atas operasional gerai masing-masing, meliputi kasir POS, konfirmasi penerimaan barang fisik yang dikirim pusat, pengajuan laporan penyesuaian stok fisik (stock opname), serta pemantauan arus kas harian toko.
+- Mitra (cabang): Bertanggung jawab atas operasional gerai masing-masing, meliputi kasir POS, konfirmasi penerimaan barang fisik yang dikirim pusat, pengajuan laporan penyesuaian stok fisik (stock opname), serta pemantauan arus kas harian toko.
 
 ---
 
@@ -50,7 +50,7 @@ Sistem membatasi hak operasional ke dalam dua peran utama tanpa peran perantara:
 - Audit Laporan Penyesuaian: Rekapitulasi laporan kerusakan, kehilangan, atau penyusutan stok fisik dari seluruh mitra beserta kalkulasi estimasi kerugian nominal berdasarkan HPP.
 - Analisis Penjualan Global: Dasbor agregasi pendapatan harian lintas metode (QRIS, Transfer Bank, Tunai), identifikasi produk terlaris keseluruhan, riwayat struk, serta pembatalan transaksi dengan mekanisme pemulihan stok.
 
-### 2. Mitra Gerai
+### 2. Mitra Cabang
 - Point of Sale (POS) Kasir: Antarmuka kasir cepat dengan fitur pencarian produk, kalkulator kembalian pembayaran tunai, pemilihan metode bayar instan, dan pratinjau struk belanja thermal.
 - Konfirmasi Penerimaan Barang: Verifikasi penerimaan paket kiriman dari pusat secara atomik yang langsung memasukkan kuantitas ke dalam saldo inventaris toko mitra.
 - Pelaporan Penyesuaian Stok (Stock Opname): Formulir pencatatan selisih stok fisik yang langsung memutasi saldo inventaris dan mencatat log audit ke sistem secara aman.
@@ -64,7 +64,7 @@ Keamanan dan pemisahan data antar mitra (multi-tenancy isolation) diimplementasi
 
 ---
 
-## Panduan Instalasi Lokal (Bagi Penguji / Dosen)
+## Panduan Instalasi Lokal
 
 Berikut adalah panduan langkah demi langkah untuk menjalankan proyek SarniyaSync pada lingkungan pengujian lokal:
 

@@ -47,13 +47,12 @@ export default function TopSellingProducts({
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span
-                        className={`flex size-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
-                          index === 0
+                        className={`flex size-6 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${index === 0
                             ? "bg-terracotta-clay text-white"
                             : index === 1
-                            ? "bg-orange-50 text-terracotta-clay border border-orange-200/60"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
+                              ? "bg-orange-50 text-terracotta-clay border border-orange-200/60"
+                              : "bg-gray-100 text-gray-600"
+                          }`}
                       >
                         #{index + 1}
                       </span>
@@ -78,4 +77,3 @@ export default function TopSellingProducts({
     </section>
   );
 }
-

@@ -47,8 +47,8 @@ export async function GET() {
         paymentRaw === "qris"
           ? "QRIS"
           : paymentRaw === "transfer"
-          ? "Transfer"
-          : "Tunai";
+            ? "Transfer"
+            : "Tunai";
 
       if (!tx.items || !Array.isArray(tx.items) || tx.items.length === 0) {
         csvRows.push(

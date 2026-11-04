@@ -101,9 +101,8 @@ export default function StatusSelect({
       {feedback && (
         <span
           role={feedback.type === "error" ? "alert" : "status"}
-          className={`text-[11px] font-bold ${
-            feedback.type === "error" ? "text-rose-600" : "text-emerald-700"
-          }`}
+          className={`text-[11px] font-bold ${feedback.type === "error" ? "text-rose-600" : "text-emerald-700"
+            }`}
         >
           {feedback.text}
         </span>

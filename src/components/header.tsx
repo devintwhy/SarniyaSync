@@ -59,10 +59,10 @@ export default function Header({
           roleNormalized === "mitra"
             ? "Mitra"
             : roleNormalized === "pemilik"
-            ? "Pemilik"
-            : roleNormalized === "admin"
-            ? "Admin"
-            : "Pengguna";
+              ? "Pemilik"
+              : roleNormalized === "admin"
+                ? "Admin"
+                : "Pengguna";
 
         const displayName =
           profile?.full_name?.trim() ||

@@ -76,11 +76,11 @@ export default async function PartnerStockPage() {
     const product = productsById.get(allocation.product_id);
     return product
       ? [{
-          allocationId: allocation.id,
-          storeName: storeNames.get(allocation.partner_store_id) ?? "Toko",
-          stock_quantity: allocation.stock_quantity,
-          ...product,
-        }]
+        allocationId: allocation.id,
+        storeName: storeNames.get(allocation.partner_store_id) ?? "Toko",
+        stock_quantity: allocation.stock_quantity,
+        ...product,
+      }]
       : [];
   });
 
@@ -88,11 +88,11 @@ export default async function PartnerStockPage() {
     <div className="w-full space-y-3 sm:space-y-4">
       <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-        <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 text-xs font-bold text-terracotta-clay">
-          Portal Mitra
-        </span>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">Stok Toko</h1>
-        <p className="mt-0.5 text-sm text-gray-500">Produk yang telah dialokasikan ke toko Anda.</p>
+          <span className="inline-block rounded-full bg-orange-50 border border-orange-200/60 px-2.5 py-0.5 text-xs font-bold text-terracotta-clay">
+            Portal Mitra
+          </span>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">Stok Toko</h1>
+          <p className="mt-0.5 text-sm text-gray-500">Produk yang telah dialokasikan ke toko Anda.</p>
         </div>
         <Link
           href="/partner/stock-opname"

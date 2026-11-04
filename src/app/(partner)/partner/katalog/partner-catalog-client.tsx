@@ -24,6 +24,7 @@ type StoreOption = {
 };
 
 type PartnerCatalogClientProps = {
+  a
   products: PartnerCatalogProduct[];
   stores: StoreOption[];
   errorMessage?: string;
@@ -214,13 +215,12 @@ export default function PartnerCatalogClient({
 
                     <div className="absolute top-2 left-2">
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold ${
-                          isOutOfStock
+                        className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold ${isOutOfStock
                             ? "bg-rose-600 text-white"
                             : product.is_active
-                            ? "bg-emerald-600 text-white"
-                            : "bg-slate-600 text-white"
-                        }`}
+                              ? "bg-emerald-600 text-white"
+                              : "bg-slate-600 text-white"
+                          }`}
                       >
                         <span className="size-1 rounded-full bg-white" />
                         {isOutOfStock ? "Habis" : product.is_active ? "Tersedia" : "Nonaktif"}
@@ -229,13 +229,12 @@ export default function PartnerCatalogClient({
 
                     <div className="absolute bottom-2 right-2">
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm ${
-                          isOutOfStock
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm ${isOutOfStock
                             ? "bg-slate-700 text-white"
                             : isLowStock
-                            ? "bg-amber-600 text-white"
-                            : "bg-terracotta-clay text-white"
-                        }`}
+                              ? "bg-amber-600 text-white"
+                              : "bg-terracotta-clay text-white"
+                          }`}
                       >
                         {isLowStock && (
                           <span className="size-1.5 rounded-full bg-white animate-pulse" />

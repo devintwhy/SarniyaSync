@@ -238,8 +238,8 @@ export default function PartnerProfilePage() {
     storeStatus === "aktif"
       ? { text: "Mitra Aktif", className: "bg-emerald-50 text-emerald-700 border-emerald-200" }
       : storeStatus === "pending"
-      ? { text: "Menunggu Persetujuan", className: "bg-amber-50 text-amber-700 border-amber-200" }
-      : { text: "Nonaktif", className: "bg-red-50 text-red-700 border-red-200" };
+        ? { text: "Menunggu Persetujuan", className: "bg-amber-50 text-amber-700 border-amber-200" }
+        : { text: "Nonaktif", className: "bg-red-50 text-red-700 border-red-200" };
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-3 sm:space-y-4">

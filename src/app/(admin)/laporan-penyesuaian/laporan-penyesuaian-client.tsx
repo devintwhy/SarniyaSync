@@ -23,7 +23,6 @@ export interface AdjustmentReportItem {
 interface StoreOption {
   id: string;
   name: string;
-
 }
 
 interface LaporanPenyesuaianClientProps {
@@ -341,4 +340,3 @@ export default function LaporanPenyesuaianClient({
     </div>
   );
 }
-

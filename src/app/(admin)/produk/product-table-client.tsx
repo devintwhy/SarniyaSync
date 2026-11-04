@@ -173,11 +173,10 @@ export default function ProductTableClient({ products: initialProducts, errorMes
 
                     <div className="absolute bottom-2 right-2">
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm backdrop-blur-sm ${
-                          isLowStock
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-sm backdrop-blur-sm ${isLowStock
                             ? "bg-rose-600/95 text-white"
                             : "bg-terracotta-clay/90 text-white"
-                        }`}
+                          }`}
                       >
                         {isLowStock && <span className="size-1.5 rounded-full bg-white animate-pulse" />}
                         {product.stock_quantity} pcs
@@ -186,11 +185,10 @@ export default function ProductTableClient({ products: initialProducts, errorMes
 
                     <div className="absolute top-2 left-2">
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold backdrop-blur-sm ${
-                          product.is_active
+                        className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold backdrop-blur-sm ${product.is_active
                             ? "bg-emerald-500/90 text-white"
                             : "bg-slate-600/80 text-white"
-                        }`}
+                          }`}
                       >
                         <span className="size-1 rounded-full bg-white" />
                         {product.is_active ? "Aktif" : "Nonaktif"}

@@ -90,4 +90,3 @@ export async function getMonthlyShrinkageLoss(): Promise<MonthlyShrinkageLossRes
     records: adjustments,
   };
 }
-
