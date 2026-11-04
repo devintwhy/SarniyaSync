@@ -144,13 +144,11 @@ export default function PartnerNavigation() {
 
   return (
     <aside
-      className={`relative z-40 flex flex-col h-screen lg:sticky lg:top-0 border-b border-gray-200 bg-white text-gray-800 shadow-sm transition-all duration-300 ease-in-out lg:shrink-0 lg:border-b-0 lg:border-r ${isSidebarOpen ? "w-full lg:w-64" : "w-full lg:w-20"
-        }`}
+      className={`relative z-40 flex flex-col border-b border-gray-200 bg-white text-gray-800 shadow-sm transition-all duration-300 ease-in-out lg:sticky lg:top-0 lg:h-screen lg:shrink-0 lg:border-b-0 lg:border-r ${isSidebarOpen ? "w-full lg:w-64" : "w-full lg:w-20"}`}
     >
-      <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col min-h-0">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col min-h-0 lg:min-h-0">
         <div
-          className={`flex items-center py-5 transition-all duration-300 flex-shrink-0 ${isSidebarOpen ? "justify-between px-5" : "flex-col justify-center gap-3 px-3"
-            }`}
+          className={`flex items-center py-4 px-4 transition-all duration-300 flex-shrink-0 justify-between lg:py-5 ${isSidebarOpen ? "justify-between px-5" : "justify-between px-4 lg:flex-col lg:justify-center lg:gap-3 lg:px-3"}`}
         >
           <div className={`flex items-center gap-3 ${!isSidebarOpen ? "justify-center" : ""}`}>
             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-orange-50/60 border border-orange-100 p-1.5 shadow-sm">
@@ -198,7 +196,7 @@ export default function PartnerNavigation() {
 
         <nav
           aria-label="Navigasi Mitra"
-          className="flex gap-1.5 overflow-x-auto px-3 pb-3 lg:flex-col"
+          className={`flex-col gap-1.5 px-3 pb-3 lg:flex lg:flex-col ${isSidebarOpen ? "flex" : "hidden lg:flex"}`}
         >
           {navigationItems.map((item) => {
             const isActive =
@@ -241,7 +239,7 @@ export default function PartnerNavigation() {
       </div>
 
       <div
-        className="flex-shrink-0 mt-auto border-t border-gray-200 px-3 py-4 transition-all duration-300"
+        className={`flex-shrink-0 mt-auto border-t border-gray-200 px-3 py-4 transition-all duration-300 ${isSidebarOpen ? "block" : "hidden lg:block"}`}
       >
         {isSidebarOpen && (
           <p className="text-[11px] font-medium text-gray-500 mb-2 truncate px-1">
