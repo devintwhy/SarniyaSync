@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
-import { submitStockAdjustment } from "@/app/actions/stockAction";
+import { submitStockAdjustment } from "@/app/actions/stock-adjustment";
 
 interface ProductOption {
   id: string;

@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Loader2, Pencil, Trash2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import AddProductModal from "@/components/admin/AddProductModal";
+import AddProductModal from "@/components/admin/add-product-modal";
 
 type Product = Record<string, unknown>;
 

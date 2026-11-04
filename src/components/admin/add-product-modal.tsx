@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useRef, useState, useTransition } from "react";
 import { Plus, X } from "lucide-react";
-import { addProduct, type ProductActionResult } from "@/app/actions/productActions";
+import { addProduct, type ProductActionResult } from "@/app/actions/product-actions";
 
 export type AddProductModalProps = {
   triggerText?: string;

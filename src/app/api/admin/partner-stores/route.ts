@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { getProfileRole, normalizeAppRole } from "@/utils/supabase/auth";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 
@@ -28,7 +28,6 @@ export async function POST(request: Request) {
     const ownerId = typeof store.owner_id === "string" ? store.owner_id : "";
     const name = typeof store.name === "string" ? store.name.trim() : "";
     const address = typeof store.address === "string" ? store.address.trim() : "";
-    const city = typeof store.city === "string" ? store.city.trim() : "";
     const phone = typeof store.phone === "string" ? store.phone.trim() : "";
 
     if (!uuidPattern.test(ownerId) || !name || name.length > 160) {
@@ -52,11 +51,10 @@ export async function POST(request: Request) {
         owner_id: ownerId,
         name,
         address: address || null,
-        city: city || null,
         phone: phone || null,
         is_active: true,
       })
-      .select("id, owner_id, name, address, city, phone, is_active, created_at")
+      .select("id, owner_id, name, address, phone, is_active, created_at")
       .single();
 
     if (error) throw error;

@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import BulkAllocationClient from "./bulk-allocation-client";
 import { getProfileRole } from "@/utils/supabase/auth";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
@@ -171,7 +171,6 @@ export default async function StockAllocationPage() {
         stores={stores.map((s) => ({
           id: s.id,
           name: s.name,
-          city: s.city,
         }))}
         products={products.map((p) => ({
           id: p.id,
@@ -186,7 +185,6 @@ export default async function StockAllocationPage() {
           product_id: a.product_id,
           stock_quantity: a.stock_quantity,
           store_name: a.store_name,
-          store_city: a.store_city,
           store_is_active: a.store_is_active,
         }))}
       />

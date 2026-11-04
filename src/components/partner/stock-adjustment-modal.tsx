@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { X, AlertCircle } from "lucide-react";
-import { submitStockAdjustment } from "@/app/actions/stockAdjustment";
+import { submitStockAdjustment } from "@/app/actions/stock-adjustment";
 
 export interface ProductOption {
   id: string;

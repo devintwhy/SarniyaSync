@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/utils/supabase/client";
 import { AppRole, getProfileRole } from "@/utils/supabase/auth";
 import { useSidebar } from "@/context/sidebar-context";
-import LogoutModal from "@/components/LogoutModal";
+import LogoutModal from "@/components/logout-modal";
 
 type NavigationItem = { label: string; href: string };
 

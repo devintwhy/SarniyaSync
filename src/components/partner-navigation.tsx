@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { createSupabaseBrowserClient } from "@/utils/supabase/client";
 import { useSidebar } from "@/context/sidebar-context";
-import LogoutModal from "@/components/LogoutModal";
+import LogoutModal from "@/components/logout-modal";
 
 const partnerRoutes = {
   dashboard: "/dashboard-mitra",

@@ -26,7 +26,7 @@ export default async function StoreReportPage({ params }: StorePageProps) {
 
   const { data: store, error: storeError } = await supabase
     .from("partner_stores")
-    .select("id, name, address, city, phone, is_active")
+    .select("id, name, address, phone, is_active")
     .eq("id", params.id)
     .eq("owner_id", user.id)
     .maybeSingle();
@@ -77,7 +77,7 @@ export default async function StoreReportPage({ params }: StorePageProps) {
           </span>
           <h1 className="mt-2 text-3xl font-black tracking-tight text-gray-900">{store.name}</h1>
           <p className="mt-2 text-sm text-gray-500">
-            {[store.address, store.city].filter(Boolean).join(", ") || "Alamat belum tersedia"}
+            {store.address || "Alamat belum tersedia"}
           </p>
         </div>
       </header>

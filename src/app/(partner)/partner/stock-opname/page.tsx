@@ -1,9 +1,9 @@
-import { redirect } from "next/navigation";
+﻿import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 import StockOpnameClient, {
   AdjustmentHistoryItem,
 } from "./stock-opname-client";
-import type { ProductOption } from "@/components/partner/StockAdjustmentModal";
+import type { ProductOption } from "@/components/partner/stock-adjustment-modal";
 
 export const dynamic = "force-dynamic";
 

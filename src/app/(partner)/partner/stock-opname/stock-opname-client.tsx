@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, ClipboardList, Search } from "lucide-react";
 import StockAdjustmentModal, {
   ProductOption,
-} from "@/components/partner/StockAdjustmentModal";
+} from "@/components/partner/stock-adjustment-modal";
 
 export interface AdjustmentHistoryItem {
   id: string;

@@ -1,10 +1,10 @@
-import { createSupabaseServerClient } from "@/utils/supabase/server";
-import AddProductModal from "@/components/admin/AddProductModal";
+﻿import { createSupabaseServerClient } from "@/utils/supabase/server";
+import AddProductModal from "@/components/admin/add-product-modal";
 import ProductTableClient from "./product-table-client";
 
 export const metadata = {
   title: "Katalog Produk | SarniyaSync",
-  description: "Kelola seluruh produk katalog SarniyaSync — tambah, lihat harga modal, harga jual, dan stok pusat.",
+  description: "Kelola seluruh produk katalog SarniyaSync â€” tambah, lihat harga modal, harga jual, dan stok pusat.",
 };
 
 // Pengambilan Data dan Tampilan Katalog Produk
