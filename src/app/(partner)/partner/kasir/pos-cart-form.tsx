@@ -116,7 +116,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
     setCashReceivedInput("");
   }
 
-  // Keranjang Belanja, Checkout, dan Pembayaran POS
+  // Menambahkan Produk ke Keranjang dengan Validasi Stok
   function handleCardClick(product: InventoryOption) {
     const existingIndex = cart.findIndex(
       (row) => row.allocationId === product.allocationId,
@@ -200,7 +200,7 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
     setCashReceivedInput(String(nominal));
   }
 
-  // Keranjang Belanja, Checkout, dan Pembayaran POS
+  // Proses Checkout dan Penyimpanan Transaksi Kasir
   function handleSubmit() {
     if (cart.length === 0) return;
     if (isCashInsufficient) {
@@ -592,7 +592,6 @@ export default function PosCartForm({ stores, inventory }: PosCartFormProps) {
             </div>
           </div>
 
-          {/* // Keranjang Belanja, Checkout, dan Pembayaran POS */}
           <div className="mt-3.5">
             <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-600 mb-1.5">
               Metode Pembayaran

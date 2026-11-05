@@ -1,4 +1,4 @@
-﻿import { redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import BulkAllocationClient from "./bulk-allocation-client";
 import { getProfileRole } from "@/utils/supabase/auth";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
@@ -74,7 +74,7 @@ export default async function StockAllocationPage() {
     if (page.length < PAGE_SIZE) break;
   }
 
-  // Pengambilan Data Produk, Mitra, dan Alokasi Stok
+  // Pengambilan Data Stok yang Telah Dialokasikan ke Toko Mitra
   const allocations: Array<{
     id: string;
     partner_store_id: string;

@@ -66,6 +66,7 @@ const dateFormatter = new Intl.DateTimeFormat("id-ID", {
   timeStyle: "short",
 });
 
+// Pengambilan Data dan Perhitungan Dashboard
 export default async function PartnerDashboardPage() {
   const supabase = await createSupabaseServerClient();
   const {

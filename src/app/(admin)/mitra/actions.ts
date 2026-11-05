@@ -6,7 +6,7 @@ import { getProfileRole } from "@/utils/supabase/auth";
 
 export type MitraStatus = "aktif" | "nonaktif" | "pending";
 
-// Proses Perubahan Status Mitra
+// Proses Perubahan Status Akun Mitra
 export async function updateMitraStatus(
   storeId: string,
   newStatus: string,

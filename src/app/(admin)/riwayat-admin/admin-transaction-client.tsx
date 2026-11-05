@@ -160,7 +160,7 @@ export default function AdminTransactionClient({
     return getLocalDateString(y);
   }, []);
 
-  // Filter, Ringkasan, dan Ekspor Laporan Penjualan
+  // Filter Data Transaksi Berdasarkan Tanggal, Toko, dan Pembayaran
   const filteredTransactions = useMemo(() => {
     const q = searchTerm.toLowerCase().trim();
 
@@ -239,7 +239,7 @@ export default function AdminTransactionClient({
     };
   }, [activeForMetrics]);
 
-  // Filter, Ringkasan, dan Ekspor Laporan Penjualan
+  // Ekspor Data Transaksi ke Excel
   function handleExportExcel() {
     if (filteredTransactions.length === 0) {
       alert("Tidak ada data transaksi untuk diekspor pada filter ini.");

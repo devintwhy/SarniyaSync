@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { LogOut } from "lucide-react";
 
 interface LogoutModalProps {
@@ -15,23 +17,29 @@ export default function LogoutModal({
   onConfirm,
   isLoggingOut = false,
 }: LogoutModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (!isOpen) return null;
 
-  return (
+  const content = (
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="logout-modal-title"
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 transition-all animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget && !isLoggingOut) {
           onClose();
         }
       }}
     >
-      <div className="relative w-full max-w-sm mx-4 rounded-2xl bg-white p-6 shadow-xl border border-gray-200 text-center space-y-4">
+      <div className="relative bg-white p-6 rounded-xl shadow-xl w-[90%] max-w-sm z-[101] text-center space-y-4 border border-gray-100">
         <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-rose-50 text-rose-600 border border-rose-100">
-          <LogOut className="size-6" />
+          <LogOut className="size-6 -scale-x-100" />
         </div>
 
         <div>
@@ -67,4 +75,10 @@ export default function LogoutModal({
       </div>
     </div>
   );
+
+  if (mounted && typeof document !== "undefined") {
+    return createPortal(content, document.body);
+  }
+
+  return content;
 }

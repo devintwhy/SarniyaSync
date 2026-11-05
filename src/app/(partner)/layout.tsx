@@ -37,7 +37,7 @@ export default async function PartnerLayout({
       <div className="flex min-h-screen w-full flex-col bg-[#F9FAFB] text-[#2d3440] lg:flex-row">
         <PartnerNavigation />
 
-        <div className="flex flex-1 flex-col min-w-0">
+        <div className="flex flex-1 flex-col min-w-0 transition-all duration-300">
           <Header
             title="SarniyaSync - Sistem Manajemen Inventaris Terpadu"
             user={{

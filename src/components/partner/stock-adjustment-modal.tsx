@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 import { X, AlertCircle } from "lucide-react";
@@ -50,7 +50,7 @@ export default function StockAdjustmentModal({
     onClose();
   }
 
-  // Form Penyesuaian Stok (Stock Opname)
+  // Validasi Form dan Pengiriman Penyesuaian Stok
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErrorMessage("");

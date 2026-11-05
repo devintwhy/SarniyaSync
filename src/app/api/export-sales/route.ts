@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 
+// Proses Ekspor Data Penjualan Lengkap ke CSV
 export const dynamic = "force-dynamic";
 
 export async function GET() {

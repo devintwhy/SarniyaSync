@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -42,11 +43,19 @@ export default function PartnerDashboardCharts({
   dailySales,
   bestSellers,
 }: PartnerDashboardChartsProps) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const chartData = Array.isArray(dailySales) ? dailySales : [];
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
       <section
         aria-label="Grafik Tren Penjualan Toko Saya"
-        className="lg:col-span-7 rounded-xl bg-white shadow-sm overflow-hidden flex flex-col justify-between h-full border border-gray-200"
+        className="lg:col-span-7 rounded-xl bg-white shadow-sm overflow-hidden flex flex-col justify-between border border-gray-200"
       >
         <div className="border-b border-gray-100 px-4 py-3 sm:px-5 flex flex-col gap-0.5">
           <h2 className="text-sm sm:text-base font-black text-gray-900">
@@ -57,15 +66,19 @@ export default function PartnerDashboardCharts({
           </p>
         </div>
 
-        <div className="h-72 w-full p-3 sm:p-4 flex-1 flex flex-col justify-center">
-          {dailySales.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-sm text-gray-500">
+        <div className="w-full h-72 min-h-[288px] p-3 sm:p-4">
+          {!isMounted ? (
+            <div className="w-full h-full flex items-center justify-center text-xs text-gray-400 bg-gray-50/50 rounded-lg">
+              Memuat grafik tren penjualan...
+            </div>
+          ) : chartData.length === 0 ? (
+            <div className="w-full h-full flex items-center justify-center text-xs sm:text-sm text-gray-500">
               Belum ada data transaksi dalam 30 hari terakhir.
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minHeight={260}>
               <BarChart
-                data={dailySales}
+                data={chartData}
                 margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />

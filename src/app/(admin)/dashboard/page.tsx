@@ -66,6 +66,7 @@ const dateFormatter = new Intl.DateTimeFormat("id-ID", {
   timeStyle: "short",
 });
 
+// Pengambilan Data dan Perhitungan Dashboard
 export default async function AdminDashboardPage() {
   const supabase = await createSupabaseServerClient();
   const loadError = "";
@@ -345,8 +346,6 @@ export default async function AdminDashboardPage() {
       value: string;
       detail: string;
       valueClass: string;
-      badgeText?: string;
-      badgeClass?: string;
       isProfit?: boolean;
       isLoss?: boolean;
     }> = [
@@ -355,8 +354,6 @@ export default async function AdminDashboardPage() {
           value: loadError ? "—" : currencyFormatter.format(totalOmzet),
           detail: "Pendapatan dari seluruh transaksi",
           valueClass: "text-[#9d5c4c]",
-          badgeText: "Bulan Ini",
-          badgeClass: "bg-gray-100 border-gray-200 text-gray-700",
         },
         {
           label: "Estimasi Laba Kotor",
@@ -377,16 +374,12 @@ export default async function AdminDashboardPage() {
           value: loadError ? "—" : numberFormatter.format(totalItemsSold),
           detail: "Unit terjual bulan ini",
           valueClass: "text-[#cc8c7d]",
-          badgeText: "Total",
-          badgeClass: "bg-gray-100 border-gray-200 text-gray-700",
         },
         {
           label: "Total Mitra Aktif",
           value: loadError ? "—" : numberFormatter.format(activePartnersCount),
           detail: "Toko mitra yang beroperasi",
           valueClass: "text-[#cc8c7d]",
-          badgeText: "Aktif",
-          badgeClass: "bg-emerald-50 border-emerald-200 text-emerald-700",
         },
       ];
 
@@ -526,28 +519,7 @@ export default async function AdminDashboardPage() {
                 }`}
             >
               <div>
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-gray-500">{metric.label}</p>
-                  {metric.isProfit && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700">
-                      <svg className="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                        <polyline points="17 6 23 6 23 12" />
-                      </svg>
-                      Laba
-                    </span>
-                  )}
-                  {metric.isLoss && (
-                    <span className="inline-flex items-center rounded-full bg-rose-50 border border-rose-200 px-2.5 py-0.5 text-[10px] font-bold text-rose-700">
-                      Penyusutan
-                    </span>
-                  )}
-                  {metric.badgeText && (
-                    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${metric.badgeClass}`}>
-                      {metric.badgeText}
-                    </span>
-                  )}
-                </div>
+                <p className="text-xs font-semibold text-gray-500">{metric.label}</p>
                 <p className={`mt-2 break-words text-xl font-black ${metric.valueClass}`}>
                   {metric.value}
                 </p>

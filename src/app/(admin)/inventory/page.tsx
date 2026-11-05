@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -18,7 +18,7 @@ type ProductActionResponse = {
   error?: string;
 };
 
-// Pengambilan Data dan Pengelolaan Inventaris Produk
+// Fungsi Pengambilan Data Produk dari API
 async function fetchProducts(search: string, category: string, signal?: AbortSignal) {
   const params = new URLSearchParams();
   if (search) params.set("search", search);
@@ -164,7 +164,7 @@ export default function InventoryPage({ searchParams = {} }: InventoryPageProps)
   useEffect(() => {
     const controller = new AbortController();
 
-    // Pengambilan Data dan Pengelolaan Inventaris Produk
+    // Memuat Ulang Data Produk Berdasarkan Filter
     async function loadProducts() {
       setIsLoading(true);
       setErrorMessage("");

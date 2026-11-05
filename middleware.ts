@@ -54,8 +54,7 @@ export async function middleware(request: NextRequest) {
         return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
-        // Strip maxAge/expires agar refresh token tidak membuat cookie
-        // kembali persisten setelah proses rotasi token oleh middleware.
+        // Strip maxAge/expires agar refresh token tidak membuat cookie kembali persisten setelah proses rotasi token oleh middleware.
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
         cookiesToSet.forEach(({ name, value, options }) =>

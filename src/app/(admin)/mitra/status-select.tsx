@@ -10,7 +10,6 @@ type StatusSelectProps = {
   initialMessage?: string | null;
 };
 
-// Dropdown Pengaturan Status Mitra 
 export default function StatusSelect({
   storeId,
   initialStatus,

@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 1000;
 
+// Pengambilan Data Inventaris Toko Mitra
 export default async function PartnerStockPage() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();

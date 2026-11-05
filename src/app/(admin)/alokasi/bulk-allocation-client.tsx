@@ -19,12 +19,12 @@ export type WarehouseProduct = {
   stock_quantity: number;
 };
 
+// Data toko di-join langsung dari query (tanpa filter is_active)
 export type ExistingAllocation = {
   id: string;
   partner_store_id: string;
   product_id: string;
   stock_quantity: number;
-  // Data toko di-join langsung dari query (tanpa filter is_active)
   store_name: string | null;
 
   store_is_active: boolean | null;
@@ -40,7 +40,6 @@ type BulkAllocationClientProps = {
 };
 
 const numberFormatter = new Intl.NumberFormat("id-ID");
-
 function getCategoryBadgeClass(category: string | null | undefined): string {
   const cat = String(category || "").toLowerCase().trim();
   if (cat.includes("pashmina")) {
@@ -55,7 +54,6 @@ function getCategoryBadgeClass(category: string | null | undefined): string {
   return "bg-gray-100 text-gray-700";
 }
 
-// Pengelolaan Form dan Data Alokasi Stok
 export default function BulkAllocationClient({
   stores,
   products,
@@ -171,7 +169,7 @@ export default function BulkAllocationClient({
     setSuccessMessage("");
   }
 
-  // Pengelolaan Form dan Data Alokasi Stok
+  // Proses Alokasi Stok dari Gudang Pusat ke Mitra
   async function handleBulkAllocationSubmit() {
     if (!selectedStoreId) {
       setErrorMessage("Silakan pilih Toko Mitra tujuan terlebih dahulu.");

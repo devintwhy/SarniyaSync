@@ -1,7 +1,8 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getProfileRole, normalizeAppRole } from "@/utils/supabase/auth";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 
+// Proses Pengelolaan Toko Mitra melalui API
 export const dynamic = "force-dynamic";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

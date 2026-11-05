@@ -10,6 +10,7 @@ export const metadata = {
   description: "Kontrol status dan daftar toko mitra SarniyaSync.",
 };
 
+// Pengambilan Data Daftar Mitra dan Pemilik Toko
 export default async function PartnerManagementPage() {
   const supabase = await createSupabaseServerClient();
   const {

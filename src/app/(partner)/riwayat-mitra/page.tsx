@@ -40,6 +40,7 @@ function parseTransactionItems(items: Json): PartnerTransactionItem[] {
   });
 }
 
+// Pengambilan Riwayat Transaksi Penjualan Mitra
 export default async function PartnerRiwayatPage() {
   const supabase = await createSupabaseServerClient();
   const {

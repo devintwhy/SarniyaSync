@@ -1,8 +1,8 @@
 import { createSupabaseServerClient } from "@/utils/supabase/server";
 
+// Proses CRUD Data Produk dari Database
 export const dynamic = "force-dynamic";
 
-// API Pengelolaan Produk (GET dan POST)
 export async function GET(request: Request) {
   try {
     const search = new URL(request.url).searchParams.get("search")?.trim() ?? "";
@@ -58,7 +58,6 @@ export async function GET(request: Request) {
 
 const productCategories = ["Pashmina", "Segi empat", "Bergo"] as const;
 
-// API Pengelolaan Produk (GET dan POST)
 export async function POST(request: Request) {
   try {
     const body: unknown = await request.json();

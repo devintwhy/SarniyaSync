@@ -2,7 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "@/utils/supabase/database.types";
 
-// Strip maxAge & expires → session cookie murni (terhapus saat browser ditutup)
+// Strip maxAge & expires session cookie murni (terhapus saat browser ditutup)
 function asSessionCookie(options: CookieOptions): CookieOptions {
   const rest = { ...options };
   delete rest.maxAge;

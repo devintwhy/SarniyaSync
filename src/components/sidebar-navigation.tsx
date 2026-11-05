@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -129,7 +129,7 @@ export default function SidebarNavigation() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [logoutError, setLogoutError] = useState("");
 
-  const { isSidebarOpen, setIsSidebarOpen } = useSidebar();
+  const { isSidebarOpen, setIsSidebarOpen, isCollapsed, setIsCollapsed } = useSidebar();
 
   useEffect(() => {
     if (
@@ -226,28 +226,45 @@ export default function SidebarNavigation() {
   ) return null;
 
   return (
-    <aside
-      className={`relative z-40 flex flex-col h-screen lg:sticky lg:top-0 border-b border-gray-200 bg-white text-gray-800 shadow-sm transition-all duration-300 ease-in-out lg:shrink-0 lg:border-b-0 lg:border-r ${isSidebarOpen ? "w-full lg:w-64" : "w-full lg:w-20"
-        }`}
-    >
-      <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col min-h-0">
+    <>
+      {isSidebarOpen && (
         <div
-          className={`flex items-center py-5 transition-all duration-300 flex-shrink-0 ${isSidebarOpen ? "justify-between px-5" : "flex-col justify-center gap-3 px-3"
-            }`}
-        >
-          <div className={`flex items-center gap-3 ${!isSidebarOpen ? "justify-center" : ""}`}>
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-orange-50/60 border border-orange-100 p-1.5 shadow-sm">
-              <Image
-                src="/logo-sarniya.png"
-                alt="Sarniya Logo"
-                width={36}
-                height={36}
-                className="h-full w-full object-contain"
-                priority
-              />
-            </div>
-            {isSidebarOpen && (
-              <div className="overflow-hidden whitespace-nowrap transition-opacity duration-200">
+          role="presentation"
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen max-w-[85vw] flex-col border-r border-gray-200 bg-white text-gray-800 shadow-2xl transition-all duration-300 ease-in-out lg:sticky lg:top-0 lg:h-screen lg:shrink-0 lg:translate-x-0 lg:shadow-sm ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"} ${isCollapsed ? "w-64 lg:w-20" : "w-64 lg:w-64"}`}
+      >
+        <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col min-h-0">
+          <div
+            className={`flex items-center border-b border-gray-100 flex-shrink-0 transition-all duration-300 py-4 ${isCollapsed ? "px-4 lg:px-2 lg:justify-center" : "px-4 lg:px-5 justify-between"}`}
+          >
+            <div
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              aria-label={isCollapsed ? "Perluas Sidebar" : "Lipat Sidebar"}
+              title={isCollapsed ? "Perluas Menu" : "Ciutkan Menu"}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setIsCollapsed(!isCollapsed); }}
+              className={`hidden lg:flex items-center gap-3 min-w-0 cursor-pointer select-none transition-opacity duration-200 hover:opacity-75 ${isCollapsed ? "lg:justify-center" : ""}`}
+            >
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-orange-50/60 border border-orange-100 p-1.5 shadow-sm">
+                <Image
+                  src="/logo-sarniya.png"
+                  alt="Sarniya Logo"
+                  width={36}
+                  height={36}
+                  className="h-full w-full object-contain"
+                  priority
+                />
+              </div>
+              <div
+                className={`overflow-hidden whitespace-nowrap transition-all duration-200 ${isCollapsed ? "block lg:hidden" : "block"}`}
+              >
                 <span className="text-base font-black tracking-tight text-gray-900">
                   SarniyaSync
                 </span>
@@ -255,135 +272,169 @@ export default function SidebarNavigation() {
                   Ruang Operasional
                 </p>
               </div>
-            )}
+            </div>
+
+            <div className={`flex lg:hidden items-center gap-3 min-w-0 ${isCollapsed ? "justify-center" : ""}`}>
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-orange-50/60 border border-orange-100 p-1.5 shadow-sm">
+                <Image
+                  src="/logo-sarniya.png"
+                  alt="Sarniya Logo"
+                  width={36}
+                  height={36}
+                  className="h-full w-full object-contain"
+                  priority
+                />
+              </div>
+              <div className="overflow-hidden whitespace-nowrap">
+                <span className="text-base font-black tracking-tight text-gray-900">
+                  SarniyaSync
+                </span>
+                <p className="text-[10px] font-medium text-gray-500">
+                  Ruang Operasional
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen(false)}
+              aria-label="Tutup Navigasi"
+              title="Tutup Menu"
+              className="flex lg:hidden size-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-600 shadow-sm transition-all duration-200 hover:bg-gray-100 active:scale-95"
+            >
+              <svg
+                className="size-4 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
           </div>
+
+          <nav
+            aria-label="Navigasi utama"
+            className={`flex flex-col gap-1.5 py-3 transition-all duration-300 ${isCollapsed ? "px-3 lg:px-2" : "px-3"}`}
+          >
+            {navigationItems.map((item) => {
+              const isPenjualanAlias =
+                (item.href === "/penjualan" || item.href === "/partner/transaksi") &&
+                (pathname.startsWith("/riwayat") || pathname.startsWith("/riwayat-admin") || pathname.startsWith("/riwayat-mitra"));
+              const isKatalogAlias =
+                (item.href === "/produk" || item.href === "/partner/katalog") &&
+                (pathname.startsWith("/katalog") || pathname.startsWith("/partner/katalog"));
+              const isProfilAlias =
+                (item.href === "/profil-admin" && pathname.startsWith("/profil-admin")) ||
+                (item.href === "/profil-mitra" && (pathname.startsWith("/profil-mitra") || pathname.startsWith("/partner/profil")));
+              const isActive =
+                pathname === item.href ||
+                (item.href !== "/" && pathname.startsWith(`${item.href}/`)) ||
+                isPenjualanAlias ||
+                isKatalogAlias ||
+                isProfilAlias;
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  title={isCollapsed ? item.label : undefined}
+                  onClick={() => {
+                    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                      setIsSidebarOpen(false);
+                    }
+                  }}
+                  className={`group flex shrink-0 items-center rounded-xl h-10 text-xs overflow-hidden transition-all duration-200 ${isCollapsed
+                      ? "w-full justify-start px-3.5 lg:justify-center lg:px-0"
+                      : "w-full justify-start px-3.5"
+                    } ${isActive
+                      ? "bg-terracotta-clay text-white shadow-sm font-semibold"
+                      : "text-gray-700 font-medium hover:bg-gray-100 hover:text-gray-900"
+                    }`}
+                >
+                  <span
+                    className={`flex size-6 shrink-0 items-center justify-center transition-colors ${isCollapsed ? "mr-3 lg:mr-0" : "mr-3"
+                      } ${isActive ? "text-white" : "text-gray-700 group-hover:text-terracotta-clay"}`}
+                  >
+                    {getNavIcon(item.label)}
+                  </span>
+
+                  <span
+                    className={`truncate whitespace-nowrap transition-all duration-200 ${isCollapsed ? "block lg:hidden" : "block"}`}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
+
+            {role === "mitra" && navigationItems.length === 1 && (
+              <p
+                className={`px-3 py-2 text-[11px] font-medium text-gray-500 ${isCollapsed ? "block lg:hidden" : "block"}`}
+              >
+                Belum ada toko yang ditugaskan.
+              </p>
+            )}
+          </nav>
+        </div>
+
+        <div
+          className={`flex-shrink-0 mt-auto border-t border-gray-200 transition-all duration-300 ${isCollapsed ? "px-3 py-4 lg:px-2" : "px-3 py-4"}`}
+        >
+          <p
+            className={`text-[11px] font-medium text-gray-500 mb-2 truncate px-1 ${isCollapsed ? "block lg:hidden" : "block"}`}
+          >
+            Rantai pasok, lebih terhubung.
+          </p>
+
+          {logoutError && (
+            <p
+              role="alert"
+              className={`mb-2.5 rounded-lg border border-rose-300 bg-rose-50/90 p-2 text-[10px] font-semibold text-rose-800 truncate ${isCollapsed ? "block lg:hidden" : "block"}`}
+            >
+              {logoutError}
+            </p>
+          )}
 
           <button
             type="button"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            aria-label={isSidebarOpen ? "Ciutkan Sidebar" : "Buka Sidebar"}
-            title={isSidebarOpen ? "Sembunyikan Menu" : "Buka Menu"}
-            className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-terracotta-clay text-white shadow-sm transition-all duration-200 hover:opacity-90 active:scale-95"
-          >
-            <svg
-              className="size-4 shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="4" y1="6" x2="20" y2="6" />
-              <line x1="4" y1="12" x2="20" y2="12" />
-              <line x1="4" y1="18" x2="20" y2="18" />
-            </svg>
-          </button>
-        </div>
-
-        <nav
-          aria-label="Navigasi utama"
-          className="flex gap-1.5 overflow-x-auto px-3 pb-3 lg:flex-col"
-        >
-          {navigationItems.map((item) => {
-            const isPenjualanAlias =
-              (item.href === "/penjualan" || item.href === "/partner/transaksi") &&
-              (pathname.startsWith("/riwayat") || pathname.startsWith("/riwayat-admin") || pathname.startsWith("/riwayat-mitra"));
-            const isKatalogAlias =
-              (item.href === "/produk" || item.href === "/partner/katalog") &&
-              (pathname.startsWith("/katalog") || pathname.startsWith("/partner/katalog"));
-            const isProfilAlias =
-              (item.href === "/profil-admin" && pathname.startsWith("/profil-admin")) ||
-              (item.href === "/profil-mitra" && (pathname.startsWith("/profil-mitra") || pathname.startsWith("/partner/profil")));
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/" && pathname.startsWith(`${item.href}/`)) ||
-              isPenjualanAlias ||
-              isKatalogAlias ||
-              isProfilAlias;
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={isActive ? "page" : undefined}
-                title={!isSidebarOpen ? item.label : undefined}
-                className={`group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-xl h-10 px-3.5 text-xs overflow-hidden transition-all duration-200 ${isActive
-                    ? "bg-terracotta-clay text-white shadow-sm font-semibold"
-                    : "text-gray-700 font-medium hover:bg-gray-100 hover:text-gray-900"
-                  }`}
-              >
-                <span
-                  className={`flex size-6 shrink-0 items-center justify-center mr-3 transition-colors ${isActive ? "text-white" : "text-gray-700 group-hover:text-terracotta-clay"
-                    }`}
-                >
-                  {getNavIcon(item.label)}
-                </span>
-
-                <span
-                  className={`truncate whitespace-nowrap transition-all duration-200 ${isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"
-                    }`}
-                >
-                  {item.label}
-                </span>
-              </Link>
-            );
-          })}
-
-          {role === "mitra" && navigationItems.length === 1 && isSidebarOpen && (
-            <p className="px-3 py-2 text-[11px] font-medium text-gray-500">
-              Belum ada toko yang ditugaskan.
-            </p>
-          )}
-        </nav>
-      </div>
-
-      <div
-        className="flex-shrink-0 mt-auto border-t border-gray-200 px-3 py-4 transition-all duration-300"
-      >
-        {isSidebarOpen && (
-          <p className="text-[11px] font-medium text-gray-500 mb-2 truncate px-1">
-            Rantai pasok, lebih terhubung.
-          </p>
-        )}
-
-        {logoutError && isSidebarOpen && (
-          <p role="alert" className="mb-2.5 rounded-lg border border-rose-300 bg-rose-50/90 p-2 text-[10px] font-semibold text-rose-800 truncate">
-            {logoutError}
-          </p>
-        )}
-
-        <button
-          type="button"
-          onClick={() => setIsLogoutModalOpen(true)}
-          disabled={isLoggingOut}
-          title={!isSidebarOpen ? "Keluar Sesi" : undefined}
-          className="group flex w-auto lg:w-full shrink-0 items-center justify-start rounded-xl h-10 px-3.5 text-xs font-semibold uppercase tracking-wider text-terracotta-clay bg-gray-50 border border-gray-200 shadow-sm transition-all duration-200 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden"
-        >
-          <span className="flex size-6 shrink-0 items-center justify-center mr-3 transition-colors">
-            <svg
-              className="size-4 shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-              <polyline points="10 17 5 12 10 7" />
-              <line x1="15" y1="12" x2="5" y2="12" />
-            </svg>
-          </span>
-
-          <span
-            className={`truncate transition-all duration-200 ${isSidebarOpen ? "opacity-100" : "hidden opacity-0 w-0"
+            onClick={() => setIsLogoutModalOpen(true)}
+            disabled={isLoggingOut}
+            title={isCollapsed ? "Keluar Sesi" : undefined}
+            className={`group flex shrink-0 items-center rounded-xl h-10 text-xs font-semibold uppercase tracking-wider text-terracotta-clay bg-gray-50 border border-gray-200 shadow-sm transition-all duration-200 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 overflow-hidden ${isCollapsed
+                ? "w-full justify-start px-3.5 lg:justify-center lg:px-0"
+                : "w-full justify-start px-3.5"
               }`}
           >
-            {isLoggingOut ? "Keluar..." : "Keluar Sesi"}
-          </span>
-        </button>
-      </div>
+            <span
+              className={`flex size-6 shrink-0 items-center justify-center transition-colors ${isCollapsed ? "mr-3 lg:mr-0" : "mr-3"}`}
+            >
+              <svg
+                className="size-4 shrink-0 -scale-x-100"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <polyline points="10 17 5 12 10 7" />
+                <line x1="15" y1="12" x2="5" y2="12" />
+              </svg>
+            </span>
+
+            <span className={`truncate ${isCollapsed ? "block lg:hidden" : "block"}`}>
+              {isLoggingOut ? "Keluar..." : "Keluar Sesi"}
+            </span>
+          </button>
+        </div>
+      </aside>
 
       <LogoutModal
         isOpen={isLogoutModalOpen}
@@ -391,6 +442,6 @@ export default function SidebarNavigation() {
         onConfirm={() => void handleLogout()}
         isLoggingOut={isLoggingOut}
       />
-    </aside>
+    </>
   );
 }

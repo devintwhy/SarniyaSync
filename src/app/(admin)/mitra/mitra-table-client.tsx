@@ -73,6 +73,7 @@ export default function MitraTableClient({ stores }: MitraTableClientProps) {
     });
   }, [storesList, searchTerm, filterStatus]);
 
+  // Proses Perubahan Status Akun Mitra
   async function handleStatusChange(storeId: string, newStatus: MitraStatus) {
     setUpdatingStoreId(storeId);
     try {

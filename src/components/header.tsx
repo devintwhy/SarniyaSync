@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/utils/supabase/client";
 import { normalizeAppRole } from "@/utils/supabase/auth";
+import { useSidebar } from "@/context/sidebar-context";
 
 export type HeaderUser = {
   name?: string | null;
@@ -19,6 +20,7 @@ export default function Header({
   title = "SarniyaSync - Sistem Manajemen Inventaris Terpadu",
   user: initialUser,
 }: HeaderProps) {
+  const { toggleSidebar } = useSidebar();
   const [userData, setUserData] = useState<HeaderUser | null>(initialUser ?? null);
   const [isLoading, setIsLoading] = useState<boolean>(!initialUser);
 
@@ -98,8 +100,30 @@ export default function Header({
   const initial = (displayName.charAt(0) || "U").toUpperCase();
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-gray-200 bg-white px-6 py-3">
+    <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6 py-3">
       <div className="flex items-center gap-3 min-w-0 pr-4">
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          aria-label="Buka Navigasi"
+          title="Buka Navigasi"
+          className="flex lg:hidden size-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-700 shadow-sm transition-all hover:bg-gray-100 active:scale-95"
+        >
+          <svg
+            className="size-5 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="18" x2="20" y2="18" />
+          </svg>
+        </button>
+
         <span className="text-sm font-semibold text-gray-700 truncate">
           {title}
         </span>

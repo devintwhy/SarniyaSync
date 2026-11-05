@@ -11,6 +11,7 @@ export type CancelTransferResult = {
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+// Proses Pembatalan Pengiriman dan Pengembalian Stok Pusat
 export async function cancelStockTransfer(transferId: string): Promise<CancelTransferResult> {
   if (!uuidPattern.test(transferId)) {
     return { error: "ID pengiriman tidak valid." };
