@@ -1,0 +1,26 @@
+-- RLS Pembatasan Pembaruan Status Transaksi Admin
+grant update on table public.sales_transactions to authenticated;
+
+-- Kebijakan RLS transaksi penjualan: Membatasi izin pembaruan status (seperti pembatalan transaksi)
+-- secara eksklusif hanya untuk pengguna dengan hak akses administratif (admin/pemilik).
+drop policy if exists "Admins update sales transactions" on public.sales_transactions;
+create policy "Admins update sales transactions"
+on public.sales_transactions
+for update
+to authenticated
+using (
+  exists (
+    select 1
+    from public.profiles as profiles
+    where profiles.id = (select auth.uid())
+      and lower(profiles.role) in ('admin', 'administrator', 'pemilik', 'pemilik_toko', 'owner')
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.profiles as profiles
+    where profiles.id = (select auth.uid())
+      and lower(profiles.role) in ('admin', 'administrator', 'pemilik', 'pemilik_toko', 'owner')
+  )
+);

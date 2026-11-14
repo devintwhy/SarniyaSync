@@ -1,0 +1,266 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
+
+type Relationship = {
+  foreignKeyName: string;
+  columns: string[];
+  isOneToOne: boolean;
+  referencedRelation: string;
+  referencedColumns: string[];
+};
+
+type Table<Row, Insert, Update = Partial<Insert>> = {
+  Row: Row;
+  Insert: Insert;
+  Update: Update;
+  Relationships: Relationship[];
+};
+
+export type Database = {
+  public: {
+    Tables: {
+      products: Table<
+        {
+          id: string;
+          sku: string;
+          name: string;
+          description: string | null;
+          category: string;
+          color: string | null;
+          size: string | null;
+          cost_price: number;
+          selling_price: number;
+          stock_quantity: number;
+          image_url: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        },
+        {
+          id?: string;
+          sku: string;
+          name: string;
+          description?: string | null;
+          category: string;
+          color?: string | null;
+          size?: string | null;
+          cost_price: number;
+          selling_price: number;
+          stock_quantity: number;
+          image_url?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        }
+      >;
+      partner_stores: Table<
+        {
+          id: string;
+          owner_id: string;
+          name: string;
+          address: string | null;
+
+          phone: string | null;
+          is_active: boolean;
+          status: string;
+          status_message: string | null;
+          created_at: string;
+          updated_at: string;
+        },
+        {
+          id?: string;
+          owner_id: string;
+          name: string;
+          address?: string | null;
+
+          phone?: string | null;
+          is_active?: boolean;
+          status?: string;
+          status_message?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        },
+        {
+          owner_id?: string;
+          name?: string;
+          address?: string | null;
+
+          phone?: string | null;
+          is_active?: boolean;
+          status?: string;
+          status_message?: string | null;
+          updated_at?: string;
+        }
+      >;
+      partner_store_inventory: Table<
+        {
+          id: string;
+          partner_store_id: string;
+          product_id: string;
+          stock_quantity: number;
+          created_at: string;
+          updated_at: string;
+        },
+        {
+          id?: string;
+          partner_store_id: string;
+          product_id: string;
+          stock_quantity?: number;
+          created_at?: string;
+          updated_at?: string;
+        },
+        {
+          stock_quantity?: number;
+          updated_at?: string;
+        }
+      >;
+      profiles: Table<
+        {
+          id: string;
+          full_name: string;
+          phone: string | null;
+          role: string;
+          created_at: string;
+          updated_at: string;
+        },
+        {
+          id: string;
+          full_name: string;
+          phone?: string | null;
+          role: string;
+          created_at?: string;
+          updated_at?: string;
+        }
+      >;
+      sales_transactions: Table<
+        {
+          id: string;
+          transaction_number: string;
+          channel: string;
+          partner_store_id: string;
+          created_by: string;
+          customer_name: string | null;
+          customer_phone: string | null;
+          items: Json;
+          subtotal: number;
+          discount: number;
+          total: number;
+          payment_method: string | null;
+          status: string;
+          sold_at: string;
+          created_at: string;
+        },
+        {
+          id?: string;
+          transaction_number: string;
+          channel: string;
+          partner_store_id: string;
+          created_by: string;
+          customer_name?: string | null;
+          customer_phone?: string | null;
+          items: Json;
+          subtotal: number;
+          discount?: number;
+          total: number;
+          payment_method?: string | null;
+          status: string;
+          sold_at?: string;
+          created_at?: string;
+        }
+      >;
+      stock_transfers: Table<
+        {
+          id: string;
+          product_id: string;
+          partner_store_id: string;
+          quantity: number;
+          status: string;
+          created_by: string | null;
+          notes: string | null;
+          sent_at: string;
+          received_at: string | null;
+          created_at: string;
+          updated_at: string;
+        },
+        {
+          id?: string;
+          product_id: string;
+          partner_store_id: string;
+          quantity: number;
+          status?: string;
+          created_by?: string | null;
+          notes?: string | null;
+          sent_at?: string;
+          received_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        },
+        {
+          status?: string;
+          received_at?: string | null;
+          updated_at?: string;
+        }
+      >;
+      stock_adjustments: Table<
+        {
+          id: string;
+          mitra_id: string;
+          product_id: string;
+          quantity_changed: number;
+          reason: string;
+          notes: string | null;
+          created_at: string;
+        },
+        {
+          id?: string;
+          mitra_id: string;
+          product_id: string;
+          quantity_changed: number;
+          reason: string;
+          notes?: string | null;
+          created_at?: string;
+        },
+        {
+          quantity_changed?: number;
+          reason?: string;
+          notes?: string | null;
+        }
+      >;
+    };
+    Views: Record<string, never>;
+    Functions: {
+      record_partner_sale: {
+        Args: {
+          p_partner_store_id: string;
+          p_product_id: string;
+          p_quantity: number;
+          p_payment_method?: string | null;
+        };
+        Returns: string;
+      };
+      receive_stock_transfer: {
+        Args: {
+          p_transfer_id: string;
+        };
+        Returns: Json;
+      };
+      adjust_physical_stock: {
+        Args: {
+          p_mitra_id: string;
+          p_product_id: string;
+          p_qty_changed: number;
+          p_reason: string;
+          p_notes?: string | null;
+        };
+        Returns: void;
+      };
+    };
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
+  };
+};

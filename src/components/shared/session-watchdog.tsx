@@ -1,0 +1,183 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { createSupabaseBrowserClient } from "@/utils/supabase/client";
+
+type SessionWatchdogProps = {
+  /** Jumlah menit tidak aktif sebelum logout otomatis. Default: 480 (8 jam). */
+  idleMinutes?: number;
+  /** Jumlah detik sebelum logout di mana countdown dialog ditampilkan. Default: 60. */
+  warningSeconds?: number;
+};
+
+const EXCLUDED_PATHS = ["/login"];
+
+export default function SessionWatchdog({
+  idleMinutes = 480,
+  warningSeconds = 60,
+}: SessionWatchdogProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const warnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastActivityRef = useRef<number>(0);
+  const isExcluded = EXCLUDED_PATHS.some((p) => pathname.startsWith(p));
+
+  const idleMs = idleMinutes * 60 * 1000;
+  const warnMs = idleMs - warningSeconds * 1000;
+
+  const doLogout = useCallback(async () => {
+    clearTimeout(idleTimerRef.current ?? undefined);
+    clearTimeout(warnTimerRef.current ?? undefined);
+    clearInterval(countdownIntervalRef.current ?? undefined);
+    setCountdown(null);
+
+    try {
+      const supabase = createSupabaseBrowserClient();
+      await supabase.auth.signOut();
+    } catch {
+    }
+    router.replace("/login?reason=idle");
+  }, [router]);
+
+  const resetTimer = useCallback(() => {
+    if (isExcluded) return;
+
+    if (countdown !== null) {
+      setCountdown(null);
+      clearInterval(countdownIntervalRef.current ?? undefined);
+    }
+
+    clearTimeout(idleTimerRef.current ?? undefined);
+    clearTimeout(warnTimerRef.current ?? undefined);
+
+    if (warnMs > 0) {
+      warnTimerRef.current = setTimeout(() => {
+        setCountdown(warningSeconds);
+        countdownIntervalRef.current = setInterval(() => {
+          setCountdown((prev) => {
+            if (prev === null || prev <= 1) {
+              clearInterval(countdownIntervalRef.current ?? undefined);
+              return null;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }, warnMs);
+    }
+
+    idleTimerRef.current = setTimeout(() => {
+      void doLogout();
+    }, idleMs);
+  }, [isExcluded, countdown, warnMs, warningSeconds, idleMs, doLogout]);
+
+  useEffect(() => {
+    if (isExcluded) return;
+
+    const events: (keyof WindowEventMap)[] = [
+      "mousemove",
+      "mousedown",
+      "keydown",
+      "touchstart",
+      "scroll",
+      "wheel",
+      "click",
+      "focus",
+    ];
+
+    const handleActivity = () => {
+      const now = Date.now();
+      // Batasi reset timer maksimal 1 kali tiap 15 detik agar tidak membebani pemrosesan browser
+      if (now - lastActivityRef.current > 15000) {
+        lastActivityRef.current = now;
+        resetTimer();
+      }
+    };
+
+    resetTimer();
+
+    events.forEach((event) => window.addEventListener(event, handleActivity, { passive: true }));
+
+    return () => {
+      events.forEach((event) => window.removeEventListener(event, handleActivity));
+      clearTimeout(idleTimerRef.current ?? undefined);
+      clearTimeout(warnTimerRef.current ?? undefined);
+      clearInterval(countdownIntervalRef.current ?? undefined);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isExcluded, pathname]);
+
+  if (isExcluded) return null;
+
+  if (countdown === null) return null;
+
+  return (
+    <div
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="idle-warning-title"
+      aria-describedby="idle-warning-desc"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#9d5c4c]/60 backdrop-blur-sm"
+    >
+      <div className="mx-4 w-full max-w-sm rounded-2xl border border-[#e1e7e0] bg-white p-6 shadow-2xl shadow-[#9d5c4c]/30">
+        <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-[#fff9ef]">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"
+              stroke="#b45309"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+
+        <h2
+          id="idle-warning-title"
+          className="text-lg font-semibold text-[#9d5c4c]"
+        >
+          Sesi Akan Berakhir
+        </h2>
+        <p id="idle-warning-desc" className="mt-2 text-sm text-[#68756e]">
+          Tidak ada aktivitas terdeteksi. Anda akan keluar secara otomatis dalam:
+        </p>
+
+        <p
+          aria-live="assertive"
+          aria-atomic="true"
+          className="my-5 text-center text-5xl font-bold tabular-nums text-[#9d5c4c]"
+        >
+          {countdown}
+          <span className="ml-1 text-xl font-normal text-[#68756e]">detik</span>
+        </p>
+
+        <div className="flex flex-col gap-3">
+          <button
+            type="button"
+            onClick={resetTimer}
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-gradient-to-r from-[#cc9787] via-[#cc8c7d] to-[#9d5c4c] px-4 text-sm font-semibold text-white transition-colors hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cc9787]"
+          >
+            Saya Masih Aktif — Lanjutkan
+          </button>
+          <button
+            type="button"
+            onClick={() => void doLogout()}
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-200 px-4 text-sm font-medium text-[#576071] transition-colors hover:bg-slate-50"
+          >
+            Keluar Sekarang
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+

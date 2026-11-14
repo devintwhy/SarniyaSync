@@ -1,0 +1,45 @@
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import type { Database } from "@/utils/supabase/database.types";
+
+// Atur cookie sesi agar berakhir saat browser ditutup
+function asSessionCookie(options: CookieOptions): CookieOptions {
+  const rest = { ...options };
+  delete rest.maxAge;
+  delete rest.expires;
+  return {
+    ...rest,
+    sameSite: rest.sameSite ?? "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: rest.path ?? "/",
+  };
+}
+
+// Inisialisasi Supabase Server Client
+export async function createSupabaseServerClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Supabase environment variables are not configured.");
+  }
+
+  const cookieStore = cookies();
+
+  return createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, asSessionCookie(options));
+          });
+        } catch {
+          // Middleware memperbarui cookie sesi ketika Server Component tidak dapat menulis cookie
+        }
+      },
+    },
+  });
+}
